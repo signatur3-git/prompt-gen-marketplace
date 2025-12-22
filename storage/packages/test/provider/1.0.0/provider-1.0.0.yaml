@@ -1,0 +1,131 @@
+# Test Base Package - Provides All Entity Types
+# This package provides various entity types that can be referenced by dependent packages
+
+id: test.provider
+version: 1.0.0
+
+metadata:
+  name: Test Provider Package
+  description: Base package providing all entity types for cross-package reference testing
+  authors: [RPG Team]
+  bypass_filters: false
+
+namespaces:
+  provider:
+    id: provider
+
+    # Datatypes - Basic value lists
+    datatypes:
+      colors:
+        name: colors
+        values:
+          - text: crimson
+            weight: 1
+          - text: azure
+            weight: 1
+          - text: emerald
+            weight: 1
+          - text: golden
+            weight: 1
+
+      sizes:
+        name: sizes
+        values:
+          - text: tiny
+            weight: 1
+          - text: small
+            weight: 1
+          - text: medium
+            weight: 2
+          - text: large
+            weight: 1
+          - text: huge
+            weight: 1
+
+      materials:
+        name: materials
+        values:
+          - text: wooden
+            weight: 2
+          - text: iron
+            weight: 2
+          - text: steel
+            weight: 1
+          - text: silver
+            weight: 1
+          - text: magical
+            weight: 1
+
+      creatures:
+        name: creatures
+        values:
+          - text: dragon
+            weight: 1
+          - text: griffin
+            weight: 1
+          - text: phoenix
+            weight: 1
+          - text: unicorn
+            weight: 1
+
+    # Prompt Sections - Reusable templates
+    prompt_sections:
+      item_name:
+        name: item_name
+        template: "{material} {size} item"
+        references:
+          material:
+            target: materials
+          size:
+            target: sizes
+
+      creature_description:
+        name: creature_description
+        template: "a {color} {creature}"
+        references:
+          color:
+            target: colors
+          creature:
+            target: creatures
+
+      location_detail:
+        name: location_detail
+        template: "in a {size} {color} room"
+        references:
+          size:
+            target: sizes
+          color:
+            target: colors
+
+    # Separator Sets - For list formatting
+    separator_sets:
+      standard_list:
+        name: standard_list
+        primary: ", "
+        secondary: " and "
+        tertiary: "; "
+
+      fancy_list:
+        name: fancy_list
+        primary: " • "
+        secondary: " & "
+        tertiary: " | "
+
+    # Rules - Conditional logic (placeholder for M10+)
+    rules: {}
+
+    # Decisions - Choice logic (placeholder for M11+)
+    decisions: []
+
+    # Rulebooks - Note: These are NOT meant to be referenced cross-package
+    # Rulebooks are top-level entry points, not reusable components
+    rulebooks:
+      provider_demo:
+        name: provider_demo
+        description: Demo rulebook in provider package
+        entry_points:
+          - prompt_section: provider:item_name
+            weight: 1
+        batch_variety: false
+        context_defaults: {}
+

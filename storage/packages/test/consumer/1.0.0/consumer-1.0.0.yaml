@@ -1,0 +1,171 @@
+# Test Consumer Package - References All Entity Types Cross-Package
+# This package demonstrates cross-package references for all supported entity types
+
+id: test.consumer
+version: 1.0.0
+
+metadata:
+  name: Test Consumer Package
+  description: Package that consumes all entity types from test.provider via cross-package references
+  authors: [RPG Team]
+  bypass_filters: false
+
+# Dependency on provider package (using semver range)
+dependencies:
+  - package: test.provider
+    version: "^1.0.0"
+    path: "./test-provider.yaml"
+
+namespaces:
+  consumer:
+    id: consumer
+
+    datatypes:
+      # Local datatype for testing mixed references
+      actions:
+        name: actions
+        values:
+          - text: wielding
+            weight: 1
+          - text: carrying
+            weight: 1
+          - text: holding
+            weight: 1
+          - text: bearing
+            weight: 1
+
+    prompt_sections:
+      # Test 1: Cross-package datatype references
+      colored_creature:
+        name: colored_creature
+        template: "{color} {creature} appears"
+        references:
+          color:
+            target: provider:colors  # Cross-package datatype reference
+          creature:
+            target: provider:creatures  # Cross-package datatype reference
+
+      # Test 2: Multiple cross-package datatype references
+      item_with_details:
+        name: item_with_details
+        template: "a {size} {color} {material} object"
+        references:
+          size:
+            target: provider:sizes  # Cross-package datatype reference
+          color:
+            target: provider:colors  # Cross-package datatype reference
+          material:
+            target: provider:materials  # Cross-package datatype reference
+
+      # Test 3: Cross-package promptsection reference (nested)
+      warrior_with_item:
+        name: warrior_with_item
+        template: "warrior {action} {item}"
+        references:
+          action:
+            target: actions  # Local datatype reference
+          item:
+            target: provider:item_name  # Cross-package promptsection reference
+
+      # Test 4: Multiple cross-package promptsection references
+      scene_description:
+        name: scene_description
+        template: "{creature_desc} {location}"
+        references:
+          creature_desc:
+            target: provider:creature_description  # Cross-package promptsection
+          location:
+            target: provider:location_detail  # Cross-package promptsection
+
+      # Test 5: List with cross-package datatype and local separator
+      # NOTE: Cross-package separator references are not currently supported
+      inventory_list:
+        name: inventory_list
+        template: "Inventory: {items}"
+        references:
+          items:
+            target: provider:materials  # Cross-package datatype
+            min: 2
+            max: 4
+            separator: standard_list  # Local separator
+
+      # Test 6: Different local separator with cross-package datatype
+      creatures_encountered:
+        name: creatures_encountered
+        template: "Encountered: {creatures}"
+        references:
+          creatures:
+            target: provider:creatures  # Cross-package datatype
+            min: 2
+            max: 3
+            separator: fancy_list  # Local separator
+
+      # Test 7: Complex nested with mixed local and cross-package references
+      hero_description:
+        name: hero_description
+        template: "The hero stands {location}, {action} {item}"
+        references:
+          location:
+            target: provider:location_detail  # Cross-package promptsection
+          action:
+            target: actions  # Local datatype
+          item:
+            target: provider:item_name  # Cross-package promptsection
+
+      # Test 8: Cross-package with filters and unique constraints
+      unique_colors:
+        name: unique_colors
+        template: "palette: {color_list}"
+        references:
+          color_list:
+            target: provider:colors  # Cross-package with constraints
+            min: 2
+            max: 3
+            unique: true
+            separator: standard_list  # Local separator
+
+      # Test 9: Deep nesting - promptsection -> promptsection -> datatype (all cross-package)
+      full_scene:
+        name: full_scene
+        template: "{warrior} encounters {creature}"
+        references:
+          warrior:
+            target: warrior_with_item  # Local promptsection -> cross-package references
+          creature:
+            target: provider:creature_description  # Cross-package promptsection
+
+    # Local separator sets (cross-package separator references not yet supported)
+    separator_sets:
+      standard_list:
+        name: standard_list
+        primary: ", "
+        secondary: " and "
+        tertiary: "; "
+
+      fancy_list:
+        name: fancy_list
+        primary: " • "
+        secondary: " & "
+        tertiary: " | "
+
+    rules: {}
+    decisions: []
+
+    # Rulebook that uses cross-package references
+    # Note: Rulebooks themselves are not meant to be referenced cross-package
+    # They are top-level entry points that CAN reference cross-package components
+    rulebooks:
+      consumer_demo:
+        name: consumer_demo
+        description: Demo rulebook using cross-package references
+        entry_points:
+          # Entry point can reference local promptsection that uses cross-package refs
+          - prompt_section: consumer:colored_creature
+            weight: 2
+          - prompt_section: consumer:scene_description
+            weight: 2
+          - prompt_section: consumer:full_scene
+            weight: 1
+        batch_variety: true  # Test batch variety with cross-package refs
+        context_defaults: {}
+

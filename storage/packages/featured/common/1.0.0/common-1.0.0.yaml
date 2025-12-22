@@ -1,0 +1,1213 @@
+id: featured.common
+version: 1.0.0
+
+
+metadata:
+  name: "Featured Common Package"
+  description: "Foundation package for text-to-image prompt generation with fantasy, portrait, and landscape support"
+  authors: ["Prompt-Gen Team"]
+  bypass_filters: false
+
+namespaces:
+  common.base:
+    id: common.base
+
+    datatypes:
+      prepositions:
+        name: prepositions
+        values:
+          - text: atop
+            tags: {article: a, type: spatial}
+          - text: before
+            tags: {article: a, type: spatial}
+          - text: beside
+            tags: {article: a, type: spatial}
+          - text: within
+            tags: {article: a, type: spatial}
+          - text: beneath
+            tags: {article: a, type: spatial}
+          - text: above
+            tags: {article: a, type: spatial}
+          - text: around
+            tags: {article: an, type: spatial}
+          - text: through
+            tags: {article: a, type: spatial}
+          - text: near
+            tags: {article: a, type: spatial}
+          - text: under
+            tags: {article: an, type: spatial}
+
+      spatial_verbs:
+        name: spatial_verbs
+        values:
+          - text: perched
+            tags: {article: a, requires_elevated: true}
+          - text: standing
+            tags: {article: a, stance: upright}
+          - text: kneeling
+            tags: {article: a, stance: lowered}
+          - text: floating
+            tags: {article: a, requires_can_fly: true}
+          - text: hovering
+            tags: {article: a, requires_can_fly: true}
+          - text: resting
+            tags: {article: a, dynamic: false}
+          - text: lying
+            tags: {article: a, stance: horizontal}
+          - text: sitting
+            tags: {article: a, stance: seated}
+          - text: flying
+            tags: {article: a, requires_can_fly: true, dynamic: true}
+          - text: swimming
+            tags: {article: a, requires_can_swim: true, dynamic: true}
+          - text: walking
+            tags: {article: a, dynamic: true}
+          - text: running
+            tags: {article: a, dynamic: true, speed: fast}
+
+      weather_conditions:
+        name: weather_conditions
+        values:
+          - text: in clear weather
+            tags: {article: a, weather: clear, visibility: high}
+          - text: during a rainstorm
+            tags: {article: a, weather: rain, dramatic: true}
+          - text: in thick fog
+            tags: {article: a, weather: fog, visibility: low, mysterious: true}
+          - text: under cloudy skies
+            tags: {article: a, weather: overcast, mood: somber}
+          - text: in gentle snowfall
+            tags: {article: a, weather: snow, cold: true, peaceful: true}
+          - text: during a thunderstorm
+            tags: {article: a, weather: storm, dramatic: true, dangerous: true}
+          - text: in misty conditions
+            tags: {article: a, weather: mist, visibility: medium, ethereal: true}
+
+      times_of_day:
+        name: times_of_day
+        values:
+          - text: at dawn
+            tags: {article: a, time: morning, light: soft, hopeful: true}
+          - text: at noon
+            tags: {article: a, time: midday, light: bright, intense: true}
+          - text: at dusk
+            tags: {article: a, time: evening, light: fading, melancholic: true}
+          - text: at midnight
+            tags: {article: a, time: night, dark: true, mysterious: true}
+          - text: in the early morning
+            tags: {article: an, time: morning, light: gentle, fresh: true}
+          - text: during the afternoon
+            tags: {article: a, time: afternoon, light: warm}
+          - text: in the late evening
+            tags: {article: a, time: evening, light: dim, tranquil: true}
+
+    # Base prompt sections will be added after we have more datatypes
+
+  common.fantasy:
+    id: common.fantasy
+
+    datatypes:
+      creatures:
+        name: creatures
+        values:
+          - text: dragon
+            tags: {article: a, can_fly: true, size: huge, magical: true, type: creature}
+          - text: phoenix
+            tags: {article: a, can_fly: true, size: large, magical: true, fire_affinity: true}
+          - text: unicorn
+            tags: {article: a, can_run: true, size: large, magical: true, noble: true}
+          - text: griffin
+            tags: {article: a, can_fly: true, size: large, magical: true, noble: true}
+          - text: swan
+            tags: {article: a, can_fly: true, can_swim: true, size: medium, elegant: true}
+          - text: eagle
+            tags: {article: an, can_fly: true, size: medium, noble: true}
+          - text: owl
+            tags: {article: an, can_fly: true, size: medium, nocturnal: true, wise: true}
+          - text: deer
+            tags: {article: a, can_run: true, size: large, graceful: true}
+          - text: wolf
+            tags: {article: a, can_run: true, size: medium, pack_animal: true}
+          - text: serpent
+            tags: {article: a, can_swim: true, size: large, sinuous: true}
+          - text: pegasus
+            tags: {article: a, can_fly: true, size: large, magical: true, noble: true}
+          - text: raven
+            tags: {article: a, can_fly: true, size: small, nocturnal: true, intelligent: true}
+          - text: stag
+            tags: {article: a, can_run: true, size: large, noble: true, antlers: true}
+          - text: kraken
+            tags: {article: a, can_swim: true, size: huge, dangerous: true, aquatic: true}
+          - text: wyvern
+            tags: {article: a, can_fly: true, size: large, dangerous: true, dragon_kin: true}
+
+      locations:
+        name: locations
+        values:
+          - text: tower
+            tags: {article: a, structure: true, elevated: true, indoor_outdoor: both}
+          - text: temple
+            tags: {article: a, structure: true, sacred: true, indoor: true}
+          - text: forest glade
+            tags: {article: a, natural: true, outdoor: true, peaceful: true}
+          - text: floating island
+            tags: {article: a, magical: true, elevated: true, outdoor: true}
+          - text: crossroads
+            tags: {article: a, outdoor: true, symbolic: true}
+          - text: crystal cave
+            tags: {article: a, natural: true, indoor: true, magical: true, luminous: true}
+          - text: volcanic lair
+            tags: {article: a, natural: true, indoor: true, dangerous: true, hot: true}
+          - text: enchanted garden
+            tags: {article: an, magical: true, outdoor: true, beautiful: true}
+          - text: ice fortress
+            tags: {article: an, structure: true, cold: true, outdoor: true}
+          - text: ancient ruins
+            tags: {article: an, structure: true, aged: true, outdoor: true}
+          - text: castle courtyard
+            tags: {article: a, structure: true, outdoor: true, medieval: true}
+          - text: wizard's tower
+            tags: {article: a, structure: true, magical: true, elevated: true}
+          - text: moonlit lake
+            tags: {article: a, natural: true, outdoor: true, water: true, peaceful: true}
+          - text: dragon's lair
+            tags: {article: a, natural: true, indoor: true, dangerous: true, treasure: true}
+          - text: sacred grove
+            tags: {article: a, natural: true, outdoor: true, sacred: true, peaceful: true}
+          - text: abandoned castle
+            tags: {article: an, structure: true, aged: true, indoor_outdoor: both, mysterious: true}
+          - text: underground cavern
+            tags: {article: an, natural: true, indoor: true, dark: true, expansive: true}
+
+      architectural_elements:
+        name: architectural_elements
+        values:
+          - text: stone pillars
+            tags: {article: a, structure: columns, material: stone}
+          - text: arched doorways
+            tags: {article: an, structure: entrance, elegant: true}
+          - text: stained glass windows
+            tags: {article: a, structure: window, colorful: true, decorative: true}
+          - text: iron gates
+            tags: {article: an, structure: barrier, metal: true}
+          - text: wooden beams
+            tags: {article: a, structure: support, material: wood}
+          - text: marble floors
+            tags: {article: a, structure: floor, material: marble, luxurious: true}
+          - text: spiral staircases
+            tags: {article: a, structure: stairs, vertical: true, dramatic: true}
+
+      magical_objects:
+        name: magical_objects
+        values:
+          - text: floating orb
+            tags: {article: a, magical: true, luminous: true, hovering: true}
+          - text: ancient tome
+            tags: {article: an, magical: true, knowledge: true, aged: true}
+          - text: crystal staff
+            tags: {article: a, magical: true, weapon: true, elegant: true}
+          - text: enchanted sword
+            tags: {article: an, magical: true, weapon: true, powerful: true}
+          - text: mystical amulet
+            tags: {article: a, magical: true, jewelry: true, protective: true}
+          - text: glowing chalice
+            tags: {article: a, magical: true, container: true, holy: true}
+
+      scene_modifiers:
+        name: scene_modifiers
+        values:
+          - text: shrouded in mist
+            tags: {article: a, atmosphere: mysterious, visibility: low}
+          - text: bathed in moonlight
+            tags: {article: a, atmosphere: ethereal, light: silver}
+          - text: wreathed in flames
+            tags: {article: a, atmosphere: intense, elemental: fire}
+          - text: covered in frost
+            tags: {article: a, atmosphere: cold, elemental: ice}
+          - text: surrounded by light
+            tags: {article: a, atmosphere: holy, light: bright}
+          - text: cloaked in shadow
+            tags: {article: a, atmosphere: dark, mysterious: true}
+
+      ages:
+        name: ages
+        values:
+          - text: ancient
+            tags: {article: an, age_level: very_old, applies_to: [creature, location, object]}
+          - text: mystical
+            tags: {article: a, magical: true, applies_to: [creature, location, phenomenon]}
+          - text: battle-worn
+            tags: {article: a, condition: damaged, applies_to: [character, object]}
+          - text: forgotten
+            tags: {article: a, age_level: old, abandoned: true, applies_to: [location, object]}
+          - text: sacred
+            tags: {article: a, holy: true, applies_to: [location, object]}
+          - text: enchanted
+            tags: {article: an, magical: true, applies_to: [location, object, creature]}
+          - text: crumbling
+            tags: {article: a, condition: decay, applies_to: [structure, location]}
+          - text: ethereal
+            tags: {article: an, magical: true, translucent: true}
+          - text: legendary
+            tags: {article: a, famous: true, applies_to: [creature, location, object]}
+          - text: cursed
+            tags: {article: a, dark: true, magical: true, applies_to: [location, object]}
+          - text: radiant
+            tags: {article: a, luminous: true, holy: true, applies_to: [creature, location]}
+          - text: shadowy
+            tags: {article: a, dark: true, mysterious: true, applies_to: [creature, location]}
+          - text: timeless
+            tags: {article: a, eternal: true, applies_to: [location, creature]}
+          - text: haunted
+            tags: {article: a, ghostly: true, eerie: true, applies_to: [location, structure]}
+
+      magic_effects:
+        name: magic_effects
+        values:
+          - text: wisps of light
+            tags: {article: a, magical: true, luminous: true, floating: true}
+          - text: aurora
+            tags: {article: an, magical: true, colorful: true, sky: true}
+          - text: floating runes
+            tags: {article: a, magical: true, glowing: true, arcane: true}
+          - text: swirling energy
+            tags: {article: a, magical: true, dynamic: true, powerful: true}
+          - text: shimmering portal
+            tags: {article: a, magical: true, gateway: true, mysterious: true}
+          - text: ethereal mist
+            tags: {article: an, magical: true, translucent: true, eerie: true}
+          - text: crackling lightning
+            tags: {article: a, magical: true, electrical: true, dangerous: true}
+          - text: glowing crystals
+            tags: {article: a, magical: true, luminous: true, static: true}
+          - text: floating particles
+            tags: {article: a, magical: true, ambient: true, gentle: true}
+          - text: arcane symbols
+            tags: {article: an, magical: true, glowing: true, mysterious: true}
+          - text: spectral lanterns
+            tags: {article: a, magical: true, ghostly: true, luminous: true}
+          - text: glowing crystals
+            tags: {article: a, mineral: true, luminous: true, magical: true}
+          - text: floating runes
+            tags: {article: a, magical: true, symbolic: true}
+          - text: magical particles
+            tags: {article: a, magical: true, tiny: true, floating: true}
+
+    rules:
+      compute_article:
+        when: "ref:age.tags.article"
+        logic: ""
+        set: "context.prompt.article"
+        value: "ref:age.tags.article"
+
+    prompt_sections:
+      fantasy_scene:
+        name: fantasy_scene
+        template: "{article} {age} {creature} {spatial_verb} {preposition} {location}, {lighting}"
+        references:
+          article:
+            target: context:article
+          age:
+            target: common.fantasy:ages
+          creature:
+            target: common.fantasy:creatures
+          spatial_verb:
+            target: common.base:spatial_verbs
+          preposition:
+            target: common.base:prepositions
+          location:
+            target: common.fantasy:locations
+          lighting:
+            target: common.lighting:atmospheric_lighting
+
+    rulebooks:
+      fantasy_generator:
+        name: "Fantasy Scene Generator"
+        description: "Generate varied fantasy scenes with magical creatures and atmospheric locations"
+        entry_points:
+          - prompt_section: common.fantasy:fantasy_scene
+            weight: 1.0
+        batch_variety: false
+        context_defaults: {}
+
+  common.lighting:
+    id: common.lighting
+
+    datatypes:
+      times:
+        name: times
+        values:
+          - text: at sunset
+            tags: {article: a, time: sunset, light_color: golden, light_quality: warm, mood: romantic}
+          - text: at dawn
+            tags: {article: a, time: dawn, light_color: pink, light_quality: soft, mood: fresh}
+          - text: at midnight
+            tags: {article: a, time: midnight, light_color: blue, light_quality: cool, mood: mysterious}
+          - text: during twilight
+            tags: {article: a, time: twilight, light_color: purple, light_quality: dim, mood: melancholic}
+          - text: at golden hour
+            tags: {article: a, time: golden_hour, light_color: golden, light_quality: warm, mood: beautiful}
+          - text: at midday
+            tags: {article: a, time: noon, light_color: white, light_quality: harsh, mood: bright}
+          - text: in early morning
+            tags: {article: an, time: morning, light_color: soft_yellow, light_quality: gentle}
+          - text: under moonlight
+            tags: {article: a, time: night, light_color: silver, light_quality: cool, mood: eerie}
+
+      light_qualities:
+        name: light_qualities
+        values:
+          - text: dramatic golden light
+            tags: {article: a, quality: dramatic, color: golden, intensity: high}
+          - text: soft ethereal glow
+            tags: {article: a, quality: soft, color: white, intensity: low, magical: true}
+          - text: harsh divine rays
+            tags: {article: a, quality: harsh, intensity: very_high, holy: true}
+          - text: diffused silvery light
+            tags: {article: a, quality: diffuse, color: silver, intensity: medium}
+          - text: warm candlelight
+            tags: {article: a, quality: warm, color: orange, intensity: low, intimate: true}
+          - text: mysterious blue glow
+            tags: {article: a, quality: mysterious, color: blue, magical: true}
+          - text: piercing white light
+            tags: {article: a, quality: intense, color: white, intensity: very_high}
+          - text: gentle amber glow
+            tags: {article: a, quality: gentle, color: amber, intensity: low, warm: true}
+          - text: eerie green luminescence
+            tags: {article: an, quality: eerie, color: green, magical: true}
+          - text: brilliant rainbow light
+            tags: {article: a, quality: brilliant, colorful: true, magical: true}
+
+      moods:
+        name: moods
+        values:
+          - text: serene
+            tags: {article: a, emotional: calm, peaceful: true}
+          - text: ominous
+            tags: {article: an, emotional: dark, foreboding: true}
+          - text: whimsical
+            tags: {article: a, emotional: playful, lighthearted: true}
+          - text: melancholic
+            tags: {article: a, emotional: sad, reflective: true}
+          - text: triumphant
+            tags: {article: a, emotional: victorious, uplifting: true}
+          - text: mysterious
+            tags: {article: a, emotional: enigmatic, intriguing: true}
+          - text: chaotic
+            tags: {article: a, emotional: turbulent, dynamic: true}
+          - text: tranquil
+            tags: {article: a, emotional: calm, peaceful: true}
+      weather:
+        name: weather
+        values:
+          - text: storm clouds
+            tags: {article: a, weather: stormy, visibility: medium, mood: dramatic}
+          - text: mist
+            tags: {article: a, weather: misty, visibility: low, mood: mysterious}
+          - text: fog
+            tags: {article: a, weather: foggy, visibility: very_low, mood: eerie}
+          - text: clear skies
+            tags: {article: a, weather: clear, visibility: high, mood: bright}
+          - text: swirling clouds
+            tags: {article: a, weather: dynamic, visibility: medium, dramatic: true}
+
+    prompt_sections:
+      atmospheric_lighting:
+        name: atmospheric_lighting
+        template: "{time}, {light_quality} breaking through {weather}"
+        references:
+          time:
+            target: common.lighting:times
+          light_quality:
+            target: common.lighting:light_qualities
+          weather:
+            target: common.lighting:weather
+
+    rulebooks:
+      atmospheric_moods:
+        name: "Atmospheric Mood Generator"
+        description: "Create varied atmospheric lighting conditions for scenes"
+        entry_points:
+          - prompt_section: common.lighting:atmospheric_lighting
+            weight: 1.0
+        batch_variety: false
+        context_defaults: {}
+
+  common.characters:
+    id: common.characters
+
+    datatypes:
+      archetypes:
+        name: archetypes
+        values:
+          - text: wizard
+            tags: {article: a, profession: magic, age_suitable: [elderly, ancient], wise: true}
+          - text: warrior
+            tags: {article: a, profession: combat, age_suitable: [young, middle], strong: true}
+          - text: archer
+            tags: {article: an, profession: ranged, age_suitable: [young, middle], precise: true}
+          - text: fairy
+            tags: {article: a, magical: true, size: tiny, delicate: true}
+          - text: assassin
+            tags: {article: an, profession: stealth, mysterious: true}
+          - text: knight
+            tags: {article: a, profession: combat, noble: true, armored: true}
+          - text: rogue
+            tags: {article: a, profession: stealth, cunning: true}
+          - text: druid
+            tags: {article: a, profession: nature, natural_affinity: true}
+          - text: mage
+            tags: {article: a, profession: magic, scholarly: true}
+          - text: bard
+            tags: {article: a, profession: entertainment, charismatic: true}
+          - text: monk
+            tags: {article: a, profession: martial_arts, disciplined: true}
+          - text: ranger
+            tags: {article: a, profession: nature, tracker: true}
+          - text: necromancer
+            tags: {article: a, profession: dark_magic, forbidden: true}
+          - text: paladin
+            tags: {article: a, profession: holy_warrior, righteous: true}
+
+      character_ages:
+        name: character_ages
+        values:
+          - text: elderly
+            tags: {article: an, age: old, wisdom: high}
+          - text: young
+            tags: {article: a, age: youth, energy: high}
+          - text: middle-aged
+            tags: {article: a, age: middle, experienced: true}
+          - text: ancient
+            tags: {article: an, age: very_old, powerful: true}
+          - text: teenage
+            tags: {article: a, age: adolescent, energetic: true}
+
+      body_parts:
+        name: body_parts
+        values:
+          - text: eyes
+            tags: {article: an, facial: true, expressive: true}
+          - text: skin
+            tags: {article: a, surface: true}
+          - text: beard
+            tags: {article: a, facial: true, requires_gender: male}
+          - text: hair
+            tags: {article: a, head: true}
+          - text: face
+            tags: {article: a, primary: true}
+          - text: hands
+            tags: {article: a, appendage: true, detailed: true}
+          - text: robes
+            tags: {article: a, clothing: true}
+          - text: expression
+            tags: {article: an, emotional: true}
+
+      qualities:
+        name: qualities
+        values:
+          - text: piercing
+            tags: {article: a, applies_to: [eyes], intensity: high}
+          - text: weathered
+            tags: {article: a, applies_to: [skin, face, hands, robes], age_indicator: true}
+          - text: flowing
+            tags: {article: a, applies_to: [hair, beard, robes], movement: true}
+          - text: braided
+            tags: {article: a, applies_to: [hair], styled: true}
+          - text: scarred
+            tags: {article: a, applies_to: [skin, face], battle_mark: true}
+          - text: delicate
+            tags: {article: a, applies_to: [face, features, hands], gentle: true}
+          - text: wild
+            tags: {article: a, applies_to: [hair, expression], untamed: true}
+          - text: intense
+            tags: {article: an, applies_to: [eyes, expression], powerful: true}
+          - text: gentle
+            tags: {article: a, applies_to: [expression, eyes], kind: true}
+          - text: mysterious
+            tags: {article: a, applies_to: [expression, eyes], enigmatic: true}
+
+      emotional_expressions:
+        name: emotional_expressions
+        values:
+          - text: smiling warmly
+            tags: {article: a, emotion: joy, positive: true}
+          - text: looking determined
+            tags: {article: a, emotion: resolve, intense: true}
+          - text: appearing thoughtful
+            tags: {article: an, emotion: contemplation, calm: true}
+          - text: seeming worried
+            tags: {article: a, emotion: anxiety, negative: true}
+          - text: radiating confidence
+            tags: {article: a, emotion: assurance, positive: true}
+          - text: showing concern
+            tags: {article: a, emotion: care, attentive: true}
+
+      character_actions:
+        name: character_actions
+        values:
+          - text: reading an ancient tome
+            tags: {article: a, activity: study, requires_hands: true}
+          - text: wielding a staff
+            tags: {article: a, activity: magic, requires_hands: true}
+          - text: holding a sword
+            tags: {article: a, activity: combat, requires_hands: true}
+          - text: casting a spell
+            tags: {article: a, activity: magic, dynamic: true}
+          - text: meditating
+            tags: {article: a, activity: spiritual, static: true}
+          - text: playing a lute
+            tags: {article: a, activity: performance, requires_hands: true}
+
+      feature_colors:
+        name: feature_colors
+        values:
+          - text: blue
+            tags: {article: a, color: blue, cool: true}
+          - text: emerald
+            tags: {article: an, color: green, vibrant: true}
+          - text: silver
+            tags: {article: a, color: silver, cool: true, metallic: true}
+          - text: white
+            tags: {article: a, color: white, light: true}
+          - text: amber
+            tags: {article: an, color: amber, warm: true}
+          - text: gray
+            tags: {article: a, color: gray, neutral: true}
+          - text: brown
+            tags: {article: a, color: brown, warm: true, common: true}
+          - text: auburn
+            tags: {article: an, color: auburn, warm: true, reddish: true}
+
+    rules:
+      compute_character_article:
+        when: "ref:age.tags.article"
+        logic: ""
+        set: "context.prompt.article"
+        value: "ref:age.tags.article"
+
+    prompt_sections:
+      character_portrait:
+        name: character_portrait
+        template: "Close-up portrait of {article} {age} {archetype} with {feature}"
+        references:
+          article:
+            target: context:article
+          age:
+            target: common.characters:character_ages
+          archetype:
+            target: common.characters:archetypes
+          feature:
+            target: common.characters:feature_description
+
+      feature_description:
+        name: feature_description
+        template: "{quality} {color} {body_part}"
+        references:
+          quality:
+            target: common.characters:qualities
+          color:
+            target: common.characters:feature_colors
+          body_part:
+            target: common.characters:body_parts
+
+    rulebooks:
+      portrait_generator:
+        name: "Character Portrait Generator"
+        description: "Generate varied character portraits with different archetypes and features"
+        entry_points:
+          - prompt_section: common.characters:character_portrait
+            weight: 1.0
+        batch_variety: false
+        context_defaults: {}
+
+  common.nature:
+    id: common.nature
+
+    datatypes:
+      biomes:
+        name: biomes
+        values:
+          - text: desert
+            tags: {article: a, climate: hot, vegetation: sparse, terrain: sandy}
+          - text: tundra
+            tags: {article: a, climate: cold, vegetation: minimal, terrain: frozen}
+          - text: jungle
+            tags: {article: a, climate: tropical, vegetation: dense, terrain: varied}
+          - text: volcanic landscape
+            tags: {article: a, climate: hot, vegetation: none, terrain: rocky, dangerous: true}
+          - text: meadow
+            tags: {article: a, climate: temperate, vegetation: lush, terrain: flat, peaceful: true}
+          - text: mountain range
+            tags: {article: a, climate: varied, vegetation: sparse, terrain: rocky, elevation: high}
+          - text: coastal region
+            tags: {article: a, climate: temperate, vegetation: moderate, terrain: varied, water: true}
+          - text: forest
+            tags: {article: a, climate: temperate, vegetation: dense, terrain: wooded}
+          - text: valley
+            tags: {article: a, climate: temperate, vegetation: lush, terrain: lowland, sheltered: true}
+          - text: savanna
+            tags: {article: a, climate: hot, vegetation: grassland, terrain: flat}
+
+      terrain_features:
+        name: terrain_features
+        values:
+          - text: towering sand dunes
+            tags: {article: a, biome_compatible: [desert], scale: large}
+          - text: jagged ice formations
+            tags: {article: a, biome_compatible: [tundra], scale: medium, cold: true}
+          - text: ancient trees
+            tags: {article: an, biome_compatible: [jungle, forest], scale: large, living: true}
+          - text: rivers of molten lava
+            tags: {article: a, biome_compatible: [volcanic], dangerous: true, hot: true}
+          - text: wildflowers
+            tags: {article: a, biome_compatible: [meadow, valley], scale: small, colorful: true}
+          - text: snow-capped peaks
+            tags: {article: a, biome_compatible: [mountain], scale: large, cold: true}
+          - text: dramatic cliffs
+            tags: {article: a, biome_compatible: [coastal, mountain], scale: large}
+          - text: thick canopy
+            tags: {article: a, biome_compatible: [jungle, forest], dense: true}
+          - text: rolling hills
+            tags: {article: a, biome_compatible: [meadow, valley, savanna], scale: medium, gentle: true}
+          - text: waterfalls
+            tags: {article: a, biome_compatible: [jungle, mountain, valley], water: true, dynamic: true}
+
+      natural_phenomena:
+        name: natural_phenomena
+        values:
+          - text: northern lights painting the sky
+            tags: {article: a, biome_compatible: [tundra], luminous: true, colorful: true}
+          - text: heat shimmer visible in the distance
+            tags: {article: a, biome_compatible: [desert, savanna], hot: true}
+          - text: mist rising from the ground
+            tags: {article: a, biome_compatible: [jungle, forest, valley], moisture: true}
+          - text: ash clouds roiling overhead
+            tags: {article: an, biome_compatible: [volcanic], dark: true, dangerous: true}
+          - text: butterflies dancing among the blooms
+            tags: {article: a, biome_compatible: [meadow, valley], living: true, peaceful: true}
+          - text: eagles circling overhead
+            tags: {article: an, biome_compatible: [mountain, coastal, savanna], living: true}
+          - text: waves crashing against rocks
+            tags: {article: a, biome_compatible: [coastal], water: true, dynamic: true}
+          - text: sunlight filtering through leaves
+            tags: {article: a, biome_compatible: [jungle, forest], luminous: true}
+
+      scale_modifiers:
+        name: scale_modifiers
+        values:
+          - text: vast
+            tags: {article: a, size: very_large}
+          - text: endless
+            tags: {article: an, size: very_large, infinite: true}
+          - text: towering
+            tags: {article: a, size: large, vertical: true}
+          - text: massive
+            tags: {article: a, size: very_large}
+          - text: gentle
+            tags: {article: a, intensity: low, peaceful: true}
+          - text: dramatic
+            tags: {article: a, intensity: high}
+          - text: peaceful
+            tags: {article: a, mood: calm}
+          - text: majestic
+            tags: {article: a, quality: grand}
+
+      sky_conditions:
+        name: sky_conditions
+        values:
+          - text: a blazing sun
+            tags: {article: a, time: day, weather: clear, intensity: high}
+          - text: a pale winter sky
+            tags: {article: a, time: day, weather: clear, cold: true}
+          - text: thick canopy above
+            tags: {article: a, weather: shaded, forest: true}
+          - text: dark ash clouds
+            tags: {article: a, weather: volcanic, dark: true}
+          - text: soft afternoon light
+            tags: {article: a, time: afternoon, weather: clear, gentle: true}
+          - text: a stormy sky
+            tags: {article: a, weather: storm, dramatic: true}
+          - text: clear blue sky
+            tags: {article: a, weather: clear, bright: true}
+          - text: sunset colors
+            tags: {article: a, time: sunset, colorful: true}
+
+    rules:
+      compute_landscape_article:
+        when: "ref:scale.tags.article"
+        logic: ""
+        set: "context.prompt.article"
+        value: "ref:scale.tags.article"
+
+    prompt_sections:
+      landscape_scene:
+        name: landscape_scene
+        template: "{article} {scale} {biome} with {terrain_feature} under {sky}, {phenomenon}"
+        references:
+          article:
+            target: context:article
+          scale:
+            target: common.nature:scale_modifiers
+          biome:
+            target: common.nature:biomes
+          terrain_feature:
+            target: common.nature:terrain_features
+          sky:
+            target: common.nature:sky_conditions
+          phenomenon:
+            target: common.nature:natural_phenomena
+
+    rulebooks:
+      landscape_generator:
+        name: "Landscape Scene Generator"
+        description: "Generate diverse natural landscapes with varied biomes and atmospheric phenomena"
+        entry_points:
+          - prompt_section: common.nature:landscape_scene
+            weight: 1.0
+        batch_variety: false
+        context_defaults: {}
+
+  common.visual:
+    id: common.visual
+
+    datatypes:
+      colors:
+        name: colors
+        values:
+          - text: crimson
+            tags: {article: a, color: red, warm: true, vibrant: true}
+          - text: azure
+            tags: {article: an, color: blue, cool: true, vibrant: true}
+          - text: emerald
+            tags: {article: an, color: green, cool: true, vibrant: true}
+          - text: golden
+            tags: {article: a, color: gold, warm: true, metallic: true}
+          - text: silver
+            tags: {article: a, color: silver, cool: true, metallic: true}
+          - text: obsidian
+            tags: {article: an, color: black, dark: true, glossy: true}
+          - text: ivory
+            tags: {article: an, color: white, light: true, pure: true}
+          - text: amethyst
+            tags: {article: an, color: purple, cool: true, precious: true}
+          - text: amber
+            tags: {article: an, color: orange, warm: true, translucent: true}
+          - text: jade
+            tags: {article: a, color: green, cool: true, precious: true}
+          - text: sapphire
+            tags: {article: a, color: blue, cool: true, precious: true}
+          - text: ruby
+            tags: {article: a, color: red, warm: true, precious: true}
+
+      scales:
+        name: scales
+        values:
+          - text: tiny
+            tags: {article: a, size: very_small}
+          - text: small
+            tags: {article: a, size: small}
+          - text: modest
+            tags: {article: a, size: medium_small}
+          - text: medium
+            tags: {article: a, size: medium}
+          - text: large
+            tags: {article: a, size: large}
+          - text: huge
+            tags: {article: a, size: very_large}
+          - text: colossal
+            tags: {article: a, size: extremely_large}
+          - text: immense
+            tags: {article: an, size: extremely_large, overwhelming: true}
+
+      textures:
+        name: textures
+        values:
+          - text: smooth
+            tags: {article: a, surface: uniform, pleasant: true}
+          - text: rough
+            tags: {article: a, surface: irregular}
+          - text: polished
+            tags: {article: a, surface: refined, shiny: true}
+          - text: weathered
+            tags: {article: a, surface: aged, worn: true}
+          - text: crystalline
+            tags: {article: a, surface: geometric, translucent: true}
+          - text: scaly
+            tags: {article: a, surface: patterned, reptilian: true}
+          - text: feathered
+            tags: {article: a, surface: soft, avian: true}
+          - text: ethereal
+            tags: {article: an, surface: insubstantial, magical: true}
+
+      camera_angles:
+        name: camera_angles
+        values:
+          - text: from a low angle
+            tags: {article: a, perspective: low, dramatic: true}
+          - text: from a high angle
+            tags: {article: a, perspective: high, overview: true}
+          - text: at eye level
+            tags: {article: an, perspective: neutral, natural: true}
+          - text: from a bird's eye view
+            tags: {article: a, perspective: very_high, distant: true}
+          - text: from a worm's eye view
+            tags: {article: a, perspective: very_low, imposing: true}
+          - text: in extreme close-up
+            tags: {article: an, distance: very_close, detailed: true}
+          - text: from a distance
+            tags: {article: a, distance: far, context: true}
+          - text: in profile
+            tags: {article: a, angle: side, silhouette: true}
+
+      composition_effects:
+        name: composition_effects
+        values:
+          - text: with dramatic depth of field
+            tags: {article: a, effect: focus, photographic: true}
+          - text: with shallow focus
+            tags: {article: a, effect: focus, subject_emphasis: true}
+          - text: with motion blur
+            tags: {article: a, effect: movement, dynamic: true}
+          - text: in sharp detail
+            tags: {article: a, effect: clarity, precise: true}
+          - text: with rim lighting
+            tags: {article: a, effect: lighting, dramatic: true}
+          - text: with lens flare
+            tags: {article: a, effect: lighting, bright: true}
+          - text: with volumetric lighting
+            tags: {article: a, effect: lighting, atmospheric: true}
+          - text: with particle effects
+            tags: {article: a, effect: magical, dynamic: true}
+
+  common.styles:
+    id: common.styles
+
+    datatypes:
+      rendering_styles:
+        name: rendering_styles
+        values:
+          - text: low-poly
+            tags: {article: a, style: geometric, simplification: high, game_art: true}
+          - text: pixel art
+            tags: {article: a, style: retro, pixelated: true, game_art: true}
+          - text: voxel
+            tags: {article: a, style: blocky, three_dimensional: true, game_art: true}
+          - text: cel-shaded
+            tags: {article: a, style: cartoon, outlined: true}
+          - text: flat-shaded
+            tags: {article: a, style: minimal, no_gradients: true}
+          - text: wireframe
+            tags: {article: a, style: technical, outlined: true, skeletal: true}
+          - text: vector art
+            tags: {article: a, style: clean, scalable: true}
+          - text: isometric
+            tags: {article: an, style: perspective, technical: true, game_art: true}
+          - text: hand-drawn
+            tags: {article: a, style: artistic, organic: true}
+          - text: watercolor
+            tags: {article: a, style: painterly, soft_edges: true}
+
+      palette_constraints:
+        name: palette_constraints
+        values:
+          - text: 4-color palette
+            tags: {article: a, colors: limited, count: 4, retro: true}
+          - text: 16-color palette
+            tags: {article: a, colors: limited, count: 16, retro: true}
+          - text: 8-bit color
+            tags: {article: an, colors: limited, retro: true, pixelated: true}
+          - text: monochrome
+            tags: {article: a, colors: minimal, count: 2}
+          - text: grayscale
+            tags: {article: a, colors: limited, no_hue: true}
+          - text: duotone
+            tags: {article: a, colors: limited, count: 2, stylized: true}
+          - text: vibrant colors
+            tags: {article: a, colors: saturated, vivid: true}
+          - text: pastel colors
+            tags: {article: a, colors: soft, muted: true}
+
+      technical_effects:
+        name: technical_effects
+        values:
+          - text: scanlines visible
+            tags: {article: a, effect: retro, crt: true}
+          - text: chromatic aberration
+            tags: {article: a, effect: glitch, color_shift: true}
+          - text: dithering patterns
+            tags: {article: a, effect: retro, texture: true}
+          - text: bloom lighting
+            tags: {article: a, effect: glow, luminous: true}
+          - text: pixelated edges
+            tags: {article: a, effect: retro, sharp: true}
+          - text: smooth gradients
+            tags: {article: a, effect: modern, blended: true}
+
+    rules:
+      # M8.5 Blocker 2: Rules are now package-wide
+      # Article computation rules moved to appropriate namespaces (common.fantasy, common.characters)
+      # Scale-based article rules kept here as they're specific to common.styles sections
+
+      compute_textured_object_article:
+        when: "ref:scale.tags.article"
+        logic: ""
+        set: "context.prompt.article"
+        value: "ref:scale.tags.article"
+
+      compute_grand_vista_article:
+        when: "ref:scale.tags.article"
+        logic: ""
+        set: "context.prompt.article"
+        value: "ref:scale.tags.article"
+
+      compute_mystical_artifact_article:
+        when: "ref:magical_object.tags.article"
+        logic: ""
+        set: "context.prompt.article"
+        value: "ref:magical_object.tags.article"
+
+      compute_enhanced_creature_article:
+        when: "ref:age.tags.article"
+        logic: ""
+        set: "context.prompt.article"
+        value: "ref:age.tags.article"
+
+    prompt_sections:
+      styled_fantasy:
+        name: styled_fantasy
+        template: "{base_scene}, {rendering_style}, {palette}"
+        references:
+          base_scene:
+            target: common.fantasy:fantasy_scene
+          rendering_style:
+            target: common.styles:rendering_styles
+          palette:
+            target: common.styles:palette_constraints
+
+      styled_portrait:
+        name: styled_portrait
+        template: "{base_portrait}, {rendering_style}, {effect}"
+        references:
+          base_portrait:
+            target: common.characters:character_portrait
+          rendering_style:
+            target: common.styles:rendering_styles
+          effect:
+            target: common.styles:technical_effects
+
+      styled_landscape:
+        name: styled_landscape
+        template: "{base_landscape}, rendered in {rendering_style} with {palette}"
+        references:
+          base_landscape:
+            target: common.nature:landscape_scene
+          rendering_style:
+            target: common.styles:rendering_styles
+          palette:
+            target: common.styles:palette_constraints
+
+      atmospheric_scene:
+        name: atmospheric_scene
+        template: "{base_scene} {time}, {weather}"
+        references:
+          base_scene:
+            target: common.fantasy:fantasy_scene
+          time:
+            target: common.base:times_of_day
+          weather:
+            target: common.base:weather_conditions
+
+      character_in_action:
+        name: character_in_action
+        template: "{article} {age} {archetype} {action}, {expression}"
+        references:
+          article:
+            target: context:article
+          age:
+            target: common.characters:character_ages
+          archetype:
+            target: common.characters:archetypes
+          action:
+            target: common.characters:character_actions
+          expression:
+            target: common.characters:emotional_expressions
+
+      architectural_scene:
+        name: architectural_scene
+        template: "{location} interior with {architecture}, {lighting}"
+        references:
+          location:
+            target: common.fantasy:locations
+          architecture:
+            target: common.fantasy:architectural_elements
+          lighting:
+            target: common.lighting:atmospheric_lighting
+
+      cinematic_scene:
+        name: cinematic_scene
+        template: "{base_scene} {camera}, {composition}"
+        references:
+          base_scene:
+            target: common.fantasy:fantasy_scene
+          camera:
+            target: common.visual:camera_angles
+          composition:
+            target: common.visual:composition_effects
+
+      complete_portrait:
+        name: complete_portrait
+        template: "{character} {camera}, {composition}, {time}"
+        references:
+          character:
+            target: common.styles:character_in_action
+          camera:
+            target: common.visual:camera_angles
+          composition:
+            target: common.visual:composition_effects
+          time:
+            target: common.base:times_of_day
+
+      ultimate_scene:
+        name: ultimate_scene
+        template: "{styled_scene} {camera}, {weather}, {composition}"
+        references:
+          styled_scene:
+            target: common.styles:styled_fantasy
+          camera:
+            target: common.visual:camera_angles
+          weather:
+            target: common.base:weather_conditions
+          composition:
+            target: common.visual:composition_effects
+
+      magical_scene:
+        name: magical_scene
+        template: "{base_scene} with {magic_effect}, {mood} atmosphere"
+        references:
+          base_scene:
+            target: common.fantasy:fantasy_scene
+          magic_effect:
+            target: common.fantasy:magic_effects
+          mood:
+            target: common.lighting:moods
+
+      textured_object:
+        name: textured_object
+        template: "{article} {scale} {texture} {color} orb"
+        references:
+          article:
+            target: context:article
+          scale:
+            target: common.visual:scales
+          texture:
+            target: common.visual:textures
+          color:
+            target: common.visual:colors
+
+      grand_vista:
+        name: grand_vista
+        template: "{article} {scale} {landscape} {time}, {mood} mood, {magic}"
+        references:
+          article:
+            target: context:article
+          scale:
+            target: common.visual:scales
+          landscape:
+            target: common.nature:landscape_scene
+          time:
+            target: common.base:times_of_day
+          mood:
+            target: common.lighting:moods
+          magic:
+            target: common.fantasy:magic_effects
+
+      mystical_artifact:
+        name: mystical_artifact
+        template: "{article} {magical_object} {modifier}"
+        references:
+          article:
+            target: context:article
+          magical_object:
+            target: common.fantasy:magical_objects
+          modifier:
+            target: common.fantasy:scene_modifiers
+
+      enhanced_creature:
+        name: enhanced_creature
+        template: "{article} {age} {creature} {modifier}, {magic}"
+        references:
+          article:
+            target: context:article
+          age:
+            target: common.fantasy:ages
+          creature:
+            target: common.fantasy:creatures
+          modifier:
+            target: common.fantasy:scene_modifiers
+          magic:
+            target: common.fantasy:magic_effects
+
+    rulebooks:
+      complete_scene_generator:
+        name: "Complete Scene Generator"
+        description: "Generate varied complete scenes mixing fantasy, portraits, and landscapes with styles and effects"
+        entry_points:
+          - prompt_section: common.styles:styled_fantasy
+            weight: 3.0
+          - prompt_section: common.styles:styled_portrait
+            weight: 2.0
+          - prompt_section: common.styles:styled_landscape
+            weight: 2.5
+          - prompt_section: common.styles:cinematic_scene
+            weight: 2.0
+          - prompt_section: common.styles:ultimate_scene
+            weight: 1.5
+        batch_variety: true
+        context_defaults: {}
+
+      fantasy_focused:
+        name: "Fantasy Focused Generator"
+        description: "Primarily fantasy scenes with occasional character or atmospheric elements"
+        entry_points:
+          - prompt_section: common.styles:styled_fantasy
+            weight: 5.0
+          - prompt_section: common.styles:atmospheric_scene
+            weight: 2.0
+          - prompt_section: common.styles:character_in_action
+            weight: 1.0
+          - prompt_section: common.styles:mystical_artifact
+            weight: 1.5
+          - prompt_section: common.styles:enhanced_creature
+            weight: 2.0
+        batch_variety: true
+        context_defaults:
+          mood: "epic"
+
+      portrait_showcase:
+        name: "Portrait Showcase Generator"
+        description: "Character-focused generation with varied presentation styles"
+        entry_points:
+          - prompt_section: common.styles:styled_portrait
+            weight: 4.0
+          - prompt_section: common.styles:complete_portrait
+            weight: 3.0
+          - prompt_section: common.styles:character_in_action
+            weight: 2.0
+        batch_variety: true
+        context_defaults: {}
+
+      landscape_collection:
+        name: "Landscape Collection Generator"
+        description: "Natural and architectural landscapes with cinematic presentation"
+        entry_points:
+          - prompt_section: common.styles:styled_landscape
+            weight: 3.0
+          - prompt_section: common.styles:grand_vista
+            weight: 2.5
+          - prompt_section: common.styles:architectural_scene
+            weight: 2.0
+        batch_variety: true
+        context_defaults: {}
+
+dependencies: []
