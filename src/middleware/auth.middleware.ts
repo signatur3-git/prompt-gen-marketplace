@@ -14,11 +14,7 @@ export interface AuthenticatedRequest extends Request {
 /**
  * Middleware to authenticate requests using JWT
  */
-export async function authenticate(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   try {
     const authHeader = req.headers.authorization;
 
@@ -37,7 +33,7 @@ export async function authenticate(
     const token = parts[1];
 
     // Verify token
-    const decoded = await authService.verifyToken(token);
+    const decoded = authService.verifyToken(token);
 
     // Attach user info to request, add id alias
     req.user = { ...decoded, id: decoded.user_id };
@@ -54,11 +50,11 @@ export const requireAuth = authenticate;
 /**
  * Optional authentication - attaches user if token is present, but doesn't require it
  */
-export async function optionalAuthenticate(
+export function optionalAuthenticate(
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
-): Promise<void> {
+): void {
   try {
     const authHeader = req.headers.authorization;
 
@@ -67,7 +63,7 @@ export async function optionalAuthenticate(
 
       if (parts.length === 2 && parts[0] === 'Bearer') {
         const token = parts[1];
-        const decoded = await authService.verifyToken(token);
+        const decoded = authService.verifyToken(token);
         req.user = { ...decoded, id: decoded.user_id };
       }
     }

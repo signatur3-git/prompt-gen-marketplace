@@ -180,12 +180,10 @@ router.post('/token', async (req: AuthenticatedRequest, res: Response): Promise<
 
     // Validate grant type
     if (grant_type !== 'authorization_code') {
-      res
-        .status(400)
-        .json({
-          error: 'unsupported_grant_type',
-          error_description: 'Only authorization_code is supported',
-        });
+      res.status(400).json({
+        error: 'unsupported_grant_type',
+        error_description: 'Only authorization_code is supported',
+      });
       return;
     }
 

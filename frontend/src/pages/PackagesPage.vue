@@ -56,7 +56,6 @@
         <!-- Pagination controls -->
         <div v-if="totalPages > 1" style="display: flex; gap: 8px; align-items: center">
           <button
-            @click="currentPage--"
             :disabled="currentPage === 1"
             class="btn"
             style="padding: 6px 12px; font-size: 14px"
@@ -64,12 +63,12 @@
               opacity: currentPage === 1 ? 0.5 : 1,
               cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
             }"
+            @click="currentPage--"
           >
             ← Previous
           </button>
           <span style="color: #666">Page {{ currentPage }} of {{ totalPages }}</span>
           <button
-            @click="currentPage++"
             :disabled="currentPage === totalPages"
             class="btn"
             style="padding: 6px 12px; font-size: 14px"
@@ -77,6 +76,7 @@
               opacity: currentPage === totalPages ? 0.5 : 1,
               cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
             }"
+            @click="currentPage++"
           >
             Next →
           </button>
@@ -92,7 +92,7 @@
         <div style="font-size: 64px; margin-bottom: 16px">🔍</div>
         <h2>No Results Found</h2>
         <p style="color: #666; margin: 16px 0">No packages match your search "{{ searchQuery }}"</p>
-        <button @click="searchQuery = ''" class="btn btn-primary" style="margin-top: 12px">
+        <button class="btn btn-primary" style="margin-top: 12px" @click="searchQuery = ''">
           Clear Search
         </button>
       </div>
@@ -129,14 +129,8 @@
               box-shadow 0.2s;
           "
           @click="goToPackage(pkg)"
-          @mouseover="
-            $event.currentTarget.style.transform = 'translateY(-2px)';
-            $event.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-          "
-          @mouseout="
-            $event.currentTarget.style.transform = '';
-            $event.currentTarget.style.boxShadow = '';
-          "
+          @mouseover="onCardMouseOver"
+          @mouseout="onCardMouseOut"
         >
           <div style="display: flex; justify-content: space-between; align-items: start">
             <div style="flex: 1">
@@ -180,25 +174,25 @@
         "
       >
         <button
-          @click="currentPage--"
           :disabled="currentPage === 1"
           class="btn"
           :style="{
             opacity: currentPage === 1 ? 0.5 : 1,
             cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
           }"
+          @click="currentPage--"
         >
           ← Previous
         </button>
         <span style="color: #666">Page {{ currentPage }} of {{ totalPages }}</span>
         <button
-          @click="currentPage++"
           :disabled="currentPage === totalPages"
           class="btn"
           :style="{
             opacity: currentPage === totalPages ? 0.5 : 1,
             cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
           }"
+          @click="currentPage++"
         >
           Next →
         </button>
@@ -210,10 +204,22 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { getErrorMessage } from '../utils/error';
+
+type PackageSummary = {
+  id: string;
+  namespace: string;
+  name: string;
+  description?: string | null;
+  updated_at: string;
+  latest_version?: string | null;
+  protection_level?: string | null;
+  download_count?: number | null;
+};
 
 const router = useRouter();
 
-const packages = ref<any[]>([]);
+const packages = ref<PackageSummary[]>([]);
 const loading = ref(true);
 const error = ref('');
 const searchQuery = ref('');
@@ -284,16 +290,17 @@ async function loadPackages() {
       throw new Error('Failed to load packages');
     }
 
-    const data = await res.json();
-    packages.value = data.packages || [];
-  } catch (err: any) {
-    error.value = err.message;
+    const data: unknown = await res.json();
+    const maybe = data as { packages?: PackageSummary[] };
+    packages.value = maybe.packages ?? [];
+  } catch (err: unknown) {
+    error.value = getErrorMessage(err);
   } finally {
     loading.value = false;
   }
 }
 
-function goToPackage(pkg: any) {
+function goToPackage(pkg: PackageSummary) {
   router.push(`/packages/${pkg.namespace}/${pkg.name}`);
 }
 
@@ -309,6 +316,20 @@ function formatDate(dateString: string): string {
   if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
   if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
   return date.toLocaleDateString();
+}
+
+function onCardMouseOver(event: MouseEvent) {
+  const el = event.currentTarget as HTMLElement | null;
+  if (!el) return;
+  el.style.transform = 'translateY(-2px)';
+  el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+}
+
+function onCardMouseOut(event: MouseEvent) {
+  const el = event.currentTarget as HTMLElement | null;
+  if (!el) return;
+  el.style.transform = '';
+  el.style.boxShadow = '';
 }
 </script>
 

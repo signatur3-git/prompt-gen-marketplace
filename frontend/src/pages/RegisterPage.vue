@@ -55,9 +55,9 @@
         <p style="margin: 16px 0">Click the button below to download your key file:</p>
 
         <button
-          @click="downloadKey"
           class="btn btn-primary"
           style="width: 100%; margin-bottom: 16px"
+          @click="downloadKey"
         >
           📥 Download Key File ({{ keyfile.filename }})
         </button>
@@ -77,15 +77,15 @@
         </div>
 
         <label>
-          <input type="checkbox" v-model="confirmed" />
+          <input v-model="confirmed" type="checkbox" />
           <strong>I have saved my key file and understand I cannot recover it</strong>
         </label>
 
         <button
-          @click="complete"
           :disabled="!confirmed"
           class="btn btn-primary"
           style="width: 100%"
+          @click="complete"
         >
           Continue to Dashboard
         </button>

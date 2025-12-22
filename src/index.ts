@@ -11,19 +11,19 @@ async function start() {
 
     // Test database connection
     await pool.query('SELECT NOW()');
-    console.log('✅ Database connected');
+    console.info('✅ Database connected');
 
     // Initialize storage
     await initializeStorage();
     const storageInfo = getStorageInfo();
-    console.log(
+    console.info(
       `✅ Storage initialized: ${storageInfo.type}`,
       storageInfo.type === 'S3' ? storageInfo.bucket : storageInfo.path
     );
 
     // Start server
     const server = app.listen(config.port, config.host, () => {
-      console.log(`
+      console.info(`
 🚀 Prompt Gen Marketplace Server
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📍 Environment: ${config.env}
@@ -36,10 +36,10 @@ async function start() {
 
     // Graceful shutdown
     const shutdown = async () => {
-      console.log('\n🛑 Shutting down gracefully...');
+      console.info('\n🛑 Shutting down gracefully...');
 
       server.close(() => {
-        console.log('✅ HTTP server closed');
+        console.info('✅ HTTP server closed');
       });
 
       await closeRedis();
@@ -48,12 +48,12 @@ async function start() {
       process.exit(0);
     };
 
-    process.on('SIGTERM', shutdown);
-    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', () => void shutdown());
+    process.on('SIGINT', () => void shutdown());
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
 
-start();
+void start();

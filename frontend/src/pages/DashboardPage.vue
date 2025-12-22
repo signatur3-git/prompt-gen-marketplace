@@ -25,17 +25,71 @@
         <p style="color: #856404">You have administrator privileges.</p>
         <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap">
           <button
-            @click="activeTab = 'users'"
             :class="['btn', activeTab === 'users' ? 'btn-primary' : '']"
+            @click="activeTab = 'users'"
           >
             👥 Manage Users
           </button>
           <button
-            @click="activeTab = 'packages'"
             :class="['btn', activeTab === 'packages' ? 'btn-primary' : '']"
+            @click="activeTab = 'packages'"
           >
             📦 Moderate Packages
           </button>
+        </div>
+      </div>
+
+      <!-- Admin Views (top-level, not nested under personas) -->
+      <div v-if="isAdmin && activeTab === 'users'">
+        <div class="card">
+          <h2>👥 User Management</h2>
+          <p style="color: #666; margin-bottom: 16px">
+            View all users and their personas. This view is only accessible to administrators.
+          </p>
+
+          <div v-if="loadingUsers" style="text-align: center; padding: 20px">Loading users...</div>
+
+          <div v-else>
+            <div
+              v-for="u in allUsers"
+              :key="u.id"
+              style="border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 12px"
+            >
+              <div style="display: flex; justify-content: space-between; align-items: start">
+                <div>
+                  <p><strong>User ID:</strong> {{ u.id }}</p>
+                  <p><strong>Public Key:</strong> {{ u.public_key?.substring(0, 32) }}...</p>
+                  <p><strong>Joined:</strong> {{ formatDate(u.created_at) }}</p>
+                  <div style="margin-top: 8px">
+                    <strong>Personas:</strong>
+                    <ul style="margin-left: 20px; margin-top: 4px">
+                      <li v-for="p in u.personas" :key="p.id">
+                        {{ p.name }}
+                        <span
+                          v-if="p.is_primary"
+                          style="
+                            background: #007bff;
+                            color: white;
+                            padding: 2px 8px;
+                            border-radius: 4px;
+                            font-size: 12px;
+                          "
+                          >Primary</span
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="isAdmin && activeTab === 'packages'">
+        <div class="card">
+          <h2>📦 Package Moderation</h2>
+          <p style="color: #666">Package moderation tools coming soon.</p>
         </div>
       </div>
 
@@ -46,7 +100,6 @@
       >
         <div style="display: flex; gap: 12px; border-bottom: 1px solid #ddd; margin-bottom: 20px">
           <button
-            @click="activeTab = 'personas'"
             :style="{
               padding: '12px 20px',
               background: 'none',
@@ -57,11 +110,11 @@
               fontWeight: activeTab === 'personas' ? 'bold' : 'normal',
               cursor: 'pointer',
             }"
+            @click="activeTab = 'personas'"
           >
             👤 Personas
           </button>
           <button
-            @click="activeTab = 'mypackages'"
             :style="{
               padding: '12px 20px',
               background: 'none',
@@ -72,11 +125,11 @@
               fontWeight: activeTab === 'mypackages' ? 'bold' : 'normal',
               cursor: 'pointer',
             }"
+            @click="activeTab = 'mypackages'"
           >
             📦 My Packages
           </button>
           <button
-            @click="activeTab = 'tokens'"
             :style="{
               padding: '12px 20px',
               background: 'none',
@@ -86,6 +139,7 @@
               fontWeight: activeTab === 'tokens' ? 'bold' : 'normal',
               cursor: 'pointer',
             }"
+            @click="activeTab = 'tokens'"
           >
             🔐 Connected Apps
           </button>
@@ -104,67 +158,6 @@
             ⚠️ <strong>Admin Note:</strong> Only admins can see user IDs. Regular users cannot link
             personas to user accounts.
           </p>
-        </div>
-
-        <!-- Admin Views -->
-        <div v-if="isAdmin && activeTab === 'users'">
-          <div class="card">
-            <h2>👥 User Management</h2>
-            <p style="color: #666; margin-bottom: 16px">
-              View all users and their personas. This view is only accessible to administrators.
-            </p>
-
-            <div v-if="loadingUsers" style="text-align: center; padding: 20px">
-              Loading users...
-            </div>
-
-            <div v-else>
-              <div
-                v-for="u in allUsers"
-                :key="u.id"
-                style="
-                  border: 1px solid #ddd;
-                  border-radius: 4px;
-                  padding: 16px;
-                  margin-bottom: 12px;
-                "
-              >
-                <div style="display: flex; justify-content: space-between; align-items: start">
-                  <div>
-                    <p><strong>User ID:</strong> {{ u.id }}</p>
-                    <p><strong>Public Key:</strong> {{ u.public_key?.substring(0, 32) }}...</p>
-                    <p><strong>Joined:</strong> {{ formatDate(u.created_at) }}</p>
-                    <div style="margin-top: 8px">
-                      <strong>Personas:</strong>
-                      <ul style="margin-left: 20px; margin-top: 4px">
-                        <li v-for="p in u.personas" :key="p.id">
-                          {{ p.name }}
-                          <span
-                            v-if="p.is_primary"
-                            style="
-                              background: #007bff;
-                              color: white;
-                              padding: 2px 8px;
-                              border-radius: 4px;
-                              font-size: 12px;
-                            "
-                            >Primary</span
-                          >
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="isAdmin && activeTab === 'packages'">
-          <div class="card">
-            <h2>📦 Package Moderation</h2>
-            <p style="color: #666">Package moderation tools coming soon.</p>
-          </div>
         </div>
 
         <!-- Regular User: Persona Management -->
@@ -187,8 +180,12 @@
             >
               <div style="display: flex; justify-content: space-between; align-items: center">
                 <div>
-                  <h3 style="margin-bottom: 4px">{{ persona.name }}</h3>
-                  <p v-if="persona.bio" style="color: #666; font-size: 14px">{{ persona.bio }}</p>
+                  <h3 style="margin-bottom: 4px">
+                    {{ persona.name }}
+                  </h3>
+                  <p v-if="persona.bio" style="color: #666; font-size: 14px">
+                    {{ persona.bio }}
+                  </p>
                   <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 14px">
                     <span
                       v-if="persona.is_primary"
@@ -207,17 +204,17 @@
                 <div style="display: flex; gap: 8px">
                   <button
                     v-if="!persona.is_primary"
-                    @click="setPrimary(persona.id)"
                     class="btn"
                     style="background: #28a745; color: white"
+                    @click="setPrimary(persona.id)"
                   >
                     Set as Primary
                   </button>
                   <button
-                    @click="deletePersona(persona.id)"
                     :disabled="persona.is_primary"
                     class="btn btn-danger"
                     :style="persona.is_primary ? 'opacity: 0.5; cursor: not-allowed;' : ''"
+                    @click="deletePersona(persona.id)"
                   >
                     Delete
                   </button>
@@ -227,7 +224,7 @@
 
             <!-- Create new persona -->
             <div v-if="!showCreateForm" style="margin-top: 16px">
-              <button @click="showCreateForm = true" class="btn btn-primary">
+              <button class="btn btn-primary" @click="showCreateForm = true">
                 + Create New Persona
               </button>
             </div>
@@ -247,21 +244,17 @@
               </label>
               <label>
                 Bio (optional):
-                <textarea
-                  v-model="newPersonaBio"
-                  placeholder="About this persona..."
-                  rows="3"
-                ></textarea>
+                <textarea v-model="newPersonaBio" placeholder="About this persona..." rows="3" />
               </label>
               <div style="display: flex; gap: 8px; margin-top: 12px">
                 <button
-                  @click="createPersona"
                   class="btn btn-primary"
                   :disabled="!newPersonaName.trim()"
+                  @click="createPersona"
                 >
                   Create Persona
                 </button>
-                <button @click="cancelCreate" class="btn" style="background: #6c757d; color: white">
+                <button class="btn" style="background: #6c757d; color: white" @click="cancelCreate">
                   Cancel
                 </button>
               </div>
@@ -376,7 +369,7 @@
                       Expires: {{ formatDate(token.expires_at) }}
                     </p>
                   </div>
-                  <button @click="revokeToken(token.token)" class="btn btn-danger">
+                  <button class="btn btn-danger" @click="revokeToken(token.token)">
                     Revoke Access
                   </button>
                 </div>
@@ -390,10 +383,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
+import { ref, onMounted } from 'vue';
 
 const user = ref<any>(null);
 const personas = ref<any[]>([]);
@@ -407,7 +397,9 @@ const loadingPersonas = ref(false);
 const loadingUsers = ref(false);
 const loadingTokens = ref(false);
 const loadingMyPackages = ref(false);
-const activeTab = ref('personas');
+
+type ActiveTab = 'personas' | 'mypackages' | 'tokens' | 'users' | 'packages';
+const activeTab = ref<ActiveTab>('personas');
 
 const showCreateForm = ref(false);
 const newPersonaName = ref('');

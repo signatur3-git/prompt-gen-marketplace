@@ -143,7 +143,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
     let ns = await namespaceService.getNamespaceByName(namespace);
     if (!ns) {
       ns = await namespaceService.autoClaimNamespace(namespace, userId);
-      console.log(`✅ Auto-claimed namespace: ${namespace}`);
+      console.info(`✅ Auto-claimed namespace: ${namespace}`);
     }
 
     // Create package if it doesn't exist
@@ -155,7 +155,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
         description: parsed.metadata?.description,
         author_persona_id: usePersonaId,
       });
-      console.log(`✅ Created package: ${namespace}.${name}`);
+      console.info(`✅ Created package: ${namespace}.${name}`);
     } else {
       // Verify ownership for existing package
       if (pkg.author_persona_id !== usePersonaId) {
@@ -218,7 +218,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       dependencies,
     });
 
-    console.log(`✅ Published version: ${namespace}.${name}@${parsed.version}`);
+    console.info(`✅ Published version: ${namespace}.${name}@${parsed.version}`);
 
     res.status(201).json({
       message: 'Package published successfully',

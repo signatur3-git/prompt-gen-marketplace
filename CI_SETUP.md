@@ -79,11 +79,25 @@ npm run validate:ci               # Run all checks including builds
 
 **Backend config:** `.eslintrc.cjs`
 
-- TypeScript-focused rules
-- Warns on `any` types (not blocking)
-- Warns on floating promises and misused promises
-- Warns on console statements (except console.warn/error)
-- Ignores test files for type-checking project rules
+**Current strictness:** Balanced - Catches real bugs without blocking development
+
+**Errors (block CI):**
+- Unused variables (except `_` prefixed)
+- Floating promises (unawaited promises)
+- Misused promises (async where sync expected)
+- Console statements (except `.warn`/`.error`/`.info`)
+- Async functions without await
+
+**Warnings (should fix gradually):**
+- `any` types
+- Unsafe type operations (assignment, member access, calls, returns, arguments)
+
+**Strict mode available:** `.eslintrc-strict.cjs`
+- All warnings → errors
+- 259 issues to fix
+- Enable when ready: `mv .eslintrc-strict.cjs .eslintrc.cjs`
+
+**Test files:** Excluded from type-checking project rules
 
 **Frontend config:** `frontend/.eslintrc.json`
 

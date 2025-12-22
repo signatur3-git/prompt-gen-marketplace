@@ -66,8 +66,7 @@ jobs:
         run: npm run type-check
 
       - name: Type check frontend
-        run: npm run type-check:frontend || echo "Frontend type-check has warnings"
-        continue-on-error: true
+        run: npm run type-check:frontend
 
       - name: Run unit tests
         run: npm test -- --run

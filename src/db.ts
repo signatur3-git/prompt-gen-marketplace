@@ -10,7 +10,7 @@ export const pool = new Pool({
 
 // Test connection
 pool.on('connect', () => {
-  console.log('✅ Database connected');
+  console.info('✅ Database connected');
 });
 
 pool.on('error', (err) => {
@@ -23,7 +23,7 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
     const result = await pool.query(text, params);
     const duration = Date.now() - start;
     if (config.env === 'development') {
-      console.log('📊 Query executed', { text, duration, rows: result.rowCount });
+      console.info('📊 Query executed', { text, duration, rows: result.rowCount });
     }
     return result.rows as T[];
   } catch (error) {
@@ -38,5 +38,5 @@ export async function getClient() {
 
 export async function close() {
   await pool.end();
-  console.log('🔌 Database connection closed');
+  console.info('🔌 Database connection closed');
 }

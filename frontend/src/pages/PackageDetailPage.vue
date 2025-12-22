@@ -119,7 +119,7 @@
               </div>
 
               <div>
-                <button @click="downloadVersion(version)" class="btn btn-primary">
+                <button class="btn btn-primary" @click="downloadVersion(version)">
                   📥 Download
                 </button>
               </div>
@@ -149,11 +149,15 @@
         <table style="width: 100%; border-collapse: collapse">
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold; width: 200px">Namespace</td>
-            <td style="padding: 12px 0">{{ packageData.namespace }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.namespace }}
+            </td>
           </tr>
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Name</td>
-            <td style="padding: 12px 0">{{ packageData.name }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.name }}
+            </td>
           </tr>
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Full ID</td>
@@ -163,23 +167,33 @@
           </tr>
           <tr v-if="packageData.author_name" style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Author</td>
-            <td style="padding: 12px 0">{{ packageData.author_name }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.author_name }}
+            </td>
           </tr>
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Latest Version</td>
-            <td style="padding: 12px 0">{{ packageData.latest_version }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.latest_version }}
+            </td>
           </tr>
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Total Versions</td>
-            <td style="padding: 12px 0">{{ versions?.length || 0 }}</td>
+            <td style="padding: 12px 0">
+              {{ versions?.length || 0 }}
+            </td>
           </tr>
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Protection Level</td>
-            <td style="padding: 12px 0">{{ packageData.protection_level || 'public' }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.protection_level || 'public' }}
+            </td>
           </tr>
           <tr>
             <td style="padding: 12px 0; font-weight: bold">Created</td>
-            <td style="padding: 12px 0">{{ formatDate(packageData.created_at) }}</td>
+            <td style="padding: 12px 0">
+              {{ formatDate(packageData.created_at) }}
+            </td>
           </tr>
         </table>
       </div>

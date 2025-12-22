@@ -1,0 +1,42 @@
+version: '3.8'
+
+# CI / automated-test compose stack.
+# Goals:
+# - Never conflicts with a developer's manual docker-compose stack.
+# - Avoids fixed container names.
+# - Avoids fixed host ports (uses published ports only when needed with random host ports).
+# - Easy to start/stop from GitHub Actions or local CI-parity scripts.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: prompt_gen_marketplace
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # Publish container port 5432 to a random host port to avoid conflicts.
+    ports:
+      - "0:5432"
+    volumes:
+      # Keep schema init, but isolate data volume via project name when invoking compose.
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "0:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  postgres_data:
+

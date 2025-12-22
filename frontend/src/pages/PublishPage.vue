@@ -23,9 +23,6 @@
         <h2>Upload Package File</h2>
 
         <div
-          @drop.prevent="handleDrop"
-          @dragover.prevent="dragOver = true"
-          @dragleave="dragOver = false"
           :style="{
             border: dragOver ? '2px dashed #007bff' : '2px dashed #ddd',
             borderRadius: '8px',
@@ -35,7 +32,10 @@
             cursor: 'pointer',
             marginBottom: '16px',
           }"
-          @click="$refs.fileInput.click()"
+          @drop.prevent="handleDrop"
+          @dragover.prevent="dragOver = true"
+          @dragleave="dragOver = false"
+          @click="fileInput?.click()"
         >
           <div style="font-size: 48px; margin-bottom: 16px">📦</div>
           <p style="font-size: 18px; margin-bottom: 8px">
@@ -46,8 +46,8 @@
             ref="fileInput"
             type="file"
             accept=".yaml,.yml"
-            @change="handleFileSelect"
             style="display: none"
+            @change="handleFileSelect"
           />
         </div>
 
@@ -57,7 +57,6 @@
         >
           <strong>Selected file:</strong> {{ fileName }}
           <button
-            @click="clearFile"
             style="
               margin-left: 12px;
               background: none;
@@ -65,6 +64,7 @@
               color: #dc3545;
               cursor: pointer;
             "
+            @click="clearFile"
           >
             ✕ Clear
           </button>
@@ -73,7 +73,9 @@
         <div v-if="validationErrors.length > 0" class="error" style="margin-bottom: 16px">
           <strong>Validation Errors:</strong>
           <ul style="margin-left: 20px; margin-top: 8px">
-            <li v-for="(err, idx) in validationErrors" :key="idx">{{ err }}</li>
+            <li v-for="(err, idx) in validationErrors" :key="idx">
+              {{ err }}
+            </li>
           </ul>
         </div>
       </div>
@@ -91,15 +93,21 @@
           </tr>
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Name</td>
-            <td style="padding: 12px 0">{{ packageData.metadata?.name }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.metadata?.name }}
+            </td>
           </tr>
           <tr style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Version</td>
-            <td style="padding: 12px 0">{{ packageData.version }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.version }}
+            </td>
           </tr>
           <tr v-if="packageData.metadata?.description" style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Description</td>
-            <td style="padding: 12px 0">{{ packageData.metadata.description }}</td>
+            <td style="padding: 12px 0">
+              {{ packageData.metadata.description }}
+            </td>
           </tr>
           <tr
             v-if="packageData.dependencies && packageData.dependencies.length > 0"
@@ -116,15 +124,21 @@
           </tr>
           <tr v-if="packageData.datatypes" style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Datatypes</td>
-            <td style="padding: 12px 0">{{ Object.keys(packageData.datatypes).length }}</td>
+            <td style="padding: 12px 0">
+              {{ Object.keys(packageData.datatypes).length }}
+            </td>
           </tr>
           <tr v-if="packageData.templates" style="border-bottom: 1px solid #ddd">
             <td style="padding: 12px 0; font-weight: bold">Templates</td>
-            <td style="padding: 12px 0">{{ Object.keys(packageData.templates).length }}</td>
+            <td style="padding: 12px 0">
+              {{ Object.keys(packageData.templates).length }}
+            </td>
           </tr>
           <tr v-if="packageData.rulebooks">
             <td style="padding: 12px 0; font-weight: bold">Rulebooks</td>
-            <td style="padding: 12px 0">{{ Object.keys(packageData.rulebooks).length }}</td>
+            <td style="padding: 12px 0">
+              {{ Object.keys(packageData.rulebooks).length }}
+            </td>
           </tr>
         </table>
       </div>
@@ -169,10 +183,10 @@
         </div>
 
         <div v-else style="display: flex; gap: 12px">
-          <button @click="publishPackage" class="btn btn-primary" :disabled="!selectedPersonaId">
+          <button class="btn btn-primary" :disabled="!selectedPersonaId" @click="publishPackage">
             📤 Publish Package
           </button>
-          <button @click="clearFile" class="btn" style="background: #6c757d; color: white">
+          <button class="btn" style="background: #6c757d; color: white" @click="clearFile">
             Cancel
           </button>
         </div>
@@ -193,7 +207,7 @@
           >
             View Package
           </router-link>
-          <button @click="resetForm" class="btn" style="background: #6c757d; color: white">
+          <button class="btn" style="background: #6c757d; color: white" @click="resetForm">
             Publish Another
           </button>
         </div>
@@ -204,10 +218,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
-const router = useRouter();
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const isLoggedIn = ref(false);
 const dragOver = ref(false);

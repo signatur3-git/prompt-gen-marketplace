@@ -7,7 +7,7 @@
         Welcome back! You're authenticated with public key:
         {{ user?.public_key?.substring(0, 16) }}...
       </p>
-      <button @click="logout" class="btn btn-danger" style="margin-top: 12px">Logout</button>
+      <button class="btn btn-danger" style="margin-top: 12px" @click="logout">Logout</button>
     </div>
 
     <!-- Main hero -->

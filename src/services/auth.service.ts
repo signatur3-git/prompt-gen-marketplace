@@ -226,9 +226,11 @@ export async function authenticateWithChallenge(
 /**
  * Verify JWT token
  */
-export async function verifyToken(
-  token: string
-): Promise<{ user_id: string; public_key: string; persona_id: string }> {
+export function verifyToken(token: string): {
+  user_id: string;
+  public_key: string;
+  persona_id: string;
+} {
   try {
     const decoded = jwt.verify(token, config.jwt.secret) as {
       user_id: string;

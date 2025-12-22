@@ -8,7 +8,7 @@
     <div v-else-if="error" class="card">
       <h2 style="color: #dc3545">Authorization Error</h2>
       <p>{{ error }}</p>
-      <button @click="$router.push('/')" class="btn btn-primary" style="margin-top: 16px">
+      <button class="btn btn-primary" style="margin-top: 16px" @click="$router.push('/')">
         Go Home
       </button>
     </div>
@@ -24,7 +24,9 @@
         <h3 style="margin-bottom: 12px">Application Details</h3>
         <p><strong>App Name:</strong> {{ client.client_name }}</p>
         <p><strong>Client ID:</strong> {{ clientId }}</p>
-        <p style="margin-top: 16px"><strong>Permissions Requested:</strong></p>
+        <p style="margin-top: 16px">
+          <strong>Permissions Requested:</strong>
+        </p>
         <ul style="margin-left: 20px; margin-top: 8px">
           <li>Access your profile information</li>
           <li>Browse packages on your behalf</li>
@@ -36,7 +38,9 @@
         v-if="user"
         style="background: #e7f3ff; padding: 16px; border-radius: 4px; margin-bottom: 24px"
       >
-        <p style="margin-bottom: 4px"><strong>Authorizing as:</strong></p>
+        <p style="margin-bottom: 4px">
+          <strong>Authorizing as:</strong>
+        </p>
         <p style="font-size: 18px">{{ user.public_key?.substring(0, 32) }}...</p>
       </div>
 
@@ -45,13 +49,13 @@
       </div>
 
       <div v-else style="display: flex; gap: 12px; justify-content: center">
-        <button @click="approve" class="btn btn-primary" style="min-width: 120px">
+        <button class="btn btn-primary" style="min-width: 120px" @click="approve">
           ✅ Authorize
         </button>
         <button
-          @click="deny"
           class="btn"
           style="min-width: 120px; background: #6c757d; color: white"
+          @click="deny"
         >
           ❌ Deny
         </button>

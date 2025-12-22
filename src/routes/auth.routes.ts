@@ -120,7 +120,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
  * POST /api/v1/auth/logout
  * Logout (client-side only, just invalidate token on client)
  */
-router.post('/logout', async (_req: Request, res: Response): Promise<void> => {
+router.post('/logout', (_req: Request, res: Response): void => {
   res.json({ message: 'Logged out successfully' });
 });
 
@@ -128,7 +128,7 @@ router.post('/logout', async (_req: Request, res: Response): Promise<void> => {
  * GET /api/v1/auth/keygen
  * Generate a new keypair (for testing/development)
  */
-router.get('/keygen', async (_req: Request, res: Response): Promise<void> => {
+router.get('/keygen', (_req: Request, res: Response): void => {
   try {
     const keyPair = crypto.generateKeyPair();
     const pem = crypto.formatKeyPairAsPEM(keyPair);

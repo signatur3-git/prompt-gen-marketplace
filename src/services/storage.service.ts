@@ -27,7 +27,7 @@ export async function storePackage(
 ): Promise<void> {
   if (USE_S3) {
     // Store in S3-compatible storage
-    await s3Client!
+    await s3Client
       .putObject({
         Bucket: config.s3.bucket,
         Key: path,
@@ -37,7 +37,7 @@ export async function storePackage(
       })
       .promise();
 
-    console.log(`📦 Stored package in S3: ${path}`);
+    console.info(`📦 Stored package in S3: ${path}`);
   } else {
     // Store locally (for development)
     const fullPath = `${LOCAL_STORAGE_PATH}/${path}`;
@@ -48,7 +48,7 @@ export async function storePackage(
     }
 
     writeFileSync(fullPath, content, 'utf8');
-    console.log(`📦 Stored package locally: ${fullPath}`);
+    console.info(`📦 Stored package locally: ${fullPath}`);
   }
 }
 
@@ -58,7 +58,7 @@ export async function storePackage(
 export async function retrievePackage(path: string): Promise<string> {
   if (USE_S3) {
     // Retrieve from S3
-    const result = await s3Client!
+    const result = await s3Client
       .getObject({
         Bucket: config.s3.bucket,
         Key: path,
@@ -79,7 +79,7 @@ export async function retrievePackage(path: string): Promise<string> {
 export async function packageExists(path: string): Promise<boolean> {
   if (USE_S3) {
     try {
-      await s3Client!
+      await s3Client
         .headObject({
           Bucket: config.s3.bucket,
           Key: path,
@@ -100,19 +100,19 @@ export async function packageExists(path: string): Promise<boolean> {
  */
 export async function deletePackage(path: string): Promise<void> {
   if (USE_S3) {
-    await s3Client!
+    await s3Client
       .deleteObject({
         Bucket: config.s3.bucket,
         Key: path,
       })
       .promise();
 
-    console.log(`🗑️  Deleted package from S3: ${path}`);
+    console.info(`🗑️  Deleted package from S3: ${path}`);
   } else {
     const fullPath = `${LOCAL_STORAGE_PATH}/${path}`;
     const fs = await import('fs/promises');
     await fs.unlink(fullPath);
-    console.log(`🗑️  Deleted package locally: ${fullPath}`);
+    console.info(`🗑️  Deleted package locally: ${fullPath}`);
   }
 }
 
@@ -121,7 +121,7 @@ export async function deletePackage(path: string): Promise<void> {
  */
 export async function getDownloadUrl(path: string, expiresIn: number = 3600): Promise<string> {
   if (USE_S3) {
-    return s3Client!.getSignedUrlPromise('getObject', {
+    return s3Client.getSignedUrlPromise('getObject', {
       Bucket: config.s3.bucket,
       Key: path,
       Expires: expiresIn,
@@ -139,13 +139,13 @@ export async function initializeStorage(): Promise<void> {
   if (USE_S3) {
     try {
       // Check if bucket exists
-      await s3Client!.headBucket({ Bucket: config.s3.bucket }).promise();
-      console.log(`✅ S3 bucket exists: ${config.s3.bucket}`);
+      await s3Client.headBucket({ Bucket: config.s3.bucket }).promise();
+      console.info(`✅ S3 bucket exists: ${config.s3.bucket}`);
     } catch {
-      console.log(`⚠️  S3 bucket not found, attempting to create: ${config.s3.bucket}`);
+      console.info(`⚠️  S3 bucket not found, attempting to create: ${config.s3.bucket}`);
       try {
-        await s3Client!.createBucket({ Bucket: config.s3.bucket }).promise();
-        console.log(`✅ S3 bucket created: ${config.s3.bucket}`);
+        await s3Client.createBucket({ Bucket: config.s3.bucket }).promise();
+        console.info(`✅ S3 bucket created: ${config.s3.bucket}`);
       } catch (error: any) {
         console.error(`❌ Failed to create S3 bucket: ${error.message}`);
         console.error('   Please create the bucket manually or check credentials');
@@ -155,9 +155,9 @@ export async function initializeStorage(): Promise<void> {
     // Create local storage directory
     if (!existsSync(LOCAL_STORAGE_PATH)) {
       mkdirSync(LOCAL_STORAGE_PATH, { recursive: true });
-      console.log(`✅ Created local storage directory: ${LOCAL_STORAGE_PATH}`);
+      console.info(`✅ Created local storage directory: ${LOCAL_STORAGE_PATH}`);
     } else {
-      console.log(`✅ Local storage directory exists: ${LOCAL_STORAGE_PATH}`);
+      console.info(`✅ Local storage directory exists: ${LOCAL_STORAGE_PATH}`);
     }
   }
 }

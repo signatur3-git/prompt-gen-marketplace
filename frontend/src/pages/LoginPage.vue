@@ -21,7 +21,7 @@
       <div v-if="!keyData && !isLoggingIn">
         <h3>Step 1: Upload Your Key File</h3>
 
-        <input type="file" @change="handleFileUpload" accept=".pem" style="margin-bottom: 16px" />
+        <input type="file" accept=".pem" style="margin-bottom: 16px" @change="handleFileUpload" />
 
         <p style="font-size: 14px; color: #666">
           Upload the .pem file you downloaded during registration.
@@ -34,12 +34,12 @@
             placeholder="Paste the contents of your .pem file here..."
             rows="8"
             style="font-family: monospace; font-size: 12px"
-          ></textarea>
+          />
           <button
-            @click="parseManualKey"
             class="btn btn-primary"
             :disabled="!manualKey.trim()"
             style="margin-top: 8px"
+            @click="parseManualKey"
           >
             Use This Key
           </button>
@@ -53,14 +53,14 @@
           Public Key: {{ keyData.publicKey.substring(0, 16) }}...
         </p>
 
-        <button @click="login" class="btn btn-primary" style="width: 100%">
+        <button class="btn btn-primary" style="width: 100%" @click="login">
           Login with This Key
         </button>
 
         <button
-          @click="reset"
           class="btn"
           style="width: 100%; margin-top: 8px; background: #6c757d; color: white"
+          @click="reset"
         >
           Use Different Key
         </button>
@@ -94,7 +94,18 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { sha512 } from '@noble/hashes/sha2.js';
-import * as ed25519 from '@noble/ed25519';
+import * as ed25519Import from '@noble/ed25519';
+
+type Ed25519Mutable = typeof ed25519Import & {
+  hashes?: { sha512?: (...m: Uint8Array[]) => Uint8Array };
+  etc?: {
+    sha512Sync?: (...m: Uint8Array[]) => Uint8Array;
+    sha512Async?: (...m: Uint8Array[]) => Promise<Uint8Array>;
+  };
+};
+
+// Create a local mutable handle so bundlers don't see us mutating an import namespace.
+const ed25519 = ed25519Import as Ed25519Mutable;
 
 // CRITICAL: Set up SHA-512 IMMEDIATELY after imports, before any other code
 // The @noble/ed25519 library requires this to be set before calling any functions
@@ -110,22 +121,13 @@ const sha512Impl = (...m: Uint8Array[]) => {
 };
 
 // Set on HASHES object (this is what the library checks!)
-if (!ed25519.hashes) {
-  (ed25519 as any).hashes = {};
-}
-(ed25519 as any).hashes.sha512 = sha512Impl;
+ed25519.hashes = { ...(ed25519.hashes ?? {}) };
+ed25519.hashes.sha512 = sha512Impl;
 
 // Also set on etc for good measure
+ed25519.etc = { ...(ed25519.etc ?? {}) };
 ed25519.etc.sha512Sync = sha512Impl;
 ed25519.etc.sha512Async = (...m: Uint8Array[]) => Promise.resolve(sha512Impl(...m));
-
-// Verify the setup
-console.log('SHA-512 setup complete:', {
-  hashes_sha512: !!(ed25519 as any).hashes?.sha512,
-  etc_sha512Sync: !!ed25519.etc.sha512Sync,
-  etc_sha512Async: !!ed25519.etc.sha512Async,
-  ed25519_keys: Object.keys(ed25519),
-});
 
 const router = useRouter();
 
@@ -210,11 +212,11 @@ async function login() {
     const seedBytes = secretKeyBytes.slice(0, 32); // Use only the first 32 bytes
     const messageBytes = new TextEncoder().encode(challenge);
 
-    console.log('Signing challenge...', {
-      seedLength: seedBytes.length,
-      messageLength: messageBytes.length,
-      sha512Configured: !!ed25519.etc.sha512Async,
-    });
+    // console.log('Signing challenge...', {
+    //   seedLength: seedBytes.length,
+    //   messageLength: messageBytes.length,
+    //   sha512Configured: !!ed25519.etc.sha512Async,
+    // });
 
     const signature = await ed25519.sign(messageBytes, seedBytes);
     const signatureHex = bytesToHex(signature);
