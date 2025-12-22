@@ -9,6 +9,7 @@ import namespaceRoutes from './routes/namespace.routes.js';
 import packageRoutes from './routes/package.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import oauthRoutes from './routes/oauth.routes.js';
+import path from 'path';
 
 const app = express();
 
@@ -52,8 +53,8 @@ app.use('/api/v1/packages', packageRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/oauth', oauthRoutes);
 
-// Root endpoint
-app.get('/', (_req, res) => {
+// API root endpoint (kept for debugging / discovery)
+app.get('/api', (_req, res) => {
   res.json({
     name: 'Prompt Gen Marketplace',
     version: '0.1.0',
@@ -70,18 +71,49 @@ app.get('/', (_req, res) => {
   });
 });
 
+// Serve the frontend in production (the Vite build outputs to dist/public)
+if (config.env === 'production') {
+  const publicDir = path.join(process.cwd(), 'dist', 'public');
+  app.use(express.static(publicDir));
+
+  // SPA fallback: let the Vue router handle non-API routes.
+  app.get(/^(?!\/api\/).*/, (_req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+}
+
+// Root endpoint
+app.get('/', (_req, res) => {
+  // In production, the frontend is served as a static SPA from index.html.
+  // In development, keep a simple JSON response.
+  res.json({
+    name: 'Prompt Gen Marketplace',
+    version: '0.1.0',
+    description: 'Package registry and discovery platform for Prompt Gen ecosystem',
+    endpoints: {
+      health: '/health',
+      api: '/api',
+    },
+  });
+});
+
 // 404 handler
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
 // Error handler
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({
-    error: 'Internal server error',
-    message: config.env === 'development' ? err.message : undefined,
-  });
-});
+app.use(
+  (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    console.error('Unhandled error:', err);
+
+    const message = err instanceof Error ? err.message : undefined;
+
+    res.status(500).json({
+      error: 'Internal server error',
+      message: config.env === 'development' ? message : undefined,
+    });
+  }
+);
 
 export default app;
