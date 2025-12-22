@@ -71,17 +71,10 @@ export function isValidNamespaceName(name: string): boolean {
  * Reserved namespaces will be defined by the user later
  */
 export function isReservedNamespace(name: string): boolean {
-  const reserved = [
-    'system',
-    'admin',
-    'api',
-    'www',
-    'marketplace',
-    'registry',
-  ];
+  const reserved = ['system', 'admin', 'api', 'www', 'marketplace', 'registry'];
 
   // Exact match or starts with reserved prefix
-  return reserved.some(r => name === r || name.startsWith(`${r}.`));
+  return reserved.some((r) => name === r || name.startsWith(`${r}.`));
 }
 
 /**
@@ -120,10 +113,7 @@ export async function getNamespaces(filters?: {
  * Get namespace by name
  */
 export async function getNamespaceByName(name: string): Promise<Namespace | null> {
-  const namespaces = await query<Namespace>(
-    'SELECT * FROM namespaces WHERE name = $1',
-    [name]
-  );
+  const namespaces = await query<Namespace>('SELECT * FROM namespaces WHERE name = $1', [name]);
   return namespaces[0] || null;
 }
 
@@ -152,12 +142,7 @@ export async function createNamespace(input: CreateNamespaceInput): Promise<Name
     `INSERT INTO namespaces (name, owner_id, protection_level, description) 
      VALUES ($1, $2, $3, $4) 
      RETURNING *`,
-    [
-      input.name,
-      input.owner_id,
-      input.protection_level || 'protected',
-      input.description || null,
-    ]
+    [input.name, input.owner_id, input.protection_level || 'protected', input.description || null]
   );
 
   return namespaces[0];
@@ -214,7 +199,10 @@ export async function updateNamespace(
 /**
  * Check if user can publish to namespace
  */
-export async function canPublishToNamespace(namespaceName: string, userId: string): Promise<boolean> {
+export async function canPublishToNamespace(
+  namespaceName: string,
+  userId: string
+): Promise<boolean> {
   const namespace = await getNamespaceByName(namespaceName);
 
   if (!namespace) {
@@ -239,7 +227,10 @@ export async function canPublishToNamespace(namespaceName: string, userId: strin
 /**
  * Check if user can view namespace packages
  */
-export async function canViewNamespace(namespaceName: string, userId: string | null): Promise<boolean> {
+export async function canViewNamespace(
+  namespaceName: string,
+  userId: string | null
+): Promise<boolean> {
   const namespace = await getNamespaceByName(namespaceName);
 
   if (!namespace) {
@@ -281,4 +272,3 @@ export async function autoClaimNamespace(
     protection_level: protectionLevel,
   });
 }
-

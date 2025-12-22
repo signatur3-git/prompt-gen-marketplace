@@ -40,10 +40,9 @@ export interface AccessToken {
  * Get OAuth client by client_id
  */
 export async function getClient(clientId: string): Promise<OAuthClient | null> {
-  const clients = await query<OAuthClient>(
-    'SELECT * FROM oauth_clients WHERE client_id = $1',
-    [clientId]
-  );
+  const clients = await query<OAuthClient>('SELECT * FROM oauth_clients WHERE client_id = $1', [
+    clientId,
+  ]);
   return clients[0] || null;
 }
 
@@ -79,11 +78,7 @@ export async function createAuthorizationCode(
 /**
  * Validate PKCE code verifier against challenge
  */
-export function validatePKCE(
-  codeChallenge: string,
-  codeVerifier: string,
-  method: string
-): boolean {
+export function validatePKCE(codeChallenge: string, codeVerifier: string, method: string): boolean {
   if (method === 'S256') {
     // SHA-256 hash of verifier should match challenge
     const hash = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
@@ -159,10 +154,7 @@ export async function exchangeCodeForToken(
  * Validate access token
  */
 export async function validateAccessToken(token: string): Promise<AccessToken | null> {
-  const tokens = await query<AccessToken>(
-    'SELECT * FROM access_tokens WHERE token = $1',
-    [token]
-  );
+  const tokens = await query<AccessToken>('SELECT * FROM access_tokens WHERE token = $1', [token]);
 
   if (tokens.length === 0) {
     return null;
@@ -202,9 +194,8 @@ export async function getUserTokens(userId: string): Promise<AccessToken[]> {
  * Revoke all tokens for a user and client
  */
 export async function revokeUserClientTokens(userId: string, clientId: string): Promise<void> {
-  await query(
-    'DELETE FROM access_tokens WHERE user_id = $1 AND client_id = $2',
-    [userId, clientId]
-  );
+  await query('DELETE FROM access_tokens WHERE user_id = $1 AND client_id = $2', [
+    userId,
+    clientId,
+  ]);
 }
-

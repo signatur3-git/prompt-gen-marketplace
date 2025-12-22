@@ -16,7 +16,10 @@ async function start() {
     // Initialize storage
     await initializeStorage();
     const storageInfo = getStorageInfo();
-    console.log(`✅ Storage initialized: ${storageInfo.type}`, storageInfo.type === 'S3' ? storageInfo.bucket : storageInfo.path);
+    console.log(
+      `✅ Storage initialized: ${storageInfo.type}`,
+      storageInfo.type === 'S3' ? storageInfo.bucket : storageInfo.path
+    );
 
     // Start server
     const server = app.listen(config.port, config.host, () => {
@@ -54,4 +57,3 @@ async function start() {
 }
 
 start();
-

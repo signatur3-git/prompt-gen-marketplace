@@ -112,8 +112,8 @@ export async function resolveDependencies(
 
       // Filter out yanked versions
       const availableVersions = pkgWithVersions.versions
-        .filter(v => !v.yanked_at)
-        .map(v => v.version);
+        .filter((v) => !v.yanked_at)
+        .map((v) => v.version);
 
       // Find best matching version
       const matchingVersion = semver.maxSatisfying(availableVersions, constraint);
@@ -197,7 +197,7 @@ export async function resolveDependencies(
       package: pkgId,
       version: resolvedVersion,
       checksum,
-      dependencies: deps.map(d => getPackageId(d.depends_on_namespace, d.depends_on_name)),
+      dependencies: deps.map((d) => getPackageId(d.depends_on_namespace, d.depends_on_name)),
     });
   }
 
@@ -330,10 +330,7 @@ export function isValidVersionConstraint(constraint: string): boolean {
 /**
  * Get latest version matching constraint
  */
-export function getLatestMatchingVersion(
-  versions: string[],
-  constraint: string
-): string | null {
+export function getLatestMatchingVersion(versions: string[], constraint: string): string | null {
   return semver.maxSatisfying(versions, constraint);
 }
 
@@ -343,4 +340,3 @@ export function getLatestMatchingVersion(
 export function compareVersions(v1: string, v2: string): number {
   return semver.compare(v1, v2);
 }
-

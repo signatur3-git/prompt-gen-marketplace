@@ -3,8 +3,8 @@ import * as authService from '../services/auth.service.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
-    user_id: string;  // From JWT payload
-    id?: string;      // Alias for convenience
+    user_id: string; // From JWT payload
+    id?: string; // Alias for convenience
     public_key: string;
     persona_id: string;
     is_admin?: boolean;
@@ -56,7 +56,7 @@ export const requireAuth = authenticate;
  */
 export async function optionalAuthenticate(
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
@@ -78,4 +78,3 @@ export async function optionalAuthenticate(
     next();
   }
 }
-

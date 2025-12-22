@@ -40,4 +40,3 @@ export async function close() {
   await pool.end();
   console.log('🔌 Database connection closed');
 }
-

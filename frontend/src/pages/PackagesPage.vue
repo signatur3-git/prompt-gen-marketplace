@@ -6,25 +6,32 @@
       {{ error }}
     </div>
 
-    <div v-if="loading" style="text-align: center; padding: 40px;">
-      <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+    <div v-if="loading" style="text-align: center; padding: 40px">
+      <div style="font-size: 48px; margin-bottom: 16px">📦</div>
       <h3>Loading packages...</h3>
     </div>
 
     <div v-else>
       <!-- Search and Filters -->
-      <div class="card" style="margin-bottom: 20px;">
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <div class="card" style="margin-bottom: 20px">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap">
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Search by name, namespace, or description..."
-            style="flex: 1; min-width: 250px; font-size: 16px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+            style="
+              flex: 1;
+              min-width: 250px;
+              font-size: 16px;
+              padding: 10px;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+            "
           />
 
           <select
             v-model="sortBy"
-            style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;"
+            style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px"
           >
             <option value="updated">Latest Updated</option>
             <option value="name">Name (A-Z)</option>
@@ -34,29 +41,42 @@
       </div>
 
       <!-- Results info -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <p style="color: #666;">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        "
+      >
+        <p style="color: #666">
           Showing {{ paginatedPackages.length }} of {{ filteredPackages.length }} package(s)
         </p>
 
         <!-- Pagination controls -->
-        <div v-if="totalPages > 1" style="display: flex; gap: 8px; align-items: center;">
+        <div v-if="totalPages > 1" style="display: flex; gap: 8px; align-items: center">
           <button
             @click="currentPage--"
             :disabled="currentPage === 1"
             class="btn"
-            style="padding: 6px 12px; font-size: 14px;"
-            :style="{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }"
+            style="padding: 6px 12px; font-size: 14px"
+            :style="{
+              opacity: currentPage === 1 ? 0.5 : 1,
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            }"
           >
             ← Previous
           </button>
-          <span style="color: #666;">Page {{ currentPage }} of {{ totalPages }}</span>
+          <span style="color: #666">Page {{ currentPage }} of {{ totalPages }}</span>
           <button
             @click="currentPage++"
             :disabled="currentPage === totalPages"
             class="btn"
-            style="padding: 6px 12px; font-size: 14px;"
-            :style="{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }"
+            style="padding: 6px 12px; font-size: 14px"
+            :style="{
+              opacity: currentPage === totalPages ? 0.5 : 1,
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            }"
           >
             Next →
           </button>
@@ -64,39 +84,67 @@
       </div>
 
       <!-- Packages list -->
-      <div v-if="filteredPackages.length === 0 && searchQuery" class="card" style="text-align: center; padding: 60px 24px;">
-        <div style="font-size: 64px; margin-bottom: 16px;">🔍</div>
+      <div
+        v-if="filteredPackages.length === 0 && searchQuery"
+        class="card"
+        style="text-align: center; padding: 60px 24px"
+      >
+        <div style="font-size: 64px; margin-bottom: 16px">🔍</div>
         <h2>No Results Found</h2>
-        <p style="color: #666; margin: 16px 0;">
-          No packages match your search "{{ searchQuery }}"
-        </p>
-        <button @click="searchQuery = ''" class="btn btn-primary" style="margin-top: 12px;">
+        <p style="color: #666; margin: 16px 0">No packages match your search "{{ searchQuery }}"</p>
+        <button @click="searchQuery = ''" class="btn btn-primary" style="margin-top: 12px">
           Clear Search
         </button>
       </div>
 
-      <div v-else-if="packages.length === 0" class="card" style="text-align: center; padding: 60px 24px;">
-        <div style="font-size: 64px; margin-bottom: 16px;">📦</div>
+      <div
+        v-else-if="packages.length === 0"
+        class="card"
+        style="text-align: center; padding: 60px 24px"
+      >
+        <div style="font-size: 64px; margin-bottom: 16px">📦</div>
         <h2>No Packages Yet</h2>
-        <p style="color: #666; margin: 16px 0;">
+        <p style="color: #666; margin: 16px 0">
           The marketplace is empty. Be the first to publish a package!
         </p>
-        <router-link v-if="isLoggedIn" to="/publish" class="btn btn-primary" style="text-decoration: none; display: inline-block; margin-top: 12px;">
+        <router-link
+          v-if="isLoggedIn"
+          to="/publish"
+          class="btn btn-primary"
+          style="text-decoration: none; display: inline-block; margin-top: 12px"
+        >
           Publish a Package
         </router-link>
       </div>
 
       <div v-else>
-        <div v-for="pkg in paginatedPackages" :key="pkg.id" class="card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" @click="goToPackage(pkg)" @mouseover="$event.currentTarget.style.transform = 'translateY(-2px)'; $event.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'" @mouseout="$event.currentTarget.style.transform = ''; $event.currentTarget.style.boxShadow = ''">
-          <div style="display: flex; justify-content: space-between; align-items: start;">
-            <div style="flex: 1;">
-              <h2 style="margin-bottom: 8px; color: #007bff;">
-                {{ pkg.namespace }}.{{ pkg.name }}
-              </h2>
-              <p style="color: #666; margin-bottom: 12px;">
+        <div
+          v-for="pkg in paginatedPackages"
+          :key="pkg.id"
+          class="card"
+          style="
+            cursor: pointer;
+            transition:
+              transform 0.2s,
+              box-shadow 0.2s;
+          "
+          @click="goToPackage(pkg)"
+          @mouseover="
+            $event.currentTarget.style.transform = 'translateY(-2px)';
+            $event.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+          "
+          @mouseout="
+            $event.currentTarget.style.transform = '';
+            $event.currentTarget.style.boxShadow = '';
+          "
+        >
+          <div style="display: flex; justify-content: space-between; align-items: start">
+            <div style="flex: 1">
+              <h2 style="margin-bottom: 8px; color: #007bff">{{ pkg.namespace }}.{{ pkg.name }}</h2>
+              <p style="color: #666; margin-bottom: 12px">
                 {{ pkg.description || 'No description available' }}
               </p>
-              <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; color: #666;">
+              <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; color: #666">
                 <span>📌 Latest: v{{ pkg.latest_version }}</span>
                 <span>📅 {{ formatDate(pkg.updated_at) }}</span>
                 <span v-if="pkg.download_count">📥 {{ pkg.download_count }} downloads</span>
@@ -104,7 +152,15 @@
               </div>
             </div>
             <div>
-              <span style="background: #e7f3ff; color: #007bff; padding: 4px 12px; border-radius: 4px; font-size: 14px;">
+              <span
+                style="
+                  background: #e7f3ff;
+                  color: #007bff;
+                  padding: 4px 12px;
+                  border-radius: 4px;
+                  font-size: 14px;
+                "
+              >
                 {{ pkg.protection_level || 'public' }}
               </span>
             </div>
@@ -113,21 +169,36 @@
       </div>
 
       <!-- Bottom pagination -->
-      <div v-if="totalPages > 1" style="display: flex; justify-content: center; gap: 8px; align-items: center; margin-top: 24px;">
+      <div
+        v-if="totalPages > 1"
+        style="
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          align-items: center;
+          margin-top: 24px;
+        "
+      >
         <button
           @click="currentPage--"
           :disabled="currentPage === 1"
           class="btn"
-          :style="{ opacity: currentPage === 1 ? 0.5 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }"
+          :style="{
+            opacity: currentPage === 1 ? 0.5 : 1,
+            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+          }"
         >
           ← Previous
         </button>
-        <span style="color: #666;">Page {{ currentPage }} of {{ totalPages }}</span>
+        <span style="color: #666">Page {{ currentPage }} of {{ totalPages }}</span>
         <button
           @click="currentPage++"
           :disabled="currentPage === totalPages"
           class="btn"
-          :style="{ opacity: currentPage === totalPages ? 0.5 : 1, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }"
+          :style="{
+            opacity: currentPage === totalPages ? 0.5 : 1,
+            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+          }"
         >
           Next →
         </button>
@@ -172,34 +243,29 @@ const filteredPackages = computed(() => {
   // Search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(pkg =>
-      pkg.name.toLowerCase().includes(query) ||
-      pkg.namespace.toLowerCase().includes(query) ||
-      (pkg.description && pkg.description.toLowerCase().includes(query)) ||
-      `${pkg.namespace}.${pkg.name}`.toLowerCase().includes(query)
+    filtered = filtered.filter(
+      (pkg) =>
+        pkg.name.toLowerCase().includes(query) ||
+        pkg.namespace.toLowerCase().includes(query) ||
+        (pkg.description && pkg.description.toLowerCase().includes(query)) ||
+        `${pkg.namespace}.${pkg.name}`.toLowerCase().includes(query)
     );
   }
 
   // Sort
   const sorted = [...filtered];
   if (sortBy.value === 'name') {
-    sorted.sort((a, b) =>
-      `${a.namespace}.${a.name}`.localeCompare(`${b.namespace}.${b.name}`)
-    );
+    sorted.sort((a, b) => `${a.namespace}.${a.name}`.localeCompare(`${b.namespace}.${b.name}`));
   } else if (sortBy.value === 'downloads') {
     sorted.sort((a, b) => (b.download_count || 0) - (a.download_count || 0));
   } else if (sortBy.value === 'updated') {
-    sorted.sort((a, b) =>
-      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-    );
+    sorted.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   }
 
   return sorted;
 });
 
-const totalPages = computed(() =>
-  Math.ceil(filteredPackages.value.length / itemsPerPage)
-);
+const totalPages = computed(() => Math.ceil(filteredPackages.value.length / itemsPerPage));
 
 const paginatedPackages = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
@@ -227,7 +293,6 @@ async function loadPackages() {
   }
 }
 
-
 function goToPackage(pkg: any) {
   router.push(`/packages/${pkg.namespace}/${pkg.name}`);
 }
@@ -250,7 +315,6 @@ function formatDate(dateString: string): string {
 <style scoped>
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 </style>
-

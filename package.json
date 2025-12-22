@@ -21,7 +21,14 @@
     "db:seed": "tsx database/seed.ts",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\""
+    "lint:frontend": "eslint frontend/src --ext .ts,.vue",
+    "lint:frontend:fix": "eslint frontend/src --ext .ts,.vue --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"frontend/src/**/*.{ts,vue}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"frontend/src/**/*.{ts,vue}\"",
+    "type-check": "tsc --noEmit",
+    "type-check:frontend": "vue-tsc --noEmit -p frontend/tsconfig.json",
+    "validate": "npm run format:check && npm run lint && npm run lint:frontend && npm run type-check && npm run type-check:frontend && npm run test -- --run",
+    "validate:ci": "npm run validate && npm run build:all"
   },
   "keywords": [
     "prompt-generation",
@@ -61,12 +68,15 @@
     "@types/node": "^20.10.6",
     "@types/semver": "^7.5.6",
     "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitest/coverage-v8": "^1.1.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
     "concurrently": "^9.2.1",
     "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.20.1",
     "node-pg-migrate": "^6.2.2",
     "prettier": "^3.1.1",
     "supertest": "^6.3.3",
@@ -75,7 +85,8 @@
     "vite": "^7.3.0",
     "vitest": "^1.1.0",
     "vue": "^3.5.26",
-    "vue-router": "^4.6.4"
+    "vue-router": "^4.6.4",
+    "vue-tsc": "^2.0.0"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -1,0 +1,27 @@
+{
+  "root": true,
+  "extends": [
+    "plugin:vue/vue3-recommended",
+    "@vue/eslint-config-typescript/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022
+  },
+  "env": {
+    "browser": true,
+    "es2022": true
+  },
+  "rules": {
+    "vue/multi-word-component-names": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-explicit-any": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
+  }
+}
+

@@ -1,17 +1,19 @@
 <template>
   <div class="container">
-    <div class="card" style="max-width: 600px; margin: 40px auto;">
+    <div class="card" style="max-width: 600px; margin: 40px auto">
       <h1>Login to Marketplace</h1>
 
-      <p style="margin-bottom: 24px;">
-        Login with your key file to access the marketplace.
-      </p>
+      <p style="margin-bottom: 24px">Login with your key file to access the marketplace.</p>
 
       <div v-if="error" class="error">
         {{ error }}
       </div>
 
-      <div v-if="success" class="warning" style="background: #d4edda; border-color: #c3e6cb; color: #155724;">
+      <div
+        v-if="success"
+        class="warning"
+        style="background: #d4edda; border-color: #c3e6cb; color: #155724"
+      >
         {{ success }}
       </div>
 
@@ -19,30 +21,25 @@
       <div v-if="!keyData && !isLoggingIn">
         <h3>Step 1: Upload Your Key File</h3>
 
-        <input
-          type="file"
-          @change="handleFileUpload"
-          accept=".pem"
-          style="margin-bottom: 16px;"
-        />
+        <input type="file" @change="handleFileUpload" accept=".pem" style="margin-bottom: 16px" />
 
-        <p style="font-size: 14px; color: #666;">
+        <p style="font-size: 14px; color: #666">
           Upload the .pem file you downloaded during registration.
         </p>
 
-        <div style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 4px;">
+        <div style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 4px">
           <p><strong>Or paste your keys manually:</strong></p>
           <textarea
             v-model="manualKey"
             placeholder="Paste the contents of your .pem file here..."
             rows="8"
-            style="font-family: monospace; font-size: 12px;"
+            style="font-family: monospace; font-size: 12px"
           ></textarea>
           <button
             @click="parseManualKey"
             class="btn btn-primary"
             :disabled="!manualKey.trim()"
-            style="margin-top: 8px;"
+            style="margin-top: 8px"
           >
             Use This Key
           </button>
@@ -52,41 +49,41 @@
       <!-- Step 2: Sign challenge -->
       <div v-if="keyData && !isLoggingIn">
         <h3>✅ Key File Loaded</h3>
-        <p style="color: #28a745; margin-bottom: 16px;">
+        <p style="color: #28a745; margin-bottom: 16px">
           Public Key: {{ keyData.publicKey.substring(0, 16) }}...
         </p>
 
-        <button
-          @click="login"
-          class="btn btn-primary"
-          style="width: 100%;"
-        >
+        <button @click="login" class="btn btn-primary" style="width: 100%">
           Login with This Key
         </button>
 
         <button
           @click="reset"
           class="btn"
-          style="width: 100%; margin-top: 8px; background: #6c757d; color: white;"
+          style="width: 100%; margin-top: 8px; background: #6c757d; color: white"
         >
           Use Different Key
         </button>
       </div>
 
       <!-- Step 3: Logging in -->
-      <div v-if="isLoggingIn" style="text-align: center; padding: 40px;">
-        <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
+      <div v-if="isLoggingIn" style="text-align: center; padding: 40px">
+        <div style="font-size: 48px; margin-bottom: 16px">🔐</div>
         <h3>Authenticating...</h3>
-        <p style="color: #666;">
+        <p style="color: #666">
           {{ loginStatus }}
         </p>
       </div>
     </div>
 
-    <div class="card" style="max-width: 600px; margin: 0 auto; background: #e7f3ff;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; background: #e7f3ff">
       <h3>Don't have a key file?</h3>
       <p>If you haven't registered yet, you'll need to create an account first.</p>
-      <router-link to="/register" class="btn btn-primary" style="margin-top: 12px; display: inline-block; text-decoration: none;">
+      <router-link
+        to="/register"
+        class="btn btn-primary"
+        style="margin-top: 12px; display: inline-block; text-decoration: none"
+      >
         Register for Account
       </router-link>
     </div>
@@ -127,7 +124,7 @@ console.log('SHA-512 setup complete:', {
   hashes_sha512: !!(ed25519 as any).hashes?.sha512,
   etc_sha512Sync: !!ed25519.etc.sha512Sync,
   etc_sha512Async: !!ed25519.etc.sha512Async,
-  ed25519_keys: Object.keys(ed25519)
+  ed25519_keys: Object.keys(ed25519),
 });
 
 const router = useRouter();
@@ -194,7 +191,9 @@ async function login() {
   try {
     // Step 1: Get challenge
     loginStatus.value = 'Requesting authentication challenge...';
-    const challengeRes = await fetch(`/api/v1/auth/challenge?public_key=${keyData.value.publicKey}`);
+    const challengeRes = await fetch(
+      `/api/v1/auth/challenge?public_key=${keyData.value.publicKey}`
+    );
 
     if (!challengeRes.ok) {
       const data = await challengeRes.json();
@@ -214,7 +213,7 @@ async function login() {
     console.log('Signing challenge...', {
       seedLength: seedBytes.length,
       messageLength: messageBytes.length,
-      sha512Configured: !!ed25519.etc.sha512Async
+      sha512Configured: !!ed25519.etc.sha512Async,
     });
 
     const signature = await ed25519.sign(messageBytes, seedBytes);
@@ -250,7 +249,6 @@ async function login() {
     setTimeout(() => {
       router.push('/');
     }, 1500);
-
   } catch (err: any) {
     error.value = err.message;
     isLoggingIn.value = false;
@@ -275,8 +273,7 @@ function hexToBytes(hex: string): Uint8Array {
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes)
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 </script>
-

@@ -27,13 +27,15 @@ export async function storePackage(
 ): Promise<void> {
   if (USE_S3) {
     // Store in S3-compatible storage
-    await s3Client!.putObject({
-      Bucket: config.s3.bucket,
-      Key: path,
-      Body: content,
-      ContentType: contentType,
-      CacheControl: 'public, max-age=31536000, immutable', // Cache for 1 year (packages are immutable)
-    }).promise();
+    await s3Client!
+      .putObject({
+        Bucket: config.s3.bucket,
+        Key: path,
+        Body: content,
+        ContentType: contentType,
+        CacheControl: 'public, max-age=31536000, immutable', // Cache for 1 year (packages are immutable)
+      })
+      .promise();
 
     console.log(`📦 Stored package in S3: ${path}`);
   } else {
@@ -56,10 +58,12 @@ export async function storePackage(
 export async function retrievePackage(path: string): Promise<string> {
   if (USE_S3) {
     // Retrieve from S3
-    const result = await s3Client!.getObject({
-      Bucket: config.s3.bucket,
-      Key: path,
-    }).promise();
+    const result = await s3Client!
+      .getObject({
+        Bucket: config.s3.bucket,
+        Key: path,
+      })
+      .promise();
 
     return result.Body!.toString('utf8');
   } else {
@@ -75,10 +79,12 @@ export async function retrievePackage(path: string): Promise<string> {
 export async function packageExists(path: string): Promise<boolean> {
   if (USE_S3) {
     try {
-      await s3Client!.headObject({
-        Bucket: config.s3.bucket,
-        Key: path,
-      }).promise();
+      await s3Client!
+        .headObject({
+          Bucket: config.s3.bucket,
+          Key: path,
+        })
+        .promise();
       return true;
     } catch {
       return false;
@@ -94,10 +100,12 @@ export async function packageExists(path: string): Promise<boolean> {
  */
 export async function deletePackage(path: string): Promise<void> {
   if (USE_S3) {
-    await s3Client!.deleteObject({
-      Bucket: config.s3.bucket,
-      Key: path,
-    }).promise();
+    await s3Client!
+      .deleteObject({
+        Bucket: config.s3.bucket,
+        Key: path,
+      })
+      .promise();
 
     console.log(`🗑️  Deleted package from S3: ${path}`);
   } else {
@@ -176,4 +184,3 @@ export function getStorageInfo(): {
     };
   }
 }
-

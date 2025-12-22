@@ -41,4 +41,3 @@ router.afterEach(() => {
   checkLoginStatus();
 });
 </script>
-

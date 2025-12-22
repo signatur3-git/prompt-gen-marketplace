@@ -10,9 +10,15 @@ describe('Namespace service', () => {
       expect(namespaceService.isValidNamespaceName('namespace123')).toBe(true);
       expect(namespaceService.isValidNamespaceName('a1')).toBe(true);
       // Test realistic long namespaces
-      expect(namespaceService.isValidNamespaceName('p.signatur3.midjourney.v8.sref.mining')).toBe(true);
-      expect(namespaceService.isValidNamespaceName('p.signatur3.midjourney.v8.sref.favorites')).toBe(true);
-      expect(namespaceService.isValidNamespaceName('p.signatur3.midjourney.v8.showcase')).toBe(true);
+      expect(namespaceService.isValidNamespaceName('p.signatur3.midjourney.v8.sref.mining')).toBe(
+        true
+      );
+      expect(
+        namespaceService.isValidNamespaceName('p.signatur3.midjourney.v8.sref.favorites')
+      ).toBe(true);
+      expect(namespaceService.isValidNamespaceName('p.signatur3.midjourney.v8.showcase')).toBe(
+        true
+      );
     });
 
     it('should reject namespace names that are too short', () => {
@@ -69,4 +75,3 @@ describe('Namespace service', () => {
     });
   });
 });
-

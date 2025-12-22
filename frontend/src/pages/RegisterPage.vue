@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div class="card" style="max-width: 600px; margin: 40px auto;">
+    <div class="card" style="max-width: 600px; margin: 40px auto">
       <h1>Register for Marketplace</h1>
 
-      <p style="margin-bottom: 24px;">
+      <p style="margin-bottom: 24px">
         Create your marketplace account to publish and download packages.
       </p>
 
@@ -21,7 +21,7 @@
             required
           />
         </label>
-        <p style="font-size: 14px; color: #666; margin: -8px 0 16px 0;">
+        <p style="font-size: 14px; color: #666; margin: -8px 0 16px 0">
           This is your public identity on the marketplace. You can create additional personas later.
         </p>
 
@@ -29,7 +29,7 @@
           type="submit"
           class="btn btn-primary"
           :disabled="loading || !personaName.trim()"
-          style="width: 100%;"
+          style="width: 100%"
         >
           {{ loading ? 'Creating Account...' : 'Create Account' }}
         </button>
@@ -43,28 +43,36 @@
 
         <div class="warning">
           <p><strong>CRITICAL:</strong> This is your ONLY copy of the secret key.</p>
-          <p style="margin-top: 8px;">We CANNOT recover it if you lose it!</p>
-          <p style="margin-top: 8px;">Without this key, you cannot:</p>
-          <ul style="margin-left: 20px; margin-top: 8px;">
+          <p style="margin-top: 8px">We CANNOT recover it if you lose it!</p>
+          <p style="margin-top: 8px">Without this key, you cannot:</p>
+          <ul style="margin-left: 20px; margin-top: 8px">
             <li>Login to your account</li>
             <li>Publish packages</li>
             <li>Manage your namespaces</li>
           </ul>
         </div>
 
-        <p style="margin: 16px 0;">
-          Click the button below to download your key file:
-        </p>
+        <p style="margin: 16px 0">Click the button below to download your key file:</p>
 
         <button
           @click="downloadKey"
           class="btn btn-primary"
-          style="width: 100%; margin-bottom: 16px;"
+          style="width: 100%; margin-bottom: 16px"
         >
           📥 Download Key File ({{ keyfile.filename }})
         </button>
 
-        <div style="background: #f8f9fa; padding: 12px; border-radius: 4px; margin: 16px 0; font-family: monospace; font-size: 12px; word-break: break-all;">
+        <div
+          style="
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 16px 0;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+          "
+        >
           {{ keyfile.content.substring(0, 100) }}...
         </div>
 
@@ -77,7 +85,7 @@
           @click="complete"
           :disabled="!confirmed"
           class="btn btn-primary"
-          style="width: 100%;"
+          style="width: 100%"
         >
           Continue to Dashboard
         </button>
@@ -107,7 +115,7 @@ async function register() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        persona_name: personaName.value.trim()
+        persona_name: personaName.value.trim(),
       }),
     });
 
@@ -147,4 +155,3 @@ function complete() {
   router.push('/login');
 }
 </script>
-

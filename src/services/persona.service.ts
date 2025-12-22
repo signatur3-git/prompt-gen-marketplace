@@ -30,10 +30,7 @@ export async function getPersonasByUserId(userId: string): Promise<Persona[]> {
  * Get persona by ID
  */
 export async function getPersonaById(personaId: string): Promise<Persona | null> {
-  const personas = await query<Persona>(
-    'SELECT * FROM personas WHERE id = $1',
-    [personaId]
-  );
+  const personas = await query<Persona>('SELECT * FROM personas WHERE id = $1', [personaId]);
   return personas[0] || null;
 }
 
@@ -42,10 +39,10 @@ export async function getPersonaById(personaId: string): Promise<Persona | null>
  */
 export async function createPersona(input: CreatePersonaInput): Promise<Persona> {
   // Validate unique name per user
-  const existing = await query<Persona>(
-    'SELECT * FROM personas WHERE user_id = $1 AND name = $2',
-    [input.user_id, input.name]
-  );
+  const existing = await query<Persona>('SELECT * FROM personas WHERE user_id = $1 AND name = $2', [
+    input.user_id,
+    input.name,
+  ]);
 
   if (existing.length > 0) {
     throw new Error('Persona with this name already exists for this user');
@@ -55,13 +52,7 @@ export async function createPersona(input: CreatePersonaInput): Promise<Persona>
     `INSERT INTO personas (user_id, name, avatar_url, bio, website) 
      VALUES ($1, $2, $3, $4, $5) 
      RETURNING *`,
-    [
-      input.user_id,
-      input.name,
-      input.avatar_url || null,
-      input.bio || null,
-      input.website || null,
-    ]
+    [input.user_id, input.name, input.avatar_url || null, input.bio || null, input.website || null]
   );
 
   return personas[0];
@@ -185,10 +176,7 @@ export async function setPrimaryPersona(personaId: string, userId: string): Prom
     await client.query('BEGIN');
 
     // Unset all primary flags for this user
-    await client.query(
-      'UPDATE personas SET is_primary = false WHERE user_id = $1',
-      [userId]
-    );
+    await client.query('UPDATE personas SET is_primary = false WHERE user_id = $1', [userId]);
 
     // Set this persona as primary
     const result = await client.query<Persona>(
@@ -206,4 +194,3 @@ export async function setPrimaryPersona(personaId: string, userId: string): Prom
     client.release();
   }
 }
-

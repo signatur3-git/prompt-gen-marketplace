@@ -8,7 +8,9 @@ export const config = {
   host: process.env.HOST || 'localhost',
 
   database: {
-    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5433/prompt_gen_marketplace',
+    url:
+      process.env.DATABASE_URL ||
+      'postgresql://postgres:postgres@localhost:5433/prompt_gen_marketplace',
     poolMin: parseInt(process.env.DATABASE_POOL_MIN || '2', 10),
     poolMax: parseInt(process.env.DATABASE_POOL_MAX || '10', 10),
   },
@@ -53,4 +55,3 @@ export const config = {
 
   challengeTTL: 300, // 5 minutes for auth challenges
 };
-

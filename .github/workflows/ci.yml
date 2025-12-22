@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    name: Validate Backend & Frontend
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: prompt_gen_marketplace_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check code formatting
+        run: npm run format:check
+
+      - name: Lint backend
+        run: npm run lint
+
+      - name: Lint frontend
+        run: npm run lint:frontend
+
+      - name: Type check backend
+        run: npm run type-check
+
+      - name: Type check frontend
+        run: npm run type-check:frontend || echo "Frontend type-check has warnings"
+        continue-on-error: true
+
+      - name: Run unit tests
+        run: npm test -- --run
+        env:
+          NODE_ENV: test
+
+      - name: Build backend
+        run: npm run build
+
+      - name: Build frontend
+        run: npm run build:frontend
+
+      - name: Initialize test database
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d prompt_gen_marketplace_test -f database/schema.sql
+        env:
+          PGPASSWORD: postgres
+
+      - name: Run integration tests
+        run: npm run test:integration -- --run
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/prompt_gen_marketplace_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret-for-ci-only
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-ci-only
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for dependency vulnerabilities
+        run: npm audit --production
+        continue-on-error: true
+

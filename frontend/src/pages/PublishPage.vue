@@ -1,14 +1,18 @@
 <template>
   <div class="container">
     <h1>📤 Publish Package</h1>
-    <p style="color: #666; margin-bottom: 32px;">
+    <p style="color: #666; margin-bottom: 32px">
       Upload a package to the marketplace. Your package will be validated before publishing.
     </p>
 
     <div v-if="!isLoggedIn" class="card">
       <h2>Login Required</h2>
       <p>You must be logged in to publish packages.</p>
-      <router-link to="/login" class="btn btn-primary" style="text-decoration: none; display: inline-block; margin-top: 16px;">
+      <router-link
+        to="/login"
+        class="btn btn-primary"
+        style="text-decoration: none; display: inline-block; margin-top: 16px"
+      >
         Login
       </router-link>
     </div>
@@ -29,34 +33,46 @@
             textAlign: 'center',
             background: dragOver ? '#f0f8ff' : '#f8f9fa',
             cursor: 'pointer',
-            marginBottom: '16px'
+            marginBottom: '16px',
           }"
           @click="$refs.fileInput.click()"
         >
-          <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
-          <p style="font-size: 18px; margin-bottom: 8px;">
+          <div style="font-size: 48px; margin-bottom: 16px">📦</div>
+          <p style="font-size: 18px; margin-bottom: 8px">
             <strong>Drag and drop your YAML file here</strong>
           </p>
-          <p style="color: #666;">or click to browse</p>
+          <p style="color: #666">or click to browse</p>
           <input
             ref="fileInput"
             type="file"
             accept=".yaml,.yml"
             @change="handleFileSelect"
-            style="display: none;"
+            style="display: none"
           />
         </div>
 
-        <div v-if="fileName" style="background: #e7f3ff; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+        <div
+          v-if="fileName"
+          style="background: #e7f3ff; padding: 12px; border-radius: 4px; margin-bottom: 16px"
+        >
           <strong>Selected file:</strong> {{ fileName }}
-          <button @click="clearFile" style="margin-left: 12px; background: none; border: none; color: #dc3545; cursor: pointer;">
+          <button
+            @click="clearFile"
+            style="
+              margin-left: 12px;
+              background: none;
+              border: none;
+              color: #dc3545;
+              cursor: pointer;
+            "
+          >
             ✕ Clear
           </button>
         </div>
 
-        <div v-if="validationErrors.length > 0" class="error" style="margin-bottom: 16px;">
+        <div v-if="validationErrors.length > 0" class="error" style="margin-bottom: 16px">
           <strong>Validation Errors:</strong>
-          <ul style="margin-left: 20px; margin-top: 8px;">
+          <ul style="margin-left: 20px; margin-top: 8px">
             <li v-for="(err, idx) in validationErrors" :key="idx">{{ err }}</li>
           </ul>
         </div>
@@ -66,44 +82,49 @@
       <div v-if="packageData && !validationErrors.length" class="card">
         <h2>Package Preview</h2>
 
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 12px 0; font-weight: bold; width: 200px;">Package ID</td>
-            <td style="padding: 12px 0;"><code>{{ packageData.id }}</code></td>
+        <table style="width: 100%; border-collapse: collapse">
+          <tr style="border-bottom: 1px solid #ddd">
+            <td style="padding: 12px 0; font-weight: bold; width: 200px">Package ID</td>
+            <td style="padding: 12px 0">
+              <code>{{ packageData.id }}</code>
+            </td>
           </tr>
-          <tr style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 12px 0; font-weight: bold;">Name</td>
-            <td style="padding: 12px 0;">{{ packageData.metadata?.name }}</td>
+          <tr style="border-bottom: 1px solid #ddd">
+            <td style="padding: 12px 0; font-weight: bold">Name</td>
+            <td style="padding: 12px 0">{{ packageData.metadata?.name }}</td>
           </tr>
-          <tr style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 12px 0; font-weight: bold;">Version</td>
-            <td style="padding: 12px 0;">{{ packageData.version }}</td>
+          <tr style="border-bottom: 1px solid #ddd">
+            <td style="padding: 12px 0; font-weight: bold">Version</td>
+            <td style="padding: 12px 0">{{ packageData.version }}</td>
           </tr>
-          <tr v-if="packageData.metadata?.description" style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 12px 0; font-weight: bold;">Description</td>
-            <td style="padding: 12px 0;">{{ packageData.metadata.description }}</td>
+          <tr v-if="packageData.metadata?.description" style="border-bottom: 1px solid #ddd">
+            <td style="padding: 12px 0; font-weight: bold">Description</td>
+            <td style="padding: 12px 0">{{ packageData.metadata.description }}</td>
           </tr>
-          <tr v-if="packageData.dependencies && packageData.dependencies.length > 0" style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 12px 0; font-weight: bold;">Dependencies</td>
-            <td style="padding: 12px 0;">
-              <ul style="margin: 0; padding-left: 20px;">
+          <tr
+            v-if="packageData.dependencies && packageData.dependencies.length > 0"
+            style="border-bottom: 1px solid #ddd"
+          >
+            <td style="padding: 12px 0; font-weight: bold">Dependencies</td>
+            <td style="padding: 12px 0">
+              <ul style="margin: 0; padding-left: 20px">
                 <li v-for="(dep, idx) in packageData.dependencies" :key="idx">
                   {{ dep.package }} {{ dep.version }}
                 </li>
               </ul>
             </td>
           </tr>
-          <tr v-if="packageData.datatypes" style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 12px 0; font-weight: bold;">Datatypes</td>
-            <td style="padding: 12px 0;">{{ Object.keys(packageData.datatypes).length }}</td>
+          <tr v-if="packageData.datatypes" style="border-bottom: 1px solid #ddd">
+            <td style="padding: 12px 0; font-weight: bold">Datatypes</td>
+            <td style="padding: 12px 0">{{ Object.keys(packageData.datatypes).length }}</td>
           </tr>
-          <tr v-if="packageData.templates" style="border-bottom: 1px solid #ddd;">
-            <td style="padding: 12px 0; font-weight: bold;">Templates</td>
-            <td style="padding: 12px 0;">{{ Object.keys(packageData.templates).length }}</td>
+          <tr v-if="packageData.templates" style="border-bottom: 1px solid #ddd">
+            <td style="padding: 12px 0; font-weight: bold">Templates</td>
+            <td style="padding: 12px 0">{{ Object.keys(packageData.templates).length }}</td>
           </tr>
           <tr v-if="packageData.rulebooks">
-            <td style="padding: 12px 0; font-weight: bold;">Rulebooks</td>
-            <td style="padding: 12px 0;">{{ Object.keys(packageData.rulebooks).length }}</td>
+            <td style="padding: 12px 0; font-weight: bold">Rulebooks</td>
+            <td style="padding: 12px 0">{{ Object.keys(packageData.rulebooks).length }}</td>
           </tr>
         </table>
       </div>
@@ -112,23 +133,26 @@
       <div v-if="packageData && !validationErrors.length" class="card">
         <h2>Publishing Options</h2>
 
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; font-weight: bold; margin-bottom: 8px;">
-            Namespace <span style="color: #dc3545;">*</span>
+        <div style="margin-bottom: 20px">
+          <label style="display: block; font-weight: bold; margin-bottom: 8px">
+            Namespace <span style="color: #dc3545">*</span>
           </label>
-          <p style="color: #666; font-size: 14px; margin-bottom: 8px;">
+          <p style="color: #666; font-size: 14px; margin-bottom: 8px">
             From package: <code>{{ parsedNamespace }}</code>
           </p>
-          <p v-if="namespaceInfo" style="color: #666; font-size: 14px;">
+          <p v-if="namespaceInfo" style="color: #666; font-size: 14px">
             {{ namespaceInfo }}
           </p>
         </div>
 
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; font-weight: bold; margin-bottom: 8px;">
-            Publish as <span style="color: #dc3545;">*</span>
+        <div style="margin-bottom: 20px">
+          <label style="display: block; font-weight: bold; margin-bottom: 8px">
+            Publish as <span style="color: #dc3545">*</span>
           </label>
-          <select v-model="selectedPersonaId" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          <select
+            v-model="selectedPersonaId"
+            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px"
+          >
             <option value="">-- Select Persona --</option>
             <option v-for="persona in personas" :key="persona.id" :value="persona.id">
               {{ persona.name }} {{ persona.is_primary ? '(Primary)' : '' }}
@@ -136,43 +160,40 @@
           </select>
         </div>
 
-        <div v-if="publishError" class="error" style="margin-bottom: 16px;">
+        <div v-if="publishError" class="error" style="margin-bottom: 16px">
           {{ publishError }}
         </div>
 
-        <div v-if="publishing" style="text-align: center; padding: 20px;">
+        <div v-if="publishing" style="text-align: center; padding: 20px">
           <p>Publishing package...</p>
         </div>
 
-        <div v-else style="display: flex; gap: 12px;">
-          <button
-            @click="publishPackage"
-            class="btn btn-primary"
-            :disabled="!selectedPersonaId"
-          >
+        <div v-else style="display: flex; gap: 12px">
+          <button @click="publishPackage" class="btn btn-primary" :disabled="!selectedPersonaId">
             📤 Publish Package
           </button>
-          <button @click="clearFile" class="btn" style="background: #6c757d; color: white;">
+          <button @click="clearFile" class="btn" style="background: #6c757d; color: white">
             Cancel
           </button>
         </div>
       </div>
 
       <!-- Success Message -->
-      <div v-if="publishSuccess" class="card" style="background: #d4edda; border-color: #c3e6cb;">
-        <h2 style="color: #155724;">✅ Package Published Successfully!</h2>
-        <p style="color: #155724;">
-          Your package <strong>{{ publishedPackage }}</strong> has been published to the marketplace.
+      <div v-if="publishSuccess" class="card" style="background: #d4edda; border-color: #c3e6cb">
+        <h2 style="color: #155724">✅ Package Published Successfully!</h2>
+        <p style="color: #155724">
+          Your package <strong>{{ publishedPackage }}</strong> has been published to the
+          marketplace.
         </p>
-        <div style="margin-top: 16px; display: flex; gap: 12px;">
+        <div style="margin-top: 16px; display: flex; gap: 12px">
           <router-link
             :to="`/packages/${parsedNamespace}/${parsedPackageName}`"
             class="btn btn-primary"
-            style="text-decoration: none;"
+            style="text-decoration: none"
           >
             View Package
           </router-link>
-          <button @click="resetForm" class="btn" style="background: #6c757d; color: white;">
+          <button @click="resetForm" class="btn" style="background: #6c757d; color: white">
             Publish Another
           </button>
         </div>
@@ -231,7 +252,7 @@ async function loadPersonas() {
   try {
     const token = sessionStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/personas', {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (res.ok) {
@@ -239,7 +260,7 @@ async function loadPersonas() {
       personas.value = data.personas || [];
 
       // Auto-select primary persona
-      const primary = personas.value.find(p => p.is_primary);
+      const primary = personas.value.find((p) => p.is_primary);
       if (primary) {
         selectedPersonaId.value = primary.id;
       }
@@ -335,13 +356,13 @@ async function publishPackage() {
     const res = await fetch('/api/v1/packages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         yaml_content: fileContent.value,
-        persona_id: selectedPersonaId.value
-      })
+        persona_id: selectedPersonaId.value,
+      }),
     });
 
     if (!res.ok) {
@@ -371,10 +392,9 @@ function clearFile() {
 function resetForm() {
   clearFile();
   selectedPersonaId.value = '';
-  const primary = personas.value.find(p => p.is_primary);
+  const primary = personas.value.find((p) => p.is_primary);
   if (primary) {
     selectedPersonaId.value = primary.id;
   }
 }
 </script>
-

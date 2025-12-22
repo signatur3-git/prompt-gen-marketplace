@@ -22,15 +22,17 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
 **The easiest way to test locally is using Docker Compose**, which automatically sets up PostgreSQL and Redis with the correct schema:
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Start PostgreSQL + Redis with Docker Compose:**
+
    ```bash
    docker-compose up -d
    ```
-   
+
    This will:
    - ✅ Start PostgreSQL on port 5433
    - ✅ Start Redis on port 6379
@@ -38,13 +40,15 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
    - ✅ Create the `prompt_gen_marketplace` database
 
 3. **Create .env file (required):**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    The default values in `.env` work perfectly with docker-compose - no editing needed!
 
 4. **Start development server:**
+
    ```bash
    npm run dev
    ```
@@ -52,10 +56,11 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
    Server runs at `http://localhost:3000`
 
 5. **Test the API:**
+
    ```bash
    # Health check
    curl http://localhost:3000/health
-   
+
    # Generate test keypair
    curl http://localhost:3000/api/v1/auth/keygen
    ```
@@ -79,6 +84,30 @@ If you prefer to install PostgreSQL and Redis directly:
 4. Update `.env` with your credentials
 5. Run `npm run dev`
 
+### Code Quality & CI
+
+This project uses strict validation to catch issues early:
+
+```bash
+# Before committing, run:
+npm run validate
+
+# This checks:
+# - Code formatting (Prettier)
+# - Linting (ESLint for backend + frontend)
+# - Type checking (TypeScript + vue-tsc)
+# - Unit tests
+
+# Auto-fix common issues:
+npm run format        # Fix formatting
+npm run lint:fix      # Fix backend lint issues
+npm run lint:frontend:fix  # Fix frontend lint issues
+```
+
+**Important:** Local validation is as strict as CI to prevent push frustration!
+
+See [CI_SETUP.md](CI_SETUP.md) for detailed CI/CD documentation.
+
 ### Build for Production
 
 ```bash
@@ -91,17 +120,20 @@ npm start
 ### Authentication Endpoints
 
 #### `POST /api/v1/auth/register`
+
 Register a new user with their public key.
 
 **Request:**
+
 ```json
 {
   "public_key": "hex-encoded-ed25519-public-key",
-  "email": "user@example.com"  // optional
+  "email": "user@example.com" // optional
 }
 ```
 
 **Response:**
+
 ```json
 {
   "message": "User registered successfully",
@@ -115,9 +147,11 @@ Register a new user with their public key.
 ```
 
 #### `GET /api/v1/auth/challenge?public_key=...`
+
 Get authentication challenge.
 
 **Response:**
+
 ```json
 {
   "challenge": "random-hex-string",
@@ -126,9 +160,11 @@ Get authentication challenge.
 ```
 
 #### `POST /api/v1/auth/login`
+
 Authenticate with signed challenge.
 
 **Request:**
+
 ```json
 {
   "public_key": "hex-encoded-public-key",
@@ -138,6 +174,7 @@ Authenticate with signed challenge.
 ```
 
 **Response:**
+
 ```json
 {
   "token": "jwt-token",
@@ -148,9 +185,11 @@ Authenticate with signed challenge.
 ```
 
 #### `GET /api/v1/auth/keygen`
+
 Generate a new keypair (for testing/development).
 
 **Response:**
+
 ```json
 {
   "public_key": "...",
@@ -165,54 +204,66 @@ Generate a new keypair (for testing/development).
 All require `Authorization: Bearer <token>` header.
 
 #### `GET /api/v1/personas`
+
 List all personas for authenticated user.
 
 #### `POST /api/v1/personas`
+
 Create a new persona.
 
 **Request:**
+
 ```json
 {
   "name": "Jane Doe",
-  "avatar_url": "https://...",  // optional
-  "bio": "...",  // optional
-  "website": "https://..."  // optional
+  "avatar_url": "https://...", // optional
+  "bio": "...", // optional
+  "website": "https://..." // optional
 }
 ```
 
 #### `GET /api/v1/personas/:id`
+
 Get persona details.
 
 #### `PATCH /api/v1/personas/:id`
+
 Update a persona.
 
 #### `DELETE /api/v1/personas/:id`
+
 Delete a persona (cannot delete primary if it's the only one).
 
 #### `POST /api/v1/personas/:id/set-primary`
+
 Set a persona as primary.
 
 ### Namespace Endpoints
 
 #### `GET /api/v1/namespaces`
+
 List namespaces (optional filters: `owner_id`, `protection_level`, `search`).
 
 #### `POST /api/v1/namespaces` (authenticated)
+
 Create/claim a namespace.
 
 **Request:**
+
 ```json
 {
   "name": "my-namespace",
-  "protection_level": "protected",  // optional: public/protected/private
-  "description": "..."  // optional
+  "protection_level": "protected", // optional: public/protected/private
+  "description": "..." // optional
 }
 ```
 
 #### `GET /api/v1/namespaces/:name`
+
 Get namespace details.
 
 #### `PATCH /api/v1/namespaces/:name` (authenticated, owner only)
+
 Update namespace.
 
 ## 🔑 Keypair Authentication Flow
@@ -234,7 +285,7 @@ const publicKeyHex = Buffer.from(publicKey).toString('hex');
 await fetch('http://localhost:3000/api/v1/auth/register', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ public_key: publicKeyHex })
+  body: JSON.stringify({ public_key: publicKeyHex }),
 });
 ```
 
@@ -259,15 +310,15 @@ const loginRes = await fetch('http://localhost:3000/api/v1/auth/login', {
   body: JSON.stringify({
     public_key: publicKeyHex,
     challenge,
-    signature: signatureHex
-  })
+    signature: signatureHex,
+  }),
 });
 
 const { token } = await loginRes.json();
 
 // 4. Use token for authenticated requests
 await fetch('http://localhost:3000/api/v1/personas', {
-  headers: { 'Authorization': `Bearer ${token}` }
+  headers: { Authorization: `Bearer ${token}` },
 });
 ```
 
@@ -289,6 +340,7 @@ npm run test:coverage
 ```
 
 **Current test coverage:** 40 tests passing
+
 - Crypto utilities (12 tests)
 - Namespace validation (9 tests)
 - Package validation (9 tests)
@@ -407,11 +459,13 @@ docker-compose logs postgres
 If you see "connection refused" errors:
 
 1. Check services are running:
+
    ```bash
    docker-compose ps
    ```
 
 2. Wait for health checks to pass:
+
    ```bash
    docker-compose logs postgres | grep "ready to accept"
    docker-compose logs redis | grep "Ready to accept"
@@ -450,6 +504,7 @@ npm run dev
 See `database/schema.sql` for the complete schema.
 
 Key tables:
+
 - `users` - User accounts (identified by public key)
 - `user_keypairs` - Active and revoked keypairs
 - `personas` - Multiple identities per user
@@ -493,6 +548,7 @@ src/
 ## 🚧 Roadmap
 
 ### Core Features
+
 - [x] Keypair-based authentication
 - [x] Persona management
 - [x] Namespace management
@@ -501,17 +557,20 @@ src/
 - [ ] Package signing and verification
 
 ### OAuth Integration
+
 - [ ] OAuth 2.0 authorization server
 - [ ] PKCE flow for webapp integration
 - [ ] Token management and refresh
 
 ### Discovery & Search
+
 - [ ] Full-text search across packages
 - [ ] Advanced filtering (tags, categories, etc.)
 - [ ] Download statistics and trending packages
 - [ ] Featured and recommended packages
 
 ### Marketplace Features
+
 - [ ] Package reviews and ratings
 - [ ] Version compatibility recommendations
 - [ ] Automated security scanning
@@ -522,6 +581,7 @@ See the [Issues](../../issues) page for detailed feature requests and bug report
 ## 🤝 Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to:
+
 - Set up your development environment
 - Submit pull requests
 - Report bugs and request features
@@ -529,4 +589,3 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 ## 📄 License
 
 MIT
-

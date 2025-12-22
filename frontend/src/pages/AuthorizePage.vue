@@ -1,58 +1,65 @@
 <template>
   <div class="container">
-    <div v-if="loading" style="text-align: center; padding: 60px;">
-      <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
+    <div v-if="loading" style="text-align: center; padding: 60px">
+      <div style="font-size: 48px; margin-bottom: 16px">🔐</div>
       <h2>Loading...</h2>
     </div>
 
     <div v-else-if="error" class="card">
-      <h2 style="color: #dc3545;">Authorization Error</h2>
+      <h2 style="color: #dc3545">Authorization Error</h2>
       <p>{{ error }}</p>
-      <button @click="$router.push('/')" class="btn btn-primary" style="margin-top: 16px;">
+      <button @click="$router.push('/')" class="btn btn-primary" style="margin-top: 16px">
         Go Home
       </button>
     </div>
 
-    <div v-else-if="client" class="card" style="max-width: 600px; margin: 40px auto;">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <div style="font-size: 64px; margin-bottom: 16px;">🔐</div>
-        <h1 style="margin-bottom: 8px;">Authorize Application</h1>
-        <p style="color: #666;">{{ client.client_name }} is requesting access to your account</p>
+    <div v-else-if="client" class="card" style="max-width: 600px; margin: 40px auto">
+      <div style="text-align: center; margin-bottom: 24px">
+        <div style="font-size: 64px; margin-bottom: 16px">🔐</div>
+        <h1 style="margin-bottom: 8px">Authorize Application</h1>
+        <p style="color: #666">{{ client.client_name }} is requesting access to your account</p>
       </div>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 4px; margin-bottom: 24px;">
-        <h3 style="margin-bottom: 12px;">Application Details</h3>
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 4px; margin-bottom: 24px">
+        <h3 style="margin-bottom: 12px">Application Details</h3>
         <p><strong>App Name:</strong> {{ client.client_name }}</p>
         <p><strong>Client ID:</strong> {{ clientId }}</p>
-        <p style="margin-top: 16px;"><strong>Permissions Requested:</strong></p>
-        <ul style="margin-left: 20px; margin-top: 8px;">
+        <p style="margin-top: 16px"><strong>Permissions Requested:</strong></p>
+        <ul style="margin-left: 20px; margin-top: 8px">
           <li>Access your profile information</li>
           <li>Browse packages on your behalf</li>
           <li>Download packages</li>
         </ul>
       </div>
 
-      <div v-if="user" style="background: #e7f3ff; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
-        <p style="margin-bottom: 4px;"><strong>Authorizing as:</strong></p>
-        <p style="font-size: 18px;">{{ user.public_key?.substring(0, 32) }}...</p>
+      <div
+        v-if="user"
+        style="background: #e7f3ff; padding: 16px; border-radius: 4px; margin-bottom: 24px"
+      >
+        <p style="margin-bottom: 4px"><strong>Authorizing as:</strong></p>
+        <p style="font-size: 18px">{{ user.public_key?.substring(0, 32) }}...</p>
       </div>
 
-      <div v-if="processing" style="text-align: center; padding: 20px;">
+      <div v-if="processing" style="text-align: center; padding: 20px">
         <p>Processing...</p>
       </div>
 
-      <div v-else style="display: flex; gap: 12px; justify-content: center;">
-        <button @click="approve" class="btn btn-primary" style="min-width: 120px;">
+      <div v-else style="display: flex; gap: 12px; justify-content: center">
+        <button @click="approve" class="btn btn-primary" style="min-width: 120px">
           ✅ Authorize
         </button>
-        <button @click="deny" class="btn" style="min-width: 120px; background: #6c757d; color: white;">
+        <button
+          @click="deny"
+          class="btn"
+          style="min-width: 120px; background: #6c757d; color: white"
+        >
           ❌ Deny
         </button>
       </div>
 
-      <p style="color: #666; font-size: 14px; margin-top: 24px; text-align: center;">
-        By authorizing, you allow this application to access your marketplace account.
-        You can revoke access at any time from your dashboard.
+      <p style="color: #666; font-size: 14px; margin-top: 24px; text-align: center">
+        By authorizing, you allow this application to access your marketplace account. You can
+        revoke access at any time from your dashboard.
       </p>
     </div>
   </div>
@@ -94,7 +101,12 @@ async function loadAuthorizationRequest() {
     codeChallengeMethod.value = route.query.code_challenge_method as string;
     state.value = (route.query.state as string) || '';
 
-    if (!clientId.value || !redirectUri.value || !codeChallenge.value || !codeChallengeMethod.value) {
+    if (
+      !clientId.value ||
+      !redirectUri.value ||
+      !codeChallenge.value ||
+      !codeChallengeMethod.value
+    ) {
       error.value = 'Missing required OAuth parameters';
       return;
     }
@@ -121,8 +133,8 @@ async function loadAuthorizationRequest() {
 
     const res = await fetch(`/api/v1/oauth/authorize?${params}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -148,8 +160,8 @@ async function approve() {
     const res = await fetch('/api/v1/oauth/authorize', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         client_id: clientId.value,
@@ -158,7 +170,7 @@ async function approve() {
         code_challenge_method: codeChallengeMethod.value,
         approved: true,
         state: state.value || undefined,
-      })
+      }),
     });
 
     if (!res.ok) {
@@ -185,15 +197,15 @@ async function deny() {
     const res = await fetch('/api/v1/oauth/authorize', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         client_id: clientId.value,
         redirect_uri: redirectUri.value,
         approved: false,
         state: state.value || undefined,
-      })
+      }),
     });
 
     if (!res.ok) {
@@ -211,4 +223,3 @@ async function deny() {
   }
 }
 </script>
-

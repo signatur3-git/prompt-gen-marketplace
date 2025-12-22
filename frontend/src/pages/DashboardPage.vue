@@ -5,7 +5,11 @@
     <div v-if="!isLoggedIn" class="card">
       <h2>Please Login</h2>
       <p>You need to be logged in to access the dashboard.</p>
-      <router-link to="/login" class="btn btn-primary" style="text-decoration: none; display: inline-block; margin-top: 12px;">
+      <router-link
+        to="/login"
+        class="btn btn-primary"
+        style="text-decoration: none; display: inline-block; margin-top: 12px"
+      >
         Go to Login
       </router-link>
     </div>
@@ -16,32 +20,42 @@
       </div>
 
       <!-- Admin Section (only visible to admins) -->
-      <div v-if="isAdmin" class="card" style="background: #fff3cd; border-color: #ffc107;">
+      <div v-if="isAdmin" class="card" style="background: #fff3cd; border-color: #ffc107">
         <h2>🛡️ Admin Tools</h2>
-        <p style="color: #856404;">You have administrator privileges.</p>
-        <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
-          <button @click="activeTab = 'users'" :class="['btn', activeTab === 'users' ? 'btn-primary' : '']">
+        <p style="color: #856404">You have administrator privileges.</p>
+        <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap">
+          <button
+            @click="activeTab = 'users'"
+            :class="['btn', activeTab === 'users' ? 'btn-primary' : '']"
+          >
             👥 Manage Users
           </button>
-          <button @click="activeTab = 'packages'" :class="['btn', activeTab === 'packages' ? 'btn-primary' : '']">
+          <button
+            @click="activeTab = 'packages'"
+            :class="['btn', activeTab === 'packages' ? 'btn-primary' : '']"
+          >
             📦 Moderate Packages
           </button>
         </div>
       </div>
 
       <!-- Regular User Tabs -->
-      <div v-if="!isAdmin || (isAdmin && activeTab !== 'users' && activeTab !== 'packages')" class="card">
-        <div style="display: flex; gap: 12px; border-bottom: 1px solid #ddd; margin-bottom: 20px;">
+      <div
+        v-if="!isAdmin || (isAdmin && activeTab !== 'users' && activeTab !== 'packages')"
+        class="card"
+      >
+        <div style="display: flex; gap: 12px; border-bottom: 1px solid #ddd; margin-bottom: 20px">
           <button
             @click="activeTab = 'personas'"
             :style="{
               padding: '12px 20px',
               background: 'none',
               border: 'none',
-              borderBottom: activeTab === 'personas' ? '2px solid #007bff' : '2px solid transparent',
+              borderBottom:
+                activeTab === 'personas' ? '2px solid #007bff' : '2px solid transparent',
               color: activeTab === 'personas' ? '#007bff' : '#666',
               fontWeight: activeTab === 'personas' ? 'bold' : 'normal',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }"
           >
             👤 Personas
@@ -52,10 +66,11 @@
               padding: '12px 20px',
               background: 'none',
               border: 'none',
-              borderBottom: activeTab === 'mypackages' ? '2px solid #007bff' : '2px solid transparent',
+              borderBottom:
+                activeTab === 'mypackages' ? '2px solid #007bff' : '2px solid transparent',
               color: activeTab === 'mypackages' ? '#007bff' : '#666',
               fontWeight: activeTab === 'mypackages' ? 'bold' : 'normal',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }"
           >
             📦 My Packages
@@ -69,7 +84,7 @@
               borderBottom: activeTab === 'tokens' ? '2px solid #007bff' : '2px solid transparent',
               color: activeTab === 'tokens' ? '#007bff' : '#666',
               fontWeight: activeTab === 'tokens' ? 'bold' : 'normal',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }"
           >
             🔐 Connected Apps
@@ -79,156 +94,238 @@
 
       <!-- Personas Tab -->
       <div v-if="activeTab === 'personas'">
-      <!-- Personas List -->
-      <div class="card">
-        <h2>Your Account</h2>
-        <p><strong>User ID:</strong> {{ user?.id }}</p>
-        <p><strong>Public Key:</strong> {{ user?.public_key?.substring(0, 32) }}...</p>
-        <p><strong>Member Since:</strong> {{ formatDate(user?.created_at) }}</p>
-        <p v-if="isAdmin" style="color: #856404; margin-top: 12px;">
-          ⚠️ <strong>Admin Note:</strong> Only admins can see user IDs. Regular users cannot link personas to user accounts.
-        </p>
-      </div>
-
-      <!-- Admin Views -->
-      <div v-if="isAdmin && activeTab === 'users'">
+        <!-- Personas List -->
         <div class="card">
-          <h2>👥 User Management</h2>
-          <p style="color: #666; margin-bottom: 16px;">
-            View all users and their personas. This view is only accessible to administrators.
+          <h2>Your Account</h2>
+          <p><strong>User ID:</strong> {{ user?.id }}</p>
+          <p><strong>Public Key:</strong> {{ user?.public_key?.substring(0, 32) }}...</p>
+          <p><strong>Member Since:</strong> {{ formatDate(user?.created_at) }}</p>
+          <p v-if="isAdmin" style="color: #856404; margin-top: 12px">
+            ⚠️ <strong>Admin Note:</strong> Only admins can see user IDs. Regular users cannot link
+            personas to user accounts.
           </p>
+        </div>
 
-          <div v-if="loadingUsers" style="text-align: center; padding: 20px;">
-            Loading users...
-          </div>
+        <!-- Admin Views -->
+        <div v-if="isAdmin && activeTab === 'users'">
+          <div class="card">
+            <h2>👥 User Management</h2>
+            <p style="color: #666; margin-bottom: 16px">
+              View all users and their personas. This view is only accessible to administrators.
+            </p>
 
-          <div v-else>
-            <div v-for="u in allUsers" :key="u.id" style="border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                  <p><strong>User ID:</strong> {{ u.id }}</p>
-                  <p><strong>Public Key:</strong> {{ u.public_key?.substring(0, 32) }}...</p>
-                  <p><strong>Joined:</strong> {{ formatDate(u.created_at) }}</p>
-                  <div style="margin-top: 8px;">
-                    <strong>Personas:</strong>
-                    <ul style="margin-left: 20px; margin-top: 4px;">
-                      <li v-for="p in u.personas" :key="p.id">
-                        {{ p.name }} <span v-if="p.is_primary" style="background: #007bff; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Primary</span>
-                      </li>
-                    </ul>
+            <div v-if="loadingUsers" style="text-align: center; padding: 20px">
+              Loading users...
+            </div>
+
+            <div v-else>
+              <div
+                v-for="u in allUsers"
+                :key="u.id"
+                style="
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                  padding: 16px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div style="display: flex; justify-content: space-between; align-items: start">
+                  <div>
+                    <p><strong>User ID:</strong> {{ u.id }}</p>
+                    <p><strong>Public Key:</strong> {{ u.public_key?.substring(0, 32) }}...</p>
+                    <p><strong>Joined:</strong> {{ formatDate(u.created_at) }}</p>
+                    <div style="margin-top: 8px">
+                      <strong>Personas:</strong>
+                      <ul style="margin-left: 20px; margin-top: 4px">
+                        <li v-for="p in u.personas" :key="p.id">
+                          {{ p.name }}
+                          <span
+                            v-if="p.is_primary"
+                            style="
+                              background: #007bff;
+                              color: white;
+                              padding: 2px 8px;
+                              border-radius: 4px;
+                              font-size: 12px;
+                            "
+                            >Primary</span
+                          >
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="isAdmin && activeTab === 'packages'">
-        <div class="card">
-          <h2>📦 Package Moderation</h2>
-          <p style="color: #666;">Package moderation tools coming soon.</p>
-        </div>
-      </div>
-
-      <!-- Regular User: Persona Management -->
-      <div v-if="!isAdmin || activeTab === 'personas'" class="card">
-        <h2>Your Personas</h2>
-        <p style="color: #666; margin-bottom: 16px;">
-          Personas are your public identities on the marketplace. You can create multiple personas for different purposes.
-        </p>
-
-        <div v-if="loadingPersonas" style="text-align: center; padding: 20px;">
-          Loading personas...
+        <div v-if="isAdmin && activeTab === 'packages'">
+          <div class="card">
+            <h2>📦 Package Moderation</h2>
+            <p style="color: #666">Package moderation tools coming soon.</p>
+          </div>
         </div>
 
-        <div v-else>
-          <div v-for="persona in personas" :key="persona.id" style="border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <h3 style="margin-bottom: 4px;">{{ persona.name }}</h3>
-                <p v-if="persona.bio" style="color: #666; font-size: 14px;">{{ persona.bio }}</p>
-                <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 14px;">
-                  <span v-if="persona.is_primary" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px;">
-                    Primary
-                  </span>
-                  <span style="color: #666;">Created: {{ formatDate(persona.created_at) }}</span>
+        <!-- Regular User: Persona Management -->
+        <div v-if="!isAdmin || activeTab === 'personas'" class="card">
+          <h2>Your Personas</h2>
+          <p style="color: #666; margin-bottom: 16px">
+            Personas are your public identities on the marketplace. You can create multiple personas
+            for different purposes.
+          </p>
+
+          <div v-if="loadingPersonas" style="text-align: center; padding: 20px">
+            Loading personas...
+          </div>
+
+          <div v-else>
+            <div
+              v-for="persona in personas"
+              :key="persona.id"
+              style="border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 12px"
+            >
+              <div style="display: flex; justify-content: space-between; align-items: center">
+                <div>
+                  <h3 style="margin-bottom: 4px">{{ persona.name }}</h3>
+                  <p v-if="persona.bio" style="color: #666; font-size: 14px">{{ persona.bio }}</p>
+                  <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 14px">
+                    <span
+                      v-if="persona.is_primary"
+                      style="
+                        background: #28a745;
+                        color: white;
+                        padding: 2px 8px;
+                        border-radius: 4px;
+                      "
+                    >
+                      Primary
+                    </span>
+                    <span style="color: #666">Created: {{ formatDate(persona.created_at) }}</span>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px">
+                  <button
+                    v-if="!persona.is_primary"
+                    @click="setPrimary(persona.id)"
+                    class="btn"
+                    style="background: #28a745; color: white"
+                  >
+                    Set as Primary
+                  </button>
+                  <button
+                    @click="deletePersona(persona.id)"
+                    :disabled="persona.is_primary"
+                    class="btn btn-danger"
+                    :style="persona.is_primary ? 'opacity: 0.5; cursor: not-allowed;' : ''"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-              <div style="display: flex; gap: 8px;">
-                <button v-if="!persona.is_primary" @click="setPrimary(persona.id)" class="btn" style="background: #28a745; color: white;">
-                  Set as Primary
+            </div>
+
+            <!-- Create new persona -->
+            <div v-if="!showCreateForm" style="margin-top: 16px">
+              <button @click="showCreateForm = true" class="btn btn-primary">
+                + Create New Persona
+              </button>
+            </div>
+
+            <div
+              v-else
+              style="border: 1px solid #007bff; border-radius: 4px; padding: 16px; margin-top: 16px"
+            >
+              <h3>Create New Persona</h3>
+              <label>
+                Name:
+                <input
+                  v-model="newPersonaName"
+                  type="text"
+                  placeholder="e.g., 'Professional Dev'"
+                />
+              </label>
+              <label>
+                Bio (optional):
+                <textarea
+                  v-model="newPersonaBio"
+                  placeholder="About this persona..."
+                  rows="3"
+                ></textarea>
+              </label>
+              <div style="display: flex; gap: 8px; margin-top: 12px">
+                <button
+                  @click="createPersona"
+                  class="btn btn-primary"
+                  :disabled="!newPersonaName.trim()"
+                >
+                  Create Persona
                 </button>
-                <button @click="deletePersona(persona.id)" :disabled="persona.is_primary" class="btn btn-danger" :style="persona.is_primary ? 'opacity: 0.5; cursor: not-allowed;' : ''">
-                  Delete
+                <button @click="cancelCreate" class="btn" style="background: #6c757d; color: white">
+                  Cancel
                 </button>
               </div>
             </div>
           </div>
-
-          <!-- Create new persona -->
-          <div v-if="!showCreateForm" style="margin-top: 16px;">
-            <button @click="showCreateForm = true" class="btn btn-primary">
-              + Create New Persona
-            </button>
-          </div>
-
-          <div v-else style="border: 1px solid #007bff; border-radius: 4px; padding: 16px; margin-top: 16px;">
-            <h3>Create New Persona</h3>
-            <label>
-              Name:
-              <input v-model="newPersonaName" type="text" placeholder="e.g., 'Professional Dev'" />
-            </label>
-            <label>
-              Bio (optional):
-              <textarea v-model="newPersonaBio" placeholder="About this persona..." rows="3"></textarea>
-            </label>
-            <div style="display: flex; gap: 8px; margin-top: 12px;">
-              <button @click="createPersona" class="btn btn-primary" :disabled="!newPersonaName.trim()">
-                Create Persona
-              </button>
-              <button @click="cancelCreate" class="btn" style="background: #6c757d; color: white;">
-                Cancel
-              </button>
-            </div>
-          </div>
         </div>
-      </div>
       </div>
 
       <!-- My Packages Tab -->
       <div v-if="activeTab === 'mypackages'">
         <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 16px;
+            "
+          >
             <h2>📦 My Packages</h2>
-            <router-link to="/publish" class="btn btn-primary" style="text-decoration: none;">
+            <router-link to="/publish" class="btn btn-primary" style="text-decoration: none">
               ➕ Publish New Package
             </router-link>
           </div>
 
-          <div v-if="loadingMyPackages" style="text-align: center; padding: 20px;">
-            Loading...
-          </div>
+          <div v-if="loadingMyPackages" style="text-align: center; padding: 20px">Loading...</div>
 
           <div v-else>
             <div v-if="myPackages.length === 0">
-              <p style="color: #666;">You haven't published any packages yet.</p>
-              <router-link to="/publish" class="btn btn-primary" style="text-decoration: none; display: inline-block; margin-top: 12px;">
+              <p style="color: #666">You haven't published any packages yet.</p>
+              <router-link
+                to="/publish"
+                class="btn btn-primary"
+                style="text-decoration: none; display: inline-block; margin-top: 12px"
+              >
                 Publish Your First Package
               </router-link>
             </div>
 
             <div v-else>
-              <div v-for="pkg in myPackages" :key="pkg.id" style="border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: start;">
-                  <div style="flex: 1;">
-                    <h3 style="margin-bottom: 8px;">
-                      <router-link :to="`/packages/${pkg.namespace}/${pkg.name}`" style="color: #007bff; text-decoration: none;">
+              <div
+                v-for="pkg in myPackages"
+                :key="pkg.id"
+                style="
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                  padding: 16px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div style="display: flex; justify-content: space-between; align-items: start">
+                  <div style="flex: 1">
+                    <h3 style="margin-bottom: 8px">
+                      <router-link
+                        :to="`/packages/${pkg.namespace}/${pkg.name}`"
+                        style="color: #007bff; text-decoration: none"
+                      >
                         {{ pkg.namespace }}.{{ pkg.name }}
                       </router-link>
                     </h3>
-                    <p style="color: #666; margin-bottom: 8px;">{{ pkg.description || 'No description' }}</p>
-                    <div style="display: flex; gap: 16px; font-size: 14px; color: #666;">
+                    <p style="color: #666; margin-bottom: 8px">
+                      {{ pkg.description || 'No description' }}
+                    </p>
+                    <div style="display: flex; gap: 16px; font-size: 14px; color: #666">
                       <span>📌 Latest: v{{ pkg.latest_version }}</span>
                       <span>📅 {{ formatDate(pkg.updated_at) }}</span>
                     </div>
@@ -242,42 +339,51 @@
 
       <!-- Connected Apps Tab -->
       <div v-if="activeTab === 'tokens'">
-      <!-- OAuth Tokens -->
-      <div class="card">
-        <h2>Connected Applications</h2>
-        <p style="color: #666; margin-bottom: 16px;">
-          Applications that have access to your marketplace account via OAuth.
-        </p>
+        <!-- OAuth Tokens -->
+        <div class="card">
+          <h2>Connected Applications</h2>
+          <p style="color: #666; margin-bottom: 16px">
+            Applications that have access to your marketplace account via OAuth.
+          </p>
 
-        <div v-if="loadingTokens" style="text-align: center; padding: 20px;">
-          Loading...
-        </div>
-
-        <div v-else>
-          <div v-if="tokens.length === 0">
-            <p style="color: #666;">No connected applications.</p>
-          </div>
+          <div v-if="loadingTokens" style="text-align: center; padding: 20px">Loading...</div>
 
           <div v-else>
-            <div v-for="token in tokens" :key="token.id" style="border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                  <p><strong>{{ token.client_id }}</strong></p>
-                  <p style="color: #666; font-size: 14px; margin-top: 4px;">
-                    Connected: {{ formatDate(token.created_at) }}
-                  </p>
-                  <p style="color: #666; font-size: 14px;">
-                    Expires: {{ formatDate(token.expires_at) }}
-                  </p>
+            <div v-if="tokens.length === 0">
+              <p style="color: #666">No connected applications.</p>
+            </div>
+
+            <div v-else>
+              <div
+                v-for="token in tokens"
+                :key="token.id"
+                style="
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                  padding: 16px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div style="display: flex; justify-content: space-between; align-items: center">
+                  <div>
+                    <p>
+                      <strong>{{ token.client_id }}</strong>
+                    </p>
+                    <p style="color: #666; font-size: 14px; margin-top: 4px">
+                      Connected: {{ formatDate(token.created_at) }}
+                    </p>
+                    <p style="color: #666; font-size: 14px">
+                      Expires: {{ formatDate(token.expires_at) }}
+                    </p>
+                  </div>
+                  <button @click="revokeToken(token.token)" class="btn btn-danger">
+                    Revoke Access
+                  </button>
                 </div>
-                <button @click="revokeToken(token.token)" class="btn btn-danger">
-                  Revoke Access
-                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   </div>
@@ -340,8 +446,8 @@ async function loadPersonas() {
     const token = sessionStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/personas', {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -365,8 +471,8 @@ async function loadTokens() {
     const token = sessionStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/oauth/tokens', {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -394,10 +500,10 @@ async function revokeToken(tokenValue: string) {
     const res = await fetch('/api/v1/oauth/revoke', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ token: tokenValue })
+      body: JSON.stringify({ token: tokenValue }),
     });
 
     if (!res.ok) {
@@ -419,8 +525,8 @@ async function loadMyPackages() {
     const token = sessionStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/packages/me', {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -445,8 +551,8 @@ async function loadAllUsers() {
     // TODO: Create admin endpoint GET /api/v1/admin/users
     const res = await fetch('/api/v1/admin/users', {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -473,13 +579,13 @@ async function createPersona() {
     const res = await fetch('/api/v1/personas', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         name: newPersonaName.value.trim(),
-        bio: newPersonaBio.value.trim() || null
-      })
+        bio: newPersonaBio.value.trim() || null,
+      }),
     });
 
     if (!res.ok) {
@@ -502,8 +608,8 @@ async function setPrimary(personaId: string) {
     const res = await fetch(`/api/v1/personas/${personaId}/set-primary`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -529,8 +635,8 @@ async function deletePersona(personaId: string) {
     const res = await fetch(`/api/v1/personas/${personaId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!res.ok) {
@@ -556,4 +662,3 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString();
 }
 </script>
-

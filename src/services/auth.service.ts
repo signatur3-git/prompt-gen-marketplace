@@ -46,10 +46,7 @@ export async function registerUser(publicKey: string, email?: string): Promise<U
   }
 
   // Check if user already exists
-  const existing = await query<User>(
-    'SELECT * FROM users WHERE public_key = $1',
-    [publicKey]
-  );
+  const existing = await query<User>('SELECT * FROM users WHERE public_key = $1', [publicKey]);
 
   if (existing.length > 0) {
     throw new Error('User with this public key already exists');
@@ -92,10 +89,7 @@ export async function generateAuthChallenge(publicKey: string): Promise<AuthChal
   }
 
   // Check if user exists
-  const users = await query<User>(
-    'SELECT * FROM users WHERE public_key = $1',
-    [publicKey]
-  );
+  const users = await query<User>('SELECT * FROM users WHERE public_key = $1', [publicKey]);
 
   if (users.length === 0) {
     throw new Error('User not found with this public key');
@@ -107,11 +101,7 @@ export async function generateAuthChallenge(publicKey: string): Promise<AuthChal
 
   // Store in Redis (preferred) or fallback to DB
   try {
-    await redisClient.setEx(
-      `auth:challenge:${publicKey}`,
-      config.challengeTTL,
-      challenge
-    );
+    await redisClient.setEx(`auth:challenge:${publicKey}`, config.challengeTTL, challenge);
   } catch (error) {
     console.error('Redis error, falling back to DB:', error);
     await query(
@@ -179,10 +169,7 @@ export async function authenticateWithChallenge(
     storedChallenge = dbChallenge.challenge;
 
     // Mark as used
-    await query(
-      `UPDATE auth_challenges SET used_at = NOW() WHERE challenge = $1`,
-      [challenge]
-    );
+    await query(`UPDATE auth_challenges SET used_at = NOW() WHERE challenge = $1`, [challenge]);
   }
 
   if (storedChallenge !== challenge) {
@@ -197,10 +184,7 @@ export async function authenticateWithChallenge(
   }
 
   // Get user
-  const users = await query<User>(
-    'SELECT * FROM users WHERE public_key = $1',
-    [publicKey]
-  );
+  const users = await query<User>('SELECT * FROM users WHERE public_key = $1', [publicKey]);
 
   if (users.length === 0) {
     throw new Error('User not found');
@@ -242,7 +226,9 @@ export async function authenticateWithChallenge(
 /**
  * Verify JWT token
  */
-export async function verifyToken(token: string): Promise<{ user_id: string; public_key: string; persona_id: string }> {
+export async function verifyToken(
+  token: string
+): Promise<{ user_id: string; public_key: string; persona_id: string }> {
   try {
     const decoded = jwt.verify(token, config.jwt.secret) as {
       user_id: string;
@@ -259,10 +245,6 @@ export async function verifyToken(token: string): Promise<{ user_id: string; pub
  * Get user by ID
  */
 export async function getUserById(userId: string): Promise<User | null> {
-  const users = await query<User>(
-    'SELECT * FROM users WHERE id = $1',
-    [userId]
-  );
+  const users = await query<User>('SELECT * FROM users WHERE id = $1', [userId]);
   return users[0] || null;
 }
-

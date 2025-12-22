@@ -39,10 +39,10 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     const user = await authService.registerUser(userPublicKey, undefined);
 
     // Update the default persona name
-    await query(
-      'UPDATE personas SET name = $1 WHERE user_id = $2 AND is_primary = true',
-      [persona_name.trim(), user.id]
-    );
+    await query('UPDATE personas SET name = $1 WHERE user_id = $2 AND is_primary = true', [
+      persona_name.trim(),
+      user.id,
+    ]);
 
     const response: any = {
       message: 'User registered successfully',
@@ -107,11 +107,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const authToken = await authService.authenticateWithChallenge(
-      public_key,
-      challenge,
-      signature
-    );
+    const authToken = await authService.authenticateWithChallenge(public_key, challenge, signature);
 
     res.json(authToken);
   } catch (error: any) {
@@ -124,7 +120,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
  * POST /api/v1/auth/logout
  * Logout (client-side only, just invalidate token on client)
  */
-router.post('/logout', async (req: Request, res: Response): Promise<void> => {
+router.post('/logout', async (_req: Request, res: Response): Promise<void> => {
   res.json({ message: 'Logged out successfully' });
 });
 
@@ -132,7 +128,7 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
  * GET /api/v1/auth/keygen
  * Generate a new keypair (for testing/development)
  */
-router.get('/keygen', async (req: Request, res: Response): Promise<void> => {
+router.get('/keygen', async (_req: Request, res: Response): Promise<void> => {
   try {
     const keyPair = crypto.generateKeyPair();
     const pem = crypto.formatKeyPairAsPEM(keyPair);
@@ -150,4 +146,3 @@ router.get('/keygen', async (req: Request, res: Response): Promise<void> => {
 });
 
 export default router;
-

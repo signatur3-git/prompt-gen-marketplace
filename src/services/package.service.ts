@@ -96,12 +96,11 @@ export async function getPackageWithVersions(
   );
 
   // Get author persona
-  const personas = await query<Persona>(
-    'SELECT * FROM personas WHERE id = $1',
-    [pkg.author_persona_id]
-  );
+  const personas = await query<Persona>('SELECT * FROM personas WHERE id = $1', [
+    pkg.author_persona_id,
+  ]);
 
-  const latestVersion = versions.find(v => !v.yanked_at)?.version || null;
+  const latestVersion = versions.find((v) => !v.yanked_at)?.version || null;
 
   return {
     ...pkg,
@@ -356,4 +355,3 @@ export async function recordDownload(
     [packageVersionId, ipHash, userAgent || null]
   );
 }
-

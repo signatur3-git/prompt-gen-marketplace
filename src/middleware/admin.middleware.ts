@@ -16,11 +16,10 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
   if (!req.user.is_admin) {
     res.status(403).json({
       error: 'Admin access required',
-      message: 'You do not have permission to access this resource'
+      message: 'You do not have permission to access this resource',
     });
     return;
   }
 
   next();
 }
-

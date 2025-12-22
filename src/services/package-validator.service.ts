@@ -5,10 +5,10 @@ export interface ParsedPackage {
   id: string;
   version: string;
   metadata: {
-    name: string;  // Required per schema
+    name: string; // Required per schema
     description?: string;
-    authors?: string[];  // Required per schema, but optional for backward compat
-    author?: string;  // Legacy field, deprecated
+    authors?: string[]; // Required per schema, but optional for backward compat
+    author?: string; // Legacy field, deprecated
     license?: string;
     tags?: string[];
     bypass_filters?: boolean;
@@ -18,7 +18,7 @@ export interface ParsedPackage {
     version: string;
     path?: string;
   }>;
-  namespaces?: Record<string, any>;  // Required but optional here for validation
+  namespaces?: Record<string, any>; // Required but optional here for validation
   datatypes?: Record<string, any>;
   prompt_sections?: Record<string, any>;
   rulebooks?: Record<string, any>;
@@ -187,7 +187,7 @@ export function isValidPackageId(id: string): boolean {
   if (parts.length < 2) return false;
 
   // Each part must be valid
-  return parts.every(part => /^[a-z0-9-]+$/.test(part) && part.length > 0);
+  return parts.every((part) => /^[a-z0-9-]+$/.test(part) && part.length > 0);
 }
 
 /**
@@ -240,7 +240,7 @@ export function extractDependencies(parsed: ParsedPackage): Array<{
 }> {
   if (!parsed.dependencies) return [];
 
-  return parsed.dependencies.map(dep => {
+  return parsed.dependencies.map((dep) => {
     const { namespace, name } = parsePackageId(dep.package);
     return {
       namespace,
@@ -271,4 +271,3 @@ export function verifyPackageSignature(
   const checksum = calculateChecksum(content);
   return verify(checksum, signature, publicKey);
 }
-

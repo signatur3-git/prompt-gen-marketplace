@@ -160,4 +160,3 @@ router.post('/:id/set-primary', async (req: AuthenticatedRequest, res: Response)
 });
 
 export default router;
-

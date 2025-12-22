@@ -127,7 +127,7 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'id')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'id')).toBe(true);
     });
 
     it('should reject package without version', () => {
@@ -141,7 +141,7 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'version')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'version')).toBe(true);
     });
 
     it('should reject package without metadata', () => {
@@ -154,7 +154,7 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'metadata')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'metadata')).toBe(true);
     });
 
     it('should reject package without metadata.name', () => {
@@ -169,7 +169,7 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'metadata.name')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'metadata.name')).toBe(true);
     });
 
     it('should reject package without namespaces', () => {
@@ -181,7 +181,7 @@ metadata:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'namespaces')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'namespaces')).toBe(true);
     });
 
     it('should reject package with invalid id format', () => {
@@ -196,7 +196,7 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'id')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'id')).toBe(true);
     });
 
     it('should reject package with invalid version format', () => {
@@ -211,7 +211,7 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'version')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'version')).toBe(true);
     });
 
     it('should reject invalid YAML', () => {
@@ -224,7 +224,7 @@ metadata:
 `;
       const result = validator.validatePackage(invalidYaml);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field === 'yaml')).toBe(true);
+      expect(result.errors.some((e) => e.field === 'yaml')).toBe(true);
     });
 
     it('should validate dependencies correctly', () => {
@@ -262,7 +262,9 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field.includes('dependencies') && e.message.includes('package'))).toBe(true);
+      expect(
+        result.errors.some((e) => e.field.includes('dependencies') && e.message.includes('package'))
+      ).toBe(true);
     });
 
     it('should reject dependency without version field', () => {
@@ -279,8 +281,9 @@ namespaces:
 `;
       const result = validator.validatePackage(invalidPackage);
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.field.includes('dependencies') && e.message.includes('version'))).toBe(true);
+      expect(
+        result.errors.some((e) => e.field.includes('dependencies') && e.message.includes('version'))
+      ).toBe(true);
     });
   });
 });
-
