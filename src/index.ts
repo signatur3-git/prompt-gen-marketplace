@@ -40,7 +40,9 @@ function logRuntimeConfig(): void {
   console.info(`PORT:      ${config.port}`);
   console.info(`DB URL:    ${maskUrl(process.env.DATABASE_URL)}`);
   console.info(`Redis URL: ${maskUrl(process.env.REDIS_URL)}`);
-  console.info(`CORS:      ${config.cors.origin}`);
+  console.info(
+    `CORS:      ${Array.isArray(config.cors.origin) ? config.cors.origin.join(', ') : config.cors.origin}`
+  );
   console.info(
     `Frontend:  ${config.env === 'production' ? 'served from dist/public (if built)' : 'dev via Vite on :5174'}`
   );

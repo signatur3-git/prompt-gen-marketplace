@@ -46,11 +46,10 @@ export const config = {
   },
 
   cors: {
-    origin:
-      process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) || [
-        'http://localhost:5174', // Marketplace frontend
-        'http://localhost:5173', // External OAuth web app
-      ],
+    origin: process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) || [
+      'http://localhost:5174', // Marketplace frontend
+      'http://localhost:5173', // External OAuth web app
+    ],
   },
 
   logging: {

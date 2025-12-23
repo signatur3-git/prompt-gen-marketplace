@@ -654,4 +654,3 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString();
 }
 </script>
-

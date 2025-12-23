@@ -256,4 +256,3 @@ function bytesToHex(bytes: Uint8Array): string {
     .join('');
 }
 </script>
-
