@@ -92,7 +92,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { sign, hashes } from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha2.js';
 
@@ -110,6 +110,7 @@ hashes.sha512 = (...m: Uint8Array[]) => {
 };
 
 const router = useRouter();
+const route = useRoute();
 
 const keyData = ref<{ publicKey: string; secretKey: string } | null>(null);
 const manualKey = ref('');
@@ -221,9 +222,11 @@ async function login() {
     loginStatus.value = 'Login successful!';
     success.value = `Welcome back! Redirecting...`;
 
-    // Redirect to home or dashboard
+    // Check for redirect parameter (e.g., from OAuth flow)
+    const redirectTo = (route.query.redirect as string) || '/dashboard';
+
     setTimeout(() => {
-      router.push('/');
+      router.push(redirectTo);
     }, 1500);
   } catch (err: any) {
     error.value = err.message;

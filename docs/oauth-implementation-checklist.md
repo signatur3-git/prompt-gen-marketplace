@@ -119,15 +119,16 @@ async function connectToMarketplace() {
   sessionStorage.setItem('oauth_code_verifier', codeVerifier);
   sessionStorage.setItem('oauth_state', state);
 
-  // 3. Build authorization URL
-  const authUrl = new URL('http://localhost:3000/oauth/authorize');
+  // 3. Build authorization URL - IMPORTANT: Use marketplace's FRONTEND URL, not API!
+  //    This shows the marketplace's consent screen UI
+  const authUrl = new URL('http://localhost:5174/oauth/authorize'); // ← Frontend port!
   authUrl.searchParams.set('client_id', 'prompt-gen-web');
   authUrl.searchParams.set('redirect_uri', `${window.location.origin}/oauth/callback`);
   authUrl.searchParams.set('code_challenge', codeChallenge);
   authUrl.searchParams.set('code_challenge_method', 'S256');
   authUrl.searchParams.set('state', state);
 
-  // 4. Redirect user to marketplace authorization page
+  // 4. Redirect user to marketplace consent screen
   window.location.href = authUrl.toString();
 }
 
@@ -211,6 +212,40 @@ Both are already in the seed file and will be added when you run `npm run db:see
 - ✅ Handle authorization code immediately (expires in 10 minutes)
 - ✅ Access tokens expire in 1 hour
 - ✅ Clean up temporary OAuth data after successful token exchange
+
+## ⚠️ Critical Warnings
+
+### 1. Redirect to FRONTEND, Not API!
+
+**❌ WRONG - This will fail:**
+```typescript
+// Don't redirect to the API endpoint!
+window.location.href = 'http://localhost:3000/api/v1/oauth/authorize?...';
+```
+
+**✅ CORRECT - Use marketplace frontend URL:**
+```typescript
+// Redirect to the Vue frontend route that shows the consent screen
+window.location.href = 'http://localhost:5174/oauth/authorize?...';
+```
+
+**Why?** The marketplace's frontend route `/oauth/authorize` renders the consent screen UI. The API endpoint `/api/v1/oauth/authorize` is only called by the frontend *after* the user clicks "Authorize".
+
+### 2. User Must Be Logged In to Marketplace
+
+If the user is not logged in to the marketplace:
+1. Marketplace redirects to its login page
+2. User logs in with their keypair
+3. Marketplace redirects BACK to the authorization page
+4. User sees consent screen and can approve
+
+**For testing:** Make sure you have a marketplace account and can log in before testing OAuth!
+
+### 3. Use Correct Ports in Development
+
+- **Marketplace backend API:** `http://localhost:3000`
+- **Marketplace frontend:** `http://localhost:5174` ← Authorization page
+- **External web app:** `http://localhost:5173` ← Your callback
 
 ## Testing Locally
 
