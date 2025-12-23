@@ -6,12 +6,17 @@
 - **Purpose:** Backend API + OAuth Authorization Server
 - **Has its own frontend:** Works perfectly in production and locally
 - **Provides OAuth endpoints** for external apps to integrate
+- **Local dev ports:**
+  - Backend API: `http://localhost:3000`
+  - Frontend: `http://localhost:5174` (changed from 5173 to avoid conflict)
 
 ### The External Web App
 - **Repository:** Separate (not this repo)
 - **Production URL:** https://signatur3-git.github.io/prompt-gen-web
-- **Local dev URL:** http://localhost:5173
+- **Local dev URL:** http://localhost:5173 (reserved for OAuth callback)
 - **Purpose:** Wants to integrate with the marketplace via OAuth
+
+> **Port Usage Note:** The marketplace frontend runs on port **5174** in dev to avoid conflicting with the external web app which needs port **5173** for OAuth callbacks.
 
 ## 🔐 OAuth Client Configuration
 
@@ -70,10 +75,13 @@ The seed file is ready! When you push this to production:
 ### For Local Testing
 
 1. Start marketplace: `npm run dev:full`
+   - Backend API: http://localhost:3000
+   - Frontend: http://localhost:5174
 2. Start external web app: (in its own repo) `npm run dev`
+   - Runs on: http://localhost:5173
 3. External web app redirects to `http://localhost:3000/oauth/authorize`
-4. Marketplace shows consent screen
-5. Callback goes to `http://localhost:5173/oauth/callback`
+4. Marketplace shows consent screen (at localhost:5174 if accessed directly)
+5. Callback goes to `http://localhost:5173/oauth/callback` (external web app)
 
 ## 🔑 Key Configuration
 

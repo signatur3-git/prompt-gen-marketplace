@@ -83,6 +83,17 @@ This is generally considered safer than long-lived access tokens in `localStorag
 
    Server runs at `http://localhost:3000`
 
+   Or start backend + frontend together:
+
+   ```bash
+   npm run dev:full
+   ```
+
+   - Backend API: `http://localhost:3000`
+   - Frontend: `http://localhost:5174`
+
+   > **Note:** Frontend uses port 5174 (not 5173) to avoid conflicting with external OAuth web apps that need port 5173 for callbacks.
+
 6. **Stop services when done:**
    ```bash
    docker-compose down

@@ -46,7 +46,7 @@ export const config = {
   },
 
   cors: {
-    origin: process.env.CORS_ORIGIN || 'https://prompt-gen-marketplace-production.up.railway.app',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5174',
   },
 
   logging: {

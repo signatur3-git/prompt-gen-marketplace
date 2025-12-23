@@ -42,7 +42,7 @@ function logRuntimeConfig(): void {
   console.info(`Redis URL: ${maskUrl(process.env.REDIS_URL)}`);
   console.info(`CORS:      ${config.cors.origin}`);
   console.info(
-    `Frontend:  ${config.env === 'production' ? 'served from dist/public (if built)' : 'dev via Vite on :5173'}`
+    `Frontend:  ${config.env === 'production' ? 'served from dist/public (if built)' : 'dev via Vite on :5174'}`
   );
 
   console.info('\nRequired env vars');
