@@ -215,9 +215,9 @@ async function login() {
 
     const { token, user } = await loginRes.json();
 
-    // Step 4: Store token (in memory only, for this session)
-    sessionStorage.setItem('marketplace_token', token);
-    sessionStorage.setItem('marketplace_user', JSON.stringify(user));
+    // Step 4: Store token (persists across tabs and browser sessions)
+    localStorage.setItem('marketplace_token', token);
+    localStorage.setItem('marketplace_user', JSON.stringify(user));
 
     loginStatus.value = 'Login successful!';
     success.value = `Welcome back! Redirecting...`;
@@ -256,3 +256,4 @@ function bytesToHex(bytes: Uint8Array): string {
     .join('');
 }
 </script>
+

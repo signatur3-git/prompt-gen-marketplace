@@ -234,7 +234,7 @@ onMounted(async () => {
 });
 
 function checkLoginStatus() {
-  const token = sessionStorage.getItem('marketplace_token');
+  const token = localStorage.getItem('marketplace_token');
   isLoggedIn.value = !!token;
 }
 
@@ -339,3 +339,4 @@ function onCardMouseOut(event: MouseEvent) {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 </style>
+

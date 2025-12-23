@@ -10,33 +10,25 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
 - **Multiple personas** per user account
 - **Namespace protection** (public/protected/private)
 
-## 🔒 Authentication & session behavior
+## 🔒 Authentication & Session Behavior
 
 This app authenticates API requests using a **JWT access token** returned from `POST /api/v1/auth/login`.
 
 - The token has a fixed lifetime (`expires_in` in the login response, currently `86400` seconds = **24 hours**).
-- There is no server-side session store for access tokens (stateless JWT). “Staying signed in” is therefore mostly a **frontend storage** concern.
+- **Tokens are stored in `localStorage`** to persist across browser tabs and sessions.
+- **You stay logged in** until the token expires (24 hours) or you explicitly log out.
 
-### Why you may be logged out after a restart
+### Session Persistence
 
-If the frontend does not persist the access token (in-memory only), closing/restarting your browser or OS will clear it and you’ll be logged out immediately.
+**localStorage** means:
+- ✅ Login persists when opening new tabs
+- ✅ Login persists when closing and reopening browser
+- ✅ All tabs show the same login state (synced automatically)
+- ✅ Login persists until token expires (24 hours) or manual logout
 
-If the token is persisted (e.g., `localStorage`/`sessionStorage`), you’ll stay signed in until the token expires.
+### Security Note
 
-### Potential future improvement: “Keep me signed in”
-
-A common modern approach is to:
-
-- keep the **access token short-lived** (e.g., 5–15 minutes)
-- use a **refresh token** to obtain new access tokens
-- store the refresh token in a more secure place (typically an **httpOnly, Secure cookie**) and rotate it
-
-This enables a “Keep me signed in” checkbox:
-
-- unchecked → memory-only token or session-scoped auth (logout on browser close)
-- checked → refresh token cookie allows silent re-auth, with server-side revocation/rotation
-
-This is generally considered safer than long-lived access tokens in `localStorage`, but it requires additional backend endpoints (refresh/revoke), storage for refresh token state (or rotation/jti tracking), and CSRF considerations when using cookies.
+The JWT token includes an expiration time (`exp` claim). The backend validates this on every request, so expired tokens are automatically rejected even if still stored in localStorage.
 
 ---
 
@@ -273,6 +265,8 @@ For production, update Railway environment variable to include the external web 
 ```
 CORS_ORIGIN=https://prompt-gen-marketplace-production.up.railway.app,https://signatur3-git.github.io
 ```
+
+**Authentication Note:** OAuth provides delegated access for external applications. Completing OAuth login in an external web app does **not** automatically log you into the marketplace's own frontend - they are separate authentication contexts. See [Authentication Contexts](./docs/AUTHENTICATION_CONTEXTS.md) for details.
 
 #### OAuth Flow Summary
 

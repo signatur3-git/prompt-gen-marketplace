@@ -418,8 +418,8 @@ onMounted(async () => {
 });
 
 function checkLoginStatus() {
-  const token = sessionStorage.getItem('marketplace_token');
-  const userData = sessionStorage.getItem('marketplace_user');
+  const token = localStorage.getItem('marketplace_token');
+  const userData = localStorage.getItem('marketplace_user');
 
   if (token && userData) {
     isLoggedIn.value = true;
@@ -435,7 +435,7 @@ async function loadPersonas() {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/personas', {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -460,7 +460,7 @@ async function loadTokens() {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/oauth/tokens', {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -488,7 +488,7 @@ async function revokeToken(tokenValue: string) {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/oauth/revoke', {
       method: 'POST',
       headers: {
@@ -514,7 +514,7 @@ async function loadMyPackages() {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/packages/me', {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -539,7 +539,7 @@ async function loadAllUsers() {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     // TODO: Create admin endpoint GET /api/v1/admin/users
     const res = await fetch('/api/v1/admin/users', {
       headers: {
@@ -567,7 +567,7 @@ async function createPersona() {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/personas', {
       method: 'POST',
       headers: {
@@ -596,7 +596,7 @@ async function setPrimary(personaId: string) {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch(`/api/v1/personas/${personaId}/set-primary`, {
       method: 'POST',
       headers: {
@@ -623,7 +623,7 @@ async function deletePersona(personaId: string) {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch(`/api/v1/personas/${personaId}`, {
       method: 'DELETE',
       headers: {
@@ -654,3 +654,4 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString();
 }
 </script>
+

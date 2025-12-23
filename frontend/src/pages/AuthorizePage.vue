@@ -70,8 +70,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineEmits } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+const emit = defineEmits(['login']);
 
 const route = useRoute();
 const router = useRouter();
@@ -115,18 +117,28 @@ async function loadAuthorizationRequest() {
       return;
     }
 
-    // Get user info
-    const userData = sessionStorage.getItem('marketplace_user');
-    if (!userData) {
+    // Check authentication - MUST have both user data and token
+    const userData = localStorage.getItem('marketplace_user');
+    const token = localStorage.getItem('marketplace_token');
+
+    // If either is missing, clear both and redirect to login
+    if (!userData || !token) {
+      // Clear any stale data to prevent inconsistent state
+      localStorage.removeItem('marketplace_user');
+      localStorage.removeItem('marketplace_token');
+
       // Not logged in - redirect to login
       const loginUrl = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
       router.push(loginUrl);
       return;
     }
+
     user.value = JSON.parse(userData);
 
+    // Notify parent component that user is logged in (updates navbar)
+    emit('login');
+
     // Get client info from backend
-    const token = sessionStorage.getItem('marketplace_token');
     const params = new URLSearchParams({
       client_id: clientId.value,
       redirect_uri: redirectUri.value,
@@ -160,7 +172,7 @@ async function approve() {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/oauth/authorize', {
       method: 'POST',
       headers: {
@@ -197,7 +209,7 @@ async function deny() {
   error.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/oauth/authorize', {
       method: 'POST',
       headers: {
@@ -227,3 +239,4 @@ async function deny() {
   }
 }
 </script>
+

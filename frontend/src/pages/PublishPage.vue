@@ -257,13 +257,13 @@ onMounted(async () => {
 });
 
 function checkLoginStatus() {
-  const token = sessionStorage.getItem('marketplace_token');
+  const token = localStorage.getItem('marketplace_token');
   isLoggedIn.value = !!token;
 }
 
 async function loadPersonas() {
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/personas', {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -365,7 +365,7 @@ async function publishPackage() {
   publishError.value = '';
 
   try {
-    const token = sessionStorage.getItem('marketplace_token');
+    const token = localStorage.getItem('marketplace_token');
     const res = await fetch('/api/v1/packages', {
       method: 'POST',
       headers: {
@@ -411,3 +411,4 @@ function resetForm() {
   }
 }
 </script>
+

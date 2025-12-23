@@ -18,22 +18,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const isLoggedIn = ref(false);
+let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
   checkLoginStatus();
 
-  // Listen for storage events (logout in another tab)
+  // Listen for storage events from other tabs
+  // NOTE: storage event only fires for changes from OTHER tabs, not same tab
   window.addEventListener('storage', checkLoginStatus);
+
+  // Also poll periodically to catch any missed updates
+  // This ensures tabs stay in sync even if events don't fire
+  pollInterval = setInterval(checkLoginStatus, 1000); // Check every second
+});
+
+onUnmounted(() => {
+  window.removeEventListener('storage', checkLoginStatus);
+  if (pollInterval) {
+    clearInterval(pollInterval);
+  }
 });
 
 function checkLoginStatus() {
-  const token = sessionStorage.getItem('marketplace_token');
-  isLoggedIn.value = !!token;
+  const token = localStorage.getItem('marketplace_token');
+  const newLoginState = !!token;
+
+  // Only update if state actually changed (prevents unnecessary re-renders)
+  if (isLoggedIn.value !== newLoginState) {
+    isLoggedIn.value = newLoginState;
+  }
 }
 
 // Watch for route changes to update login status
@@ -41,3 +59,4 @@ router.afterEach(() => {
   checkLoginStatus();
 });
 </script>
+

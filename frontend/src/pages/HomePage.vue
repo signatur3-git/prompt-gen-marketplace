@@ -118,8 +118,8 @@ onMounted(() => {
 });
 
 function checkLoginStatus() {
-  const token = sessionStorage.getItem('marketplace_token');
-  const userData = sessionStorage.getItem('marketplace_user');
+  const token = localStorage.getItem('marketplace_token');
+  const userData = localStorage.getItem('marketplace_user');
 
   if (token && userData) {
     isLoggedIn.value = true;
@@ -128,10 +128,11 @@ function checkLoginStatus() {
 }
 
 function logout() {
-  sessionStorage.removeItem('marketplace_token');
-  sessionStorage.removeItem('marketplace_user');
+  localStorage.removeItem('marketplace_token');
+  localStorage.removeItem('marketplace_user');
   isLoggedIn.value = false;
   user.value = null;
   router.push('/');
 }
 </script>
+
