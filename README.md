@@ -686,7 +686,7 @@ This repo can be deployed to Railway as a single Node service.
 - **Build command:** `npm run build:all`
 - **Start command:** `npm run start:with-migrations`
 
-`start:with-migrations` runs `npm run migrate:up` against your `DATABASE_URL` before starting the server.
+`start:with-migrations` runs migrations (`npm run migrate:up`) and seeds OAuth clients (`npm run db:seed`) before starting the server.
 
 ### Required environment variables
 
@@ -716,12 +716,19 @@ Set the output as `JWT_SECRET`.
 
 > Note: the code currently logs whether `JWT_REFRESH_SECRET` is set, but refresh tokens are not yet implemented in the backend. You can ignore `JWT_REFRESH_SECRET` for now unless you add refresh-token support.
 
-### Database migrations
+### Database migrations & seeding
 
-On a new deployment (fresh DB), migrations must be applied once:
+On a new deployment (fresh DB):
 
-- Automatic if you use `npm run start:with-migrations`
-- Manual alternative: run `npm run migrate:up` in Railway against the configured `DATABASE_URL`
+- **Automatic:** Using `npm run start:with-migrations` applies migrations and seeds OAuth clients
+- **Manual alternative:** 
+  ```bash
+  npm run migrate:up  # Apply migrations
+  npm run db:seed     # Seed OAuth clients
+  npm run start       # Start server
+  ```
+
+The OAuth client seeding is idempotent (safe to run multiple times) and creates the `prompt-gen-web` client needed for external web app integration.
 
 ### Ports
 

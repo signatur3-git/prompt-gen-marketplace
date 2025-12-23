@@ -34,6 +34,9 @@ async function main() {
     [seed.id, seed.client_id, seed.client_name, seed.redirect_uris]
   );
 
+  console.log('✅ OAuth client seeded successfully:', seed.client_id);
+  console.log('   Redirect URIs:', seed.redirect_uris.join(', '));
+
   await client.end();
 }
 
