@@ -93,41 +93,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { sha512 } from '@noble/hashes/sha2.js';
-import * as ed25519Import from '@noble/ed25519';
-
-type Ed25519Mutable = typeof ed25519Import & {
-  hashes?: { sha512?: (...m: Uint8Array[]) => Uint8Array };
-  etc?: {
-    sha512Sync?: (...m: Uint8Array[]) => Uint8Array;
-    sha512Async?: (...m: Uint8Array[]) => Promise<Uint8Array>;
-  };
-};
-
-// Create a local mutable handle so bundlers don't see us mutating an import namespace.
-const ed25519 = ed25519Import as Ed25519Mutable;
-
-// CRITICAL: Set up SHA-512 IMMEDIATELY after imports, before any other code
-// The @noble/ed25519 library requires this to be set before calling any functions
-const sha512Impl = (...m: Uint8Array[]) => {
-  const totalLength = m.reduce((acc, arr) => acc + arr.length, 0);
-  const combined = new Uint8Array(totalLength);
-  let offset = 0;
-  for (const arr of m) {
-    combined.set(arr, offset);
-    offset += arr.length;
-  }
-  return sha512(combined);
-};
-
-// Set on HASHES object (this is what the library checks!)
-ed25519.hashes = { ...(ed25519.hashes ?? {}) };
-ed25519.hashes.sha512 = sha512Impl;
-
-// Also set on etc for good measure
-ed25519.etc = { ...(ed25519.etc ?? {}) };
-ed25519.etc.sha512Sync = sha512Impl;
-ed25519.etc.sha512Async = (...m: Uint8Array[]) => Promise.resolve(sha512Impl(...m));
+import { sign } from '@noble/ed25519';
 
 const router = useRouter();
 
@@ -212,13 +178,7 @@ async function login() {
     const seedBytes = secretKeyBytes.slice(0, 32); // Use only the first 32 bytes
     const messageBytes = new TextEncoder().encode(challenge);
 
-    // console.log('Signing challenge...', {
-    //   seedLength: seedBytes.length,
-    //   messageLength: messageBytes.length,
-    //   sha512Configured: !!ed25519.etc.sha512Async,
-    // });
-
-    const signature = await ed25519.sign(messageBytes, seedBytes);
+    const signature = await sign(messageBytes, seedBytes);
     const signatureHex = bytesToHex(signature);
 
     // Step 3: Submit signature
