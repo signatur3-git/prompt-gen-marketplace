@@ -93,7 +93,21 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { sign } from '@noble/ed25519';
+import { sign, hashes } from '@noble/ed25519';
+import { sha512 } from '@noble/hashes/sha2.js';
+
+// Configure SHA-512 for @noble/ed25519.
+// This is required for sync signing/verification in the browser.
+hashes.sha512 = (...m: Uint8Array[]) => {
+  const totalLength = m.reduce((acc, arr) => acc + arr.length, 0);
+  const combined = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const arr of m) {
+    combined.set(arr, offset);
+    offset += arr.length;
+  }
+  return sha512(combined);
+};
 
 const router = useRouter();
 
