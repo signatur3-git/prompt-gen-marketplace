@@ -1,11 +1,21 @@
 const path = require('path');
+const fs = require('fs');
 
 function resolveLocalBin(binName) {
-  // Works cross-platform and avoids PATH issues.
-  const cmd = path.join(process.cwd(), 'node_modules', '.bin', `${binName}.cmd`);
-  const ps1 = path.join(process.cwd(), 'node_modules', '.bin', `${binName}.ps1`);
+  // On CI (Linux/macOS), use the bare shell script; on Windows, use .cmd
   const bare = path.join(process.cwd(), 'node_modules', '.bin', binName);
-  return { cmd, ps1, bare };
+  const cmd = path.join(process.cwd(), 'node_modules', '.bin', `${binName}.cmd`);
+
+  // Check which file exists and is executable
+  if (fs.existsSync(bare)) {
+    return bare;
+  }
+  if (fs.existsSync(cmd)) {
+    return cmd;
+  }
+
+  // Fallback
+  return bare;
 }
 
 function defaultDatabaseUrl() {
@@ -28,9 +38,8 @@ async function run() {
   const common = ['-f', '.pgmigrate', '-m', 'database/pgmigrations', '-d', 'DATABASE_URL'];
 
   const runPgMigrate = (args) => {
-    // Use the local .cmd directly; avoid PATH resolution issues.
     const bin = resolveLocalBin('node-pg-migrate');
-    const res = spawnSync(bin.cmd, args, { stdio: 'inherit', env: process.env });
+    const res = spawnSync(bin, args, { stdio: 'inherit', env: process.env });
     if (res.status !== 0) process.exit(res.status ?? 1);
   };
 
