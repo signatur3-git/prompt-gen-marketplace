@@ -21,7 +21,7 @@
     "migrate:down": "node-pg-migrate down -f .pgmigrate -m database/pgmigrations -d DATABASE_URL",
     "migrate:latest": "npm run migrate:up",
     "migrate:reset": "node-pg-migrate down -m all -f .pgmigrate -m database/pgmigrations -d DATABASE_URL && node-pg-migrate up -f .pgmigrate -m database/pgmigrations -d DATABASE_URL",
-    "db:seed": "tsx database/seed.ts",
+    "db:seed": "tsx database/seed-oauth-clients.ts",
     "lint": "eslint src --ext .ts --max-warnings 210",
     "lint:fix": "eslint src --ext .ts --fix",
     "lint:frontend": "eslint frontend/src --ext .ts,.vue --max-warnings 33",

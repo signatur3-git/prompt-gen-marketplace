@@ -1,6 +1,6 @@
-import { query } from '../db.js';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
+import { query } from '../db';
 
 /**
  * OAuth 2.0 Authorization Service
@@ -29,11 +29,17 @@ export interface AuthorizationCode {
 
 export interface AccessToken {
   id: string;
-  token: string;
+  token_hash: string;
   user_id: string;
   client_id: string;
+  scope: string | null;
   expires_at: Date;
   created_at: Date;
+  revoked_at: Date | null;
+}
+
+function sha256Base64Url(input: string): string {
+  return crypto.createHash('sha256').update(input).digest('base64url');
 }
 
 /**
@@ -67,9 +73,17 @@ export async function createAuthorizationCode(
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   await query(
-    `INSERT INTO oauth_codes (id, code, client_id, user_id, redirect_uri, code_challenge, code_challenge_method, expires_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-    [uuidv4(), code, clientId, userId, redirectUri, codeChallenge, codeChallengeMethod, expiresAt]
+    `INSERT INTO oauth_authorization_codes (
+        id,
+        code,
+        user_id,
+        client_id,
+        redirect_uri,
+        code_challenge,
+        code_challenge_method,
+        expires_at
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [uuidv4(), code, userId, clientId, redirectUri, codeChallenge, codeChallengeMethod, expiresAt]
   );
 
   return code;
@@ -98,10 +112,10 @@ export async function exchangeCodeForToken(
   codeVerifier: string,
   clientId: string,
   redirectUri: string
-): Promise<AccessToken> {
+): Promise<{ accessToken: string; tokenRecord: AccessToken }> {
   // Get authorization code
   const codes = await query<AuthorizationCode>(
-    'SELECT * FROM oauth_codes WHERE code = $1 AND client_id = $2',
+    'SELECT * FROM oauth_authorization_codes WHERE code = $1 AND client_id = $2',
     [code, clientId]
   );
 
@@ -127,55 +141,67 @@ export async function exchangeCodeForToken(
   }
 
   // Delete used authorization code
-  await query('DELETE FROM oauth_codes WHERE code = $1', [code]);
+  await query('DELETE FROM oauth_authorization_codes WHERE code = $1', [code]);
 
   // Create access token
-  const token = crypto.randomBytes(32).toString('base64url');
+  const accessToken = crypto.randomBytes(32).toString('base64url');
+  const tokenHash = sha256Base64Url(accessToken);
   const tokenId = uuidv4();
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
   await query(
-    `INSERT INTO access_tokens (id, token, user_id, client_id, expires_at)
+    `INSERT INTO oauth_access_tokens (id, token_hash, user_id, client_id, expires_at)
      VALUES ($1, $2, $3, $4, $5)`,
-    [tokenId, token, authCode.user_id, clientId, expiresAt]
+    [tokenId, tokenHash, authCode.user_id, clientId, expiresAt]
   );
 
-  return {
+  const tokenRecord: AccessToken = {
     id: tokenId,
-    token,
+    token_hash: tokenHash,
     user_id: authCode.user_id,
     client_id: clientId,
+    scope: null,
     expires_at: expiresAt,
     created_at: new Date(),
+    revoked_at: null,
   };
+
+  return { accessToken, tokenRecord };
 }
 
 /**
  * Validate access token
  */
-export async function validateAccessToken(token: string): Promise<AccessToken | null> {
-  const tokens = await query<AccessToken>('SELECT * FROM access_tokens WHERE token = $1', [token]);
+export async function validateAccessToken(accessToken: string): Promise<AccessToken | null> {
+  const tokenHash = sha256Base64Url(accessToken);
+  const tokens = await query<AccessToken>(
+    'SELECT * FROM oauth_access_tokens WHERE token_hash = $1 AND revoked_at IS NULL',
+    [tokenHash]
+  );
 
   if (tokens.length === 0) {
     return null;
   }
 
-  const accessToken = tokens[0];
+  const token = tokens[0];
 
   // Check if expired
-  if (new Date() > new Date(accessToken.expires_at)) {
-    await query('DELETE FROM access_tokens WHERE token = $1', [token]);
+  if (new Date() > new Date(token.expires_at)) {
+    await query('UPDATE oauth_access_tokens SET revoked_at = NOW() WHERE id = $1', [token.id]);
     return null;
   }
 
-  return accessToken;
+  return token;
 }
 
 /**
  * Revoke access token
  */
-export async function revokeToken(token: string): Promise<void> {
-  await query('DELETE FROM access_tokens WHERE token = $1', [token]);
+export async function revokeToken(accessToken: string): Promise<void> {
+  const tokenHash = sha256Base64Url(accessToken);
+  await query('UPDATE oauth_access_tokens SET revoked_at = NOW() WHERE token_hash = $1', [
+    tokenHash,
+  ]);
 }
 
 /**
@@ -183,8 +209,8 @@ export async function revokeToken(token: string): Promise<void> {
  */
 export async function getUserTokens(userId: string): Promise<AccessToken[]> {
   return await query<AccessToken>(
-    `SELECT * FROM access_tokens 
-     WHERE user_id = $1 AND expires_at > NOW()
+    `SELECT * FROM oauth_access_tokens
+     WHERE user_id = $1 AND revoked_at IS NULL AND expires_at > NOW()
      ORDER BY created_at DESC`,
     [userId]
   );
@@ -194,8 +220,8 @@ export async function getUserTokens(userId: string): Promise<AccessToken[]> {
  * Revoke all tokens for a user and client
  */
 export async function revokeUserClientTokens(userId: string, clientId: string): Promise<void> {
-  await query('DELETE FROM access_tokens WHERE user_id = $1 AND client_id = $2', [
-    userId,
-    clientId,
-  ]);
+  await query(
+    'UPDATE oauth_access_tokens SET revoked_at = NOW() WHERE user_id = $1 AND client_id = $2 AND revoked_at IS NULL',
+    [userId, clientId]
+  );
 }

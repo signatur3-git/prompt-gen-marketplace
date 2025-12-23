@@ -112,7 +112,7 @@ Your `.github/workflows/ci.yml` runs these steps **in order**:
 
 This is the KEY to strictness:
 
-```json
+```jsonc
 // package.json
 {
   "lint": "eslint src --ext .ts --max-warnings 0",

@@ -142,7 +142,7 @@ npm install --save-dev vue-eslint-parser
 ```
 
 Then update `frontend/.eslintrc.json`:
-```json
+```jsonc
 {
   "parser": "vue-eslint-parser",
   "parserOptions": {

@@ -181,12 +181,22 @@ exports.up = (pgm) => {
     name: 'idx_download_stats_downloaded_at',
   });
 
+  // OAuth clients
+  pgm.createTable('oauth_clients', {
+    id: { type: 'uuid', primaryKey: true, default: pgm.func('gen_random_uuid()') },
+    client_id: { type: 'text', notNull: true, unique: true },
+    client_name: { type: 'text', notNull: true },
+    redirect_uris: { type: 'text[]', notNull: true },
+    created_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
+  });
+  pgm.createIndex('oauth_clients', 'client_id', { name: 'idx_oauth_clients_client_id' });
+
   // OAuth authorization codes
   pgm.createTable('oauth_authorization_codes', {
     id: { type: 'uuid', primaryKey: true, default: pgm.func('gen_random_uuid()') },
     code: { type: 'text', notNull: true, unique: true },
     user_id: { type: 'uuid', notNull: true, references: 'users(id)', onDelete: 'CASCADE' },
-    client_id: { type: 'text', notNull: true },
+    client_id: { type: 'text', notNull: true, references: 'oauth_clients(client_id)', onDelete: 'CASCADE' },
     redirect_uri: { type: 'text', notNull: true },
     code_challenge: { type: 'text', notNull: true },
     code_challenge_method: { type: 'text', notNull: true },
@@ -206,7 +216,7 @@ exports.up = (pgm) => {
     id: { type: 'uuid', primaryKey: true, default: pgm.func('gen_random_uuid()') },
     token_hash: { type: 'text', notNull: true, unique: true },
     user_id: { type: 'uuid', notNull: true, references: 'users(id)', onDelete: 'CASCADE' },
-    client_id: { type: 'text', notNull: true },
+    client_id: { type: 'text', notNull: true, references: 'oauth_clients(client_id)', onDelete: 'CASCADE' },
     scope: { type: 'text' },
     created_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
     expires_at: { type: 'timestamptz', notNull: true },
@@ -267,6 +277,7 @@ exports.down = (pgm) => {
   pgm.dropTable('auth_challenges', { ifExists: true, cascade: true });
   pgm.dropTable('oauth_access_tokens', { ifExists: true, cascade: true });
   pgm.dropTable('oauth_authorization_codes', { ifExists: true, cascade: true });
+  pgm.dropTable('oauth_clients', { ifExists: true, cascade: true });
   pgm.dropTable('download_stats', { ifExists: true, cascade: true });
   pgm.dropTable('package_tags', { ifExists: true, cascade: true });
   pgm.dropTable('package_dependencies', { ifExists: true, cascade: true });

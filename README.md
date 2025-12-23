@@ -10,6 +10,36 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
 - **Multiple personas** per user account
 - **Namespace protection** (public/protected/private)
 
+## 🔒 Authentication & session behavior
+
+This app authenticates API requests using a **JWT access token** returned from `POST /api/v1/auth/login`.
+
+- The token has a fixed lifetime (`expires_in` in the login response, currently `86400` seconds = **24 hours**).
+- There is no server-side session store for access tokens (stateless JWT). “Staying signed in” is therefore mostly a **frontend storage** concern.
+
+### Why you may be logged out after a restart
+
+If the frontend does not persist the access token (in-memory only), closing/restarting your browser or OS will clear it and you’ll be logged out immediately.
+
+If the token is persisted (e.g., `localStorage`/`sessionStorage`), you’ll stay signed in until the token expires.
+
+### Potential future improvement: “Keep me signed in”
+
+A common modern approach is to:
+
+- keep the **access token short-lived** (e.g., 5–15 minutes)
+- use a **refresh token** to obtain new access tokens
+- store the refresh token in a more secure place (typically an **httpOnly, Secure cookie**) and rotate it
+
+This enables a “Keep me signed in” checkbox:
+
+- unchecked → memory-only token or session-scoped auth (logout on browser close)
+- checked → refresh token cookie allows silent re-auth, with server-side revocation/rotation
+
+This is generally considered safer than long-lived access tokens in `localStorage`, but it requires additional backend endpoints (refresh/revoke), storage for refresh token state (or rotation/jti tracking), and CSRF considerations when using cookies.
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -129,7 +159,7 @@ Register a new user with their public key.
 
 **Request:**
 
-```json
+```jsonc
 {
   "public_key": "hex-encoded-ed25519-public-key",
   "email": "user@example.com" // optional
@@ -138,7 +168,7 @@ Register a new user with their public key.
 
 **Response:**
 
-```json
+```jsonc
 {
   "message": "User registered successfully",
   "user": {
@@ -156,7 +186,7 @@ Get authentication challenge.
 
 **Response:**
 
-```json
+```jsonc
 {
   "challenge": "random-hex-string",
   "expires_at": "2025-12-22T12:05:00Z"
@@ -169,7 +199,7 @@ Authenticate with signed challenge.
 
 **Request:**
 
-```json
+```jsonc
 {
   "public_key": "hex-encoded-public-key",
   "challenge": "challenge-from-previous-step",
@@ -179,7 +209,7 @@ Authenticate with signed challenge.
 
 **Response:**
 
-```json
+```jsonc
 {
   "token": "jwt-token",
   "expires_in": 86400,
@@ -194,7 +224,7 @@ Generate a new keypair (for testing/development).
 
 **Response:**
 
-```json
+```jsonc
 {
   "public_key": "...",
   "secret_key": "...",
@@ -217,7 +247,7 @@ Create a new persona.
 
 **Request:**
 
-```json
+```jsonc
 {
   "name": "Jane Doe",
   "avatar_url": "https://...", // optional
@@ -254,7 +284,7 @@ Create/claim a namespace.
 
 **Request:**
 
-```json
+```jsonc
 {
   "name": "my-namespace",
   "protection_level": "protected", // optional: public/protected/private
@@ -425,38 +455,44 @@ docker-compose logs -f redis
 
 ### Port Conflicts
 
-If ports 5432 or 6379 are already in use:
+If ports 5432/5433 or 6379 are already in use:
 
 ```bash
 # Check what's using the ports
 # Windows:
 netstat -ano | findstr :5432
+netstat -ano | findstr :5433
 netstat -ano | findstr :6379
+netstat -ano | findstr :6380
 
 # Linux/Mac:
 lsof -i :5432
+lsof -i :5433
 lsof -i :6379
+lsof -i :6380
 
 # Option 1: Stop the conflicting service
-# Option 2: Edit docker-compose.yml to use different ports:
-#   "5433:5432"  # PostgreSQL on host port 5433
-#   "6380:6379"  # Redis on host port 6380
+# Option 2: Edit docker-compose.yml to use different ports
 ```
 
 ### Database Not Initializing
 
-If the database schema isn't loading:
+If your local database schema doesn’t match the current code:
 
-```bash
-# Stop and remove containers + volumes
-docker-compose down -v
+- Preferred: apply migrations to the current DB:
 
-# Start fresh
-docker-compose up -d
+  ```bash
+  npm run migrate:up
+  ```
 
-# Check logs
-docker-compose logs postgres
-```
+- If you’re OK with losing local data (fastest/cleanest): reset the Docker volume and re-run migrations:
+
+  ```bash
+  docker-compose down -v
+  docker-compose up -d
+  npm run migrate:up
+  npm run db:seed
+  ```
 
 ### Connection Errors
 
@@ -468,17 +504,12 @@ If you see "connection refused" errors:
    docker-compose ps
    ```
 
-2. Wait for health checks to pass:
+2. Verify `.env` has correct values:
 
-   ```bash
-   docker-compose logs postgres | grep "ready to accept"
-   docker-compose logs redis | grep "Ready to accept"
    ```
-
-3. Verify `.env` has correct values:
-   ```
-   DATABASE_URL=postgresql://postgres:postgres@localhost:5433/prompt_gen_marketplace
-   REDIS_URL=redis://localhost:6379
+   # Matches docker-compose.yml defaults in this repo
+   DATABASE_URL=postgresql://postgres:postgres@localhost:55433/prompt_gen_marketplace
+   REDIS_URL=redis://localhost:6380
    ```
 
 ### Clean Slate Reset

@@ -45,7 +45,7 @@ curl http://localhost:3000/api/v1/auth/keygen
 ```
 
 **Response:**
-```json
+```jsonc
 {
   "public_key": "abc123...",
   "secret_key": "def456...",
@@ -67,7 +67,7 @@ curl -X POST http://localhost:3000/api/v1/auth/register \
 ```
 
 **Response:**
-```json
+```jsonc
 {
   "message": "User registered successfully",
   "user": {
@@ -85,7 +85,7 @@ curl "http://localhost:3000/api/v1/auth/challenge?public_key=YOUR_PUBLIC_KEY"
 ```
 
 **Response:**
-```json
+```jsonc
 {
   "challenge": "random-hex-string",
   "expires_at": "2025-12-22T17:05:00Z"
@@ -129,7 +129,7 @@ curl -X POST http://localhost:3000/api/v1/auth/login \
 ```
 
 **Response:**
-```json
+```jsonc
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "expires_in": 86400,

@@ -215,7 +215,7 @@ router.post('/token', async (req: AuthenticatedRequest, res: Response): Promise<
     }
 
     // Exchange code for token
-    const accessToken = await oauthService.exchangeCodeForToken(
+    const { accessToken, tokenRecord } = await oauthService.exchangeCodeForToken(
       code,
       code_verifier,
       client_id,
@@ -224,9 +224,9 @@ router.post('/token', async (req: AuthenticatedRequest, res: Response): Promise<
 
     // Return token
     res.json({
-      access_token: accessToken.token,
+      access_token: accessToken,
       token_type: 'Bearer',
-      expires_in: Math.floor((accessToken.expires_at.getTime() - Date.now()) / 1000),
+      expires_in: Math.floor((tokenRecord.expires_at.getTime() - Date.now()) / 1000),
     });
   } catch (error: any) {
     console.error('OAuth token exchange error:', error);

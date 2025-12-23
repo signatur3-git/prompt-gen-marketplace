@@ -109,7 +109,7 @@ npm run validate:ci               # Run all checks including builds
 
 **Config:** `.prettierrc`
 
-```json
+```jsonc
 {
   "semi": true,
   "singleQuote": true,
