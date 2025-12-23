@@ -8,15 +8,13 @@ export const config = {
   host: process.env.HOST || (process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'),
 
   database: {
-    url:
-      process.env.DATABASE_URL ||
-      'postgresql://postgres:postgres@localhost:55433/prompt_gen_marketplace',
+    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/prompt_gen_marketplace',
     poolMin: parseInt(process.env.DATABASE_POOL_MIN || '2', 10),
     poolMax: parseInt(process.env.DATABASE_POOL_MAX || '10', 10),
   },
 
   redis: {
-    url: process.env.REDIS_URL || 'redis://localhost:6380',
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
     password: process.env.REDIS_PASSWORD,
   },
 

@@ -2,11 +2,14 @@ import pkg from 'pg';
 
 const { Client } = pkg;
 
+function defaultDatabaseUrl() {
+  // Prefer env var; fall back to standard local Postgres for manual installs.
+  // Docker Compose users should set DATABASE_URL in .env.
+  return 'postgresql://postgres:postgres@localhost:5432/prompt_gen_marketplace';
+}
+
 async function main() {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL is required');
-  }
+  const databaseUrl = process.env.DATABASE_URL || defaultDatabaseUrl();
 
   const client = new Client({ connectionString: databaseUrl });
   await client.connect();
@@ -35,4 +38,3 @@ main().catch((err) => {
   console.error('❌ Seed failed:', err);
   process.exit(1);
 });
-

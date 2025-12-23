@@ -507,9 +507,9 @@ If you see "connection refused" errors:
 2. Verify `.env` has correct values:
 
    ```
-   # Matches docker-compose.yml defaults in this repo
-   DATABASE_URL=postgresql://postgres:postgres@localhost:55433/prompt_gen_marketplace
-   REDIS_URL=redis://localhost:6380
+   # Must match docker-compose.yml in this repo
+   DATABASE_URL=postgresql://postgres:postgres@localhost:<HOST_POSTGRES_PORT>/prompt_gen_marketplace
+   REDIS_URL=redis://localhost:<HOST_REDIS_PORT>
    ```
 
 ### Clean Slate Reset
