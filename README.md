@@ -239,11 +239,13 @@ Generate a new keypair (for testing/development).
 
 The marketplace implements **OAuth 2.0 Authorization Code flow with PKCE** for secure third-party application integration.
 
-> **Note:** The marketplace has its own frontend that works perfectly. This OAuth integration is for **external applications** (like https://signatur3-git.github.io/prompt-gen-web) that want to integrate with the marketplace.
+> **Note:** The marketplace has its own frontend that works perfectly. This OAuth integration is for **external applications** (web apps, desktop apps, etc.) that want to integrate with the marketplace.
 
 #### OAuth Client Configuration
 
-The marketplace is pre-seeded with an OAuth client for the external web app:
+The marketplace is pre-seeded with OAuth clients for external applications:
+
+##### Web App Client
 
 - **Client ID:** `prompt-gen-web`
 - **Client Name:** `Prompt Gen Web`
@@ -251,20 +253,30 @@ The marketplace is pre-seeded with an OAuth client for the external web app:
   - Local dev: `http://localhost:5173/oauth/callback`
   - Production: `https://signatur3-git.github.io/prompt-gen-web/oauth/callback`
 
-⚠️ **Important:** The `redirect_uri` points to the **external web app's callback URL** (not the marketplace). The external web app needs to:
-1. Create a `/oauth/callback` route to receive the authorization code
+##### Desktop App Client
+
+- **Client ID:** `prompt-gen-desktop`
+- **Client Name:** `Prompt Gen Desktop`
+- **Redirect URIs:**
+  - Local HTTP server: `http://localhost:51234/oauth/callback`
+  - Deep link: `promptgen://oauth/callback`
+
+⚠️ **Important:** The `redirect_uri` points to the **external application's callback URL** (not the marketplace). External applications need to:
+1. Create a `/oauth/callback` route (or handler) to receive the authorization code
 2. Exchange the code for an access token
 3. Use the token to call marketplace APIs
 
-**CORS Note:** For local development, the marketplace needs to allow CORS requests from the external web app. Set in `.env`:
+**CORS Note:** For local development, the marketplace needs to allow CORS requests from external applications. Set in `.env`:
 ```
-CORS_ORIGIN=http://localhost:5174,http://localhost:5173
+CORS_ORIGIN=http://localhost:5174,http://localhost:5173,http://localhost:51234
 ```
 
-For production, update Railway environment variable to include the external web app's domain:
+For production, update Railway environment variable to include external application domains:
 ```
 CORS_ORIGIN=https://prompt-gen-marketplace-production.up.railway.app,https://signatur3-git.github.io
 ```
+
+**Note:** Deep link URIs (like `promptgen://oauth/callback`) don't require CORS configuration as they are handled by the operating system, not a web browser origin.
 
 **Authentication Note:** OAuth provides delegated access for external applications. Completing OAuth login in an external web app does **not** automatically log you into the marketplace's own frontend - they are separate authentication contexts. See [Authentication Contexts](./docs/AUTHENTICATION_CONTEXTS.md) for details.
 
@@ -728,7 +740,9 @@ On a new deployment (fresh DB):
   npm run start       # Start server
   ```
 
-The OAuth client seeding is idempotent (safe to run multiple times) and creates the `prompt-gen-web` client needed for external web app integration.
+The OAuth client seeding is idempotent (safe to run multiple times) and creates OAuth clients for external applications:
+- `prompt-gen-web` - For web app integration
+- `prompt-gen-desktop` - For desktop app integration
 
 ### Ports
 

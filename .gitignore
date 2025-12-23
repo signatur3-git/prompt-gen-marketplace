@@ -11,3 +11,7 @@ coverage/
 *.key
 database/data/
 
+# Local storage for uploaded packages (when S3 is not configured)
+storage/packages/*
+!storage/packages/.gitkeep
+
