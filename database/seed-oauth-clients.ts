@@ -19,7 +19,10 @@ async function main() {
     id: '00000000-0000-0000-0000-000000000001',
     client_id: 'prompt-gen-web',
     client_name: 'Prompt Gen Web',
-    redirect_uris: ['http://localhost:5173/oauth/callback'],
+    redirect_uris: [
+      'http://localhost:5173/oauth/callback', // Local dev - external web app
+      'https://signatur3-git.github.io/prompt-gen-web/oauth/callback', // Production - external web app
+    ],
   };
 
   await client.query(

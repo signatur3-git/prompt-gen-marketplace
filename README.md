@@ -83,7 +83,6 @@ This is generally considered safer than long-lived access tokens in `localStorag
 
    Server runs at `http://localhost:3000`
 
-
 6. **Stop services when done:**
    ```bash
    docker-compose down
@@ -162,7 +161,7 @@ Register a new user with their public key.
 ```jsonc
 {
   "public_key": "hex-encoded-ed25519-public-key",
-  "email": "user@example.com" // optional
+  "email": "user@example.com", // optional
 }
 ```
 
@@ -175,8 +174,8 @@ Register a new user with their public key.
     "id": "uuid",
     "public_key": "...",
     "email": "user@example.com",
-    "created_at": "2025-12-22T12:00:00Z"
-  }
+    "created_at": "2025-12-22T12:00:00Z",
+  },
 }
 ```
 
@@ -189,7 +188,7 @@ Get authentication challenge.
 ```jsonc
 {
   "challenge": "random-hex-string",
-  "expires_at": "2025-12-22T12:05:00Z"
+  "expires_at": "2025-12-22T12:05:00Z",
 }
 ```
 
@@ -203,7 +202,7 @@ Authenticate with signed challenge.
 {
   "public_key": "hex-encoded-public-key",
   "challenge": "challenge-from-previous-step",
-  "signature": "hex-encoded-signature"
+  "signature": "hex-encoded-signature",
 }
 ```
 
@@ -229,9 +228,58 @@ Generate a new keypair (for testing/development).
   "public_key": "...",
   "secret_key": "...",
   "pem": "-----BEGIN PROMPT-GEN MARKETPLACE KEYPAIR-----\n...",
-  "warning": "⚠️ KEEP SECRET KEY PRIVATE! This is for testing only."
+  "warning": "⚠️ KEEP SECRET KEY PRIVATE! This is for testing only.",
 }
 ```
+
+### OAuth 2.0 Endpoints
+
+The marketplace implements **OAuth 2.0 Authorization Code flow with PKCE** for secure third-party application integration.
+
+> **Note:** The marketplace has its own frontend that works perfectly. This OAuth integration is for **external applications** (like https://signatur3-git.github.io/prompt-gen-web) that want to integrate with the marketplace.
+
+#### OAuth Client Configuration
+
+The marketplace is pre-seeded with an OAuth client for the external web app:
+
+- **Client ID:** `prompt-gen-web`
+- **Client Name:** `Prompt Gen Web`
+- **Redirect URIs:**
+  - Local dev: `http://localhost:5173/oauth/callback`
+  - Production: `https://signatur3-git.github.io/prompt-gen-web/oauth/callback`
+
+⚠️ **Important:** The `redirect_uri` points to the **external web app's callback URL** (not the marketplace). The external web app needs to:
+1. Create a `/oauth/callback` route to receive the authorization code
+2. Exchange the code for an access token
+3. Use the token to call marketplace APIs
+
+#### OAuth Flow Summary
+
+**See [OAuth Flow Documentation](./docs/oauth-flow.md) for a detailed explanation with diagrams.**
+
+**Quick overview:**
+
+1. Your web app generates PKCE `code_verifier` and `code_challenge`
+2. Your web app redirects user to marketplace's authorization page (`/oauth/authorize`)
+3. User sees marketplace's consent screen and approves/denies
+4. Marketplace redirects back to **your web app's callback** with authorization `code`
+5. Your web app exchanges code for access token at marketplace's `/api/v1/oauth/token` endpoint
+
+**Key endpoints:**
+
+- `GET /api/v1/oauth/authorize` - Authorization page
+- `POST /api/v1/oauth/authorize` - User approval
+- `POST /api/v1/oauth/token` - Exchange code for token
+- `GET /api/v1/oauth/tokens` - List user's active tokens
+- `DELETE /api/v1/oauth/tokens/:id` - Revoke a token
+
+**Security notes:**
+
+- ✅ Always use PKCE with `S256` (SHA-256)
+- ✅ Validate `state` parameter for CSRF protection
+- ✅ Authorization codes expire in 10 minutes
+- ✅ Access tokens expire in 1 hour
+- ✅ Codes are single-use only
 
 ### Persona Endpoints
 
@@ -252,7 +300,7 @@ Create a new persona.
   "name": "Jane Doe",
   "avatar_url": "https://...", // optional
   "bio": "...", // optional
-  "website": "https://..." // optional
+  "website": "https://...", // optional
 }
 ```
 
@@ -288,7 +336,7 @@ Create/claim a namespace.
 {
   "name": "my-namespace",
   "protection_level": "protected", // optional: public/protected/private
-  "description": "..." // optional
+  "description": "...", // optional
 }
 ```
 
@@ -627,7 +675,7 @@ This repo can be deployed to Railway as a single Node service.
 
 ### Required environment variables
 
-Railway will not automatically provision Postgres/Redis *unless you add them as plugins*.
+Railway will not automatically provision Postgres/Redis _unless you add them as plugins_.
 
 You need to provide:
 
