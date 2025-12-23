@@ -67,11 +67,26 @@ If you prefer to install PostgreSQL and Redis directly:
 2. Create database:
    ```bash
    psql -U postgres -c "CREATE DATABASE prompt_gen_marketplace;"
-   psql -U postgres -d prompt_gen_marketplace -f database/schema.sql
    ```
-3. Start Redis: `redis-server`
-4. Update `.env` with your credentials
-5. Run `npm run dev`
+3. Set `DATABASE_URL` in your `.env` (example):
+   ```bash
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/prompt_gen_marketplace
+   ```
+4. Apply migrations:
+   ```bash
+   npm run migrate:up
+   ```
+5. Start Redis: `redis-server`
+6. Update `.env` with your credentials
+7. Run `npm run dev`
+
+---
+
+## 📦 Database Schema
+
+The database schema is managed via migrations in `database/pgmigrations/`.
+
+(You may also see `database/schema.sql` as a reference snapshot, but CI/production should use migrations.)
 
 ### Code Quality & CI
 
@@ -490,16 +505,9 @@ npm run dev
 
 ## 📦 Database Schema
 
-See `database/schema.sql` for the complete schema.
+The database schema is managed via migrations in `database/pgmigrations/`.
 
-Key tables:
-
-- `users` - User accounts (identified by public key)
-- `user_keypairs` - Active and revoked keypairs
-- `personas` - Multiple identities per user
-- `namespaces` - Package namespaces with protection levels
-- `packages` - Package metadata
-- `package_versions` - Versioned package releases
+(You may also see `database/schema.sql` as a reference snapshot, but CI/production should use migrations.)
 
 ## 🛠️ Development
 
@@ -574,6 +582,60 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - Set up your development environment
 - Submit pull requests
 - Report bugs and request features
+
+## 🚄 Deployment (Railway)
+
+This repo can be deployed to Railway as a single Node service.
+
+### Recommended Railway commands
+
+- **Build command:** `npm run build:all`
+- **Start command:** `npm run start:with-migrations`
+
+`start:with-migrations` runs `npm run migrate:up` against your `DATABASE_URL` before starting the server.
+
+### Required environment variables
+
+Railway will not automatically provision Postgres/Redis *unless you add them as plugins*.
+
+You need to provide:
+
+- `DATABASE_URL` (Railway Postgres plugin will provide this)
+- `REDIS_URL` (Railway Redis plugin will provide this)
+- `JWT_SECRET`
+
+#### JWT secrets (how to generate)
+
+These are **application secrets** (not related to Redis). They are used to sign auth tokens.
+
+Generate a strong secret locally and copy it into Railway variables:
+
+```bash
+# Linux/macOS
+openssl rand -base64 48
+
+# Windows PowerShell
+[Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Max 256 }))
+```
+
+Set the output as `JWT_SECRET`.
+
+> Note: the code currently logs whether `JWT_REFRESH_SECRET` is set, but refresh tokens are not yet implemented in the backend. You can ignore `JWT_REFRESH_SECRET` for now unless you add refresh-token support.
+
+### Database migrations
+
+On a new deployment (fresh DB), migrations must be applied once:
+
+- Automatic if you use `npm run start:with-migrations`
+- Manual alternative: run `npm run migrate:up` in Railway against the configured `DATABASE_URL`
+
+### Ports
+
+Railway provides a `PORT` env var.
+
+This app listens on `PORT` (default `3000`) and binds to `0.0.0.0` in production.
+
+---
 
 ## 📄 License
 
