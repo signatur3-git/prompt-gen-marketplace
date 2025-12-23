@@ -264,6 +264,16 @@ The marketplace is pre-seeded with an OAuth client for the external web app:
 2. Exchange the code for an access token
 3. Use the token to call marketplace APIs
 
+**CORS Note:** For local development, the marketplace needs to allow CORS requests from the external web app. Set in `.env`:
+```
+CORS_ORIGIN=http://localhost:5174,http://localhost:5173
+```
+
+For production, update Railway environment variable to include the external web app's domain:
+```
+CORS_ORIGIN=https://prompt-gen-marketplace-production.up.railway.app,https://signatur3-git.github.io
+```
+
 #### OAuth Flow Summary
 
 **See [OAuth Flow Documentation](./docs/oauth-flow.md) for a detailed explanation with diagrams.**

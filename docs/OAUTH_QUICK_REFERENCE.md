@@ -19,6 +19,11 @@
 **LoginPage always redirected to:** Homepage (`/`)  
 **Should redirect to:** The `?redirect=` query parameter (preserves OAuth flow)
 
+### 3. CORS Blocking Token Exchange
+**Marketplace CORS only allowed:** `http://localhost:5174` (its own frontend)  
+**Needed to allow:** `http://localhost:5173` (external OAuth web app)  
+**Error:** `Failed to fetch` when calling `/api/v1/oauth/token`
+
 ## The Fix
 
 ### ✅ Fixed in Marketplace (This Commit)
@@ -46,6 +51,34 @@ Now when AuthorizePage redirects unauthenticated users to:
 ```
 
 The login page will redirect BACK to the OAuth authorization page after login!
+
+### ✅ Fixed CORS Configuration
+
+**File:** `src/config.ts` and `.env`
+
+**Change:** Allow multiple CORS origins (marketplace frontend + external OAuth web app):
+
+```typescript
+// OLD CODE:
+cors: {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5174',
+}
+
+// NEW CODE:
+cors: {
+  origin: process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [
+    'http://localhost:5174',  // Marketplace frontend
+    'http://localhost:5173',  // External OAuth web app
+  ],
+}
+```
+
+**In .env:**
+```env
+CORS_ORIGIN=http://localhost:5174,http://localhost:5173
+```
+
+This allows the external web app to call `/api/v1/oauth/token` without CORS errors!
 
 ### ✅ What External Web App Must Do
 
@@ -131,12 +164,25 @@ npm run dev
 | Marketplace Frontend | `http://localhost:5174` | OAuth authorization UI |
 | External Web App | `http://localhost:5173` | Your app + callback |
 
+**CORS Configuration:** Both `localhost:5174` and `localhost:5173` must be allowed
+
 ### Production
 
 | Service | URL | Purpose |
 |---------|-----|---------|
 | Marketplace | `https://prompt-gen-marketplace-production.up.railway.app` | API + Frontend |
 | External Web App | `https://signatur3-git.github.io/prompt-gen-web` | Your app + callback |
+
+**CORS Configuration for Production:**
+
+Set Railway environment variable:
+```
+CORS_ORIGIN=https://prompt-gen-marketplace-production.up.railway.app,https://signatur3-git.github.io
+```
+
+This allows:
+1. Marketplace's own frontend to call its API
+2. External OAuth web app to call `/api/v1/oauth/token`
 
 In production, redirect to:
 ```typescript
@@ -171,4 +217,3 @@ For complete implementation details, see:
 - **`docs/OAUTH_FLOW_COMPLETE.md`** - Full flow explanation with all scenarios
 - **`docs/oauth-implementation-checklist.md`** - Step-by-step implementation guide
 - **`docs/PORT_CONFIGURATION.md`** - Port assignments reference
-
