@@ -19,7 +19,7 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
 
 ### Local Development Setup (Recommended)
 
-**The easiest way to test locally is using Docker Compose**, which automatically sets up PostgreSQL and Redis with the correct schema:
+**The easiest way to test locally is using Docker Compose**, which automatically sets up PostgreSQL and Redis:
 
 1. **Install dependencies:**
 
@@ -33,21 +33,19 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
    docker-compose up -d
    ```
 
-   This will:
-   - ✅ Start PostgreSQL on port 5433
-   - ✅ Start Redis on port 6379
-   - ✅ Automatically initialize the database schema
-   - ✅ Create the `prompt_gen_marketplace` database
-
 3. **Create .env file (required):**
 
    ```bash
    cp .env.example .env
    ```
 
-   The default values in `.env` work perfectly with docker-compose - no editing needed!
+4. **Initialize / migrate the database schema:**
 
-4. **Start development server:**
+   ```bash
+   npm run migrate:up
+   ```
+
+5. **Start development server:**
 
    ```bash
    npm run dev
@@ -55,15 +53,6 @@ Package registry and discovery platform for the Prompt Gen ecosystem.
 
    Server runs at `http://localhost:3000`
 
-5. **Test the API:**
-
-   ```bash
-   # Health check
-   curl http://localhost:3000/health
-
-   # Generate test keypair
-   curl http://localhost:3000/api/v1/auth/keygen
-   ```
 
 6. **Stop services when done:**
    ```bash

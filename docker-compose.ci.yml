@@ -20,7 +20,8 @@ services:
     volumes:
       # Keep schema init, but isolate data volume via project name when invoking compose.
       - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      # NOTE: schema initialization is handled by node-pg-migrate (npm run migrate:up).
+      # Do not mount database/schema.sql into docker-entrypoint-initdb.d.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -39,4 +40,3 @@ services:
 
 volumes:
   postgres_data:
-

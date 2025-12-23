@@ -13,6 +13,12 @@ import path from 'path';
 
 const app = express();
 
+// Trust reverse proxy (Railway, etc.) so X-Forwarded-For is handled correctly.
+// This is required for express-rate-limit when behind a proxy.
+if (config.env === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Security middleware
 app.use(helmet());
 app.use(

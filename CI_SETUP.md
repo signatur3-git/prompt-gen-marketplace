@@ -31,7 +31,7 @@ Runs on Ubuntu with Node.js 20.x and includes PostgreSQL + Redis services.
 6. **Run unit tests** - Executes Vitest test suite
 7. **Build backend** - Compiles TypeScript to JavaScript
 8. **Build frontend** - Builds Vue frontend with Vite
-9. **Initialize test database** - Sets up PostgreSQL schema for integration tests
+9. **Initialize test database** - Runs `npm run migrate:up` against the CI Postgres service
 10. **Run integration tests** - Tests with real database connections
 
 ### 2. Security Job

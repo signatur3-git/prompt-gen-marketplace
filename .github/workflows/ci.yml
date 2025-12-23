@@ -80,10 +80,9 @@ jobs:
         run: npm run build:frontend
 
       - name: Initialize test database
-        run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d prompt_gen_marketplace_test -f database/schema.sql
+        run: npm run migrate:up
         env:
-          PGPASSWORD: postgres
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/prompt_gen_marketplace_test
 
       - name: Run integration tests
         run: npm run test:integration -- --run
@@ -118,4 +117,3 @@ jobs:
       - name: Check for dependency vulnerabilities
         run: npm audit --production
         continue-on-error: true
-

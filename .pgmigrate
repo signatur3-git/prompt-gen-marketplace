@@ -1,0 +1,8 @@
+// node-pg-migrate config (CommonJS)
+module.exports = {
+  // keep for future: custom db config sections via --config-value
+  db: {
+    // node-pg-migrate will read the actual connection string from process.env.DATABASE_URL
+    // because we pass `-d DATABASE_URL` in npm scripts.
+  },
+};

@@ -45,12 +45,14 @@ GitHub Actions (`.github/workflows/ci.yml`) runs these steps in order:
 7. `npm test -- --run`
 8. `npm run build`
 9. `npm run build:frontend`
-10. Initialize DB schema: `psql ... -f database/schema.sql`
+10. Initialize DB schema: `npm run migrate:up`
 11. `npm run test:integration -- --run`
 
 Locally, `npm run validate:ci` (`scripts/ci-local.ps1`) does the same checks, but brings Postgres/Redis up via `docker-compose.ci.yml` using:
 - a dedicated compose project name (`marketplace-ci`)
 - random host ports (so it won’t collide with developer containers)
+
+> Note: the CI/test Postgres container starts **empty**. Schema is applied by `node-pg-migrate` so all environments use the same migration engine.
 
 ---
 
@@ -165,11 +167,28 @@ Fix strategy:
 Symptoms:
 - `npm run test:integration` fails
 
-CI uses `database/schema.sql` via `psql`. Make sure tests are compatible with that schema and the env vars:
+CI initializes the DB via `npm run migrate:up`. Make sure tests are compatible with that schema and the env vars:
 - `DATABASE_URL`
 - `REDIS_URL`
 - `JWT_SECRET`
 - `JWT_REFRESH_SECRET`
+
+---
+
+## Database migrations (node-pg-migrate)
+
+CI and local CI-parity use `node-pg-migrate` to initialize the schema.
+
+### Migration filename format (important)
+
+`node-pg-migrate` expects migration filenames to start with either:
+- a **13-digit** epoch timestamp (milliseconds since epoch), or
+- a **17-digit** UTC timestamp in the form `YYYYMMDDHHmmssSSS`
+
+Example:
+- `20251223011500000_initial_schema.js`
+
+If the prefix doesn’t match one of those formats, node-pg-migrate will still run, but it will log warnings like `Can't determine timestamp for ...`.
 
 ---
 

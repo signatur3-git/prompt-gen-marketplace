@@ -20,10 +20,13 @@ docker-compose up -d
 # 3. Create .env file (REQUIRED!)
 cp .env.example .env
 
-# 4. Start the marketplace server
+# 4. Initialize / migrate the database schema
+npm run migrate:up
+
+# 5. Start the marketplace server
 npm run dev
 
-# 5. Test it's working
+# 6. Test it's working
 curl http://localhost:3000/health
 ```
 
@@ -353,4 +356,3 @@ These test the full API with a real database.
 **Happy Testing! 🎉**
 
 If you run into issues, check the main README.md troubleshooting section or the logs with `docker-compose logs -f`.
-

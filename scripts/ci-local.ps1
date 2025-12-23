@@ -40,11 +40,12 @@ try {
   $pgPort = GetPublishedPort 'postgres' 5432
   $redisPort = GetPublishedPort 'redis' 6379
 
-  # NOTE: schema.sql is mounted into /docker-entrypoint-initdb.d and will be applied automatically
-  # on first container initialization. We intentionally do NOT re-run it here because schema.sql
-  # is not idempotent and will error on subsequent runs.
-
   Exec "npm ci"
+
+  # Ensure integration DB is migrated (fresh DB on every run).
+  $env:DATABASE_URL = "postgresql://postgres:postgres@localhost:$pgPort/prompt_gen_marketplace"
+  Exec "npm run migrate:up"
+
   Exec "npm run format:check"
   Exec "npm run lint"
   Exec "npm run lint:frontend"
@@ -62,7 +63,6 @@ try {
 
   if (-not $SkipIntegration) {
     $env:NODE_ENV = 'test'
-    $env:DATABASE_URL = "postgresql://postgres:postgres@localhost:$pgPort/prompt_gen_marketplace"
     $env:REDIS_URL = "redis://localhost:$redisPort"
     $env:JWT_SECRET = 'test-jwt-secret-for-ci-only'
     $env:JWT_REFRESH_SECRET = 'test-jwt-refresh-secret-for-ci-only'
