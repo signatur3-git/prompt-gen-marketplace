@@ -72,6 +72,7 @@
 <script setup lang="ts">
 import { ref, onMounted, defineEmits } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { handleTokenExpiration } from '../utils/auth';
 
 const emit = defineEmits(['login']);
 
@@ -154,6 +155,12 @@ async function loadAuthorizationRequest() {
     });
 
     if (!res.ok) {
+      // If 401 (expired/invalid token), clear storage and redirect to login
+      if (res.status === 401) {
+        handleTokenExpiration(router, window.location.pathname + window.location.search);
+        return;
+      }
+
       const data = await res.json();
       throw new Error(data.error || 'Failed to load authorization request');
     }
@@ -190,6 +197,12 @@ async function approve() {
     });
 
     if (!res.ok) {
+      // If 401 (expired/invalid token), clear storage and redirect to login
+      if (res.status === 401) {
+        handleTokenExpiration(router, window.location.pathname + window.location.search);
+        return;
+      }
+
       const data = await res.json();
       throw new Error(data.error || 'Failed to authorize');
     }
@@ -225,6 +238,12 @@ async function deny() {
     });
 
     if (!res.ok) {
+      // If 401 (expired/invalid token), clear storage and redirect to login
+      if (res.status === 401) {
+        handleTokenExpiration(router, window.location.pathname + window.location.search);
+        return;
+      }
+
       const data = await res.json();
       throw new Error(data.error || 'Failed to process denial');
     }

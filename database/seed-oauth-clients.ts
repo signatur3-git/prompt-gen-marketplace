@@ -5,10 +5,27 @@ const { Client } = pkg;
 function defaultDatabaseUrl() {
   // Prefer env var; fall back to standard local Postgres for manual installs.
   // Docker Compose users should set DATABASE_URL in .env.
-  return 'postgresql://postgres:postgres@localhost:5432/prompt_gen_marketplace';
+  // NOTE: our docker-compose maps Postgres to host port 5433.
+  return 'postgresql://postgres:postgres@localhost:5433/prompt_gen_marketplace';
+}
+
+function requiresExplicitDatabaseUrl() {
+  // Guardrail: in hosted/CI environments we never want to "guess" a localhost URL.
+  // Railway injects DATABASE_URL when Postgres is provisioned.
+  return (
+    process.env.CI === 'true' ||
+    process.env.NODE_ENV === 'production' ||
+    Boolean(process.env.RAILWAY_PROJECT_ID || process.env.RAILWAY_SERVICE_ID)
+  );
 }
 
 async function main() {
+  if (requiresExplicitDatabaseUrl() && !process.env.DATABASE_URL) {
+    throw new Error(
+      'DATABASE_URL is required in CI/production. Refusing to fall back to a localhost default.'
+    );
+  }
+
   const databaseUrl = process.env.DATABASE_URL || defaultDatabaseUrl();
 
   const client = new Client({ connectionString: databaseUrl });
