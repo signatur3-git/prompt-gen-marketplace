@@ -57,7 +57,7 @@ router.get(
         users: usersWithPersonas,
         total: usersWithPersonas.length,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching users:', error);
       res.status(500).json({ error: 'Failed to fetch users' });
     }
@@ -89,7 +89,7 @@ router.get(
           namespaces: parseInt(namespaceCount.count),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching stats:', error);
       res.status(500).json({ error: 'Failed to fetch statistics' });
     }
@@ -141,7 +141,7 @@ router.patch(
           is_admin: result[0].is_admin,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating admin status:', error);
       res.status(500).json({ error: 'Failed to update admin status' });
     }
@@ -183,7 +183,7 @@ router.delete(
         message: 'User deleted successfully',
         deleted_user_id: userId,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting user:', error);
       res.status(500).json({ error: 'Failed to delete user' });
     }

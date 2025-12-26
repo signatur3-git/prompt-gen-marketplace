@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import * as authService from '../services/auth.service.js';
 import * as crypto from '../crypto.js';
 import { query } from '../db.js';
+import { getErrorMessage } from '../types/index.js';
 
 const router = Router();
 
@@ -66,9 +67,9 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     }
 
     res.status(201).json(response);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Registration error:', error);
-    res.status(400).json({ error: error.message || 'Registration failed' });
+    res.status(400).json({ error: getErrorMessage(error) || 'Registration failed' });
   }
 });
 
@@ -88,9 +89,9 @@ router.get('/challenge', async (req: Request, res: Response): Promise<void> => {
     const challenge = await authService.generateAuthChallenge(public_key);
 
     res.json(challenge);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Challenge generation error:', error);
-    res.status(400).json({ error: error.message || 'Challenge generation failed' });
+    res.status(400).json({ error: getErrorMessage(error) || 'Challenge generation failed' });
   }
 });
 
@@ -110,9 +111,9 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     const authToken = await authService.authenticateWithChallenge(public_key, challenge, signature);
 
     res.json(authToken);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Authentication error:', error);
-    res.status(401).json({ error: error.message || 'Authentication failed' });
+    res.status(401).json({ error: getErrorMessage(error) || 'Authentication failed' });
   }
 });
 
@@ -139,7 +140,7 @@ router.get('/keygen', (_req: Request, res: Response): void => {
       pem,
       warning: '⚠️ KEEP SECRET KEY PRIVATE! This is for testing only.',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Keygen error:', error);
     res.status(500).json({ error: 'Keypair generation failed' });
   }

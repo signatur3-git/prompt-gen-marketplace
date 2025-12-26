@@ -5,6 +5,7 @@ import {
   optionalAuthenticate,
   AuthenticatedRequest,
 } from '../middleware/auth.middleware.js';
+import { getErrorMessage } from '../types/index.js';
 
 const router = Router();
 
@@ -68,9 +69,9 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
     });
 
     res.status(201).json({ namespace });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create namespace error:', error);
-    res.status(400).json({ error: error.message || 'Failed to create namespace' });
+    res.status(400).json({ error: getErrorMessage(error) || 'Failed to create namespace' });
   }
 });
 
@@ -131,9 +132,9 @@ router.patch(
       });
 
       res.json({ namespace });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Update namespace error:', error);
-      res.status(400).json({ error: error.message || 'Failed to update namespace' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to update namespace' });
     }
   }
 );

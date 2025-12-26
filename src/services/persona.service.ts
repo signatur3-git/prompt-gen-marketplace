@@ -16,6 +16,14 @@ export interface UpdatePersonaInput {
   website?: string;
 }
 
+export interface PublicPersona {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  bio: string | null;
+  website: string | null;
+}
+
 /**
  * Get all personas for a user
  */
@@ -31,6 +39,17 @@ export async function getPersonasByUserId(userId: string): Promise<Persona[]> {
  */
 export async function getPersonaById(personaId: string): Promise<Persona | null> {
   const personas = await query<Persona>('SELECT * FROM personas WHERE id = $1', [personaId]);
+  return personas[0] || null;
+}
+
+/**
+ * Get public persona info by ID (no authentication required)
+ */
+export async function getPublicPersonaById(personaId: string): Promise<PublicPersona | null> {
+  const personas = await query<PublicPersona>(
+    'SELECT id, name, avatar_url, bio, website FROM personas WHERE id = $1',
+    [personaId]
+  );
   return personas[0] || null;
 }
 
