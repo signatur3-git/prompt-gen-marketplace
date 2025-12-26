@@ -11,6 +11,7 @@ import {
   optionalAuthenticate,
   AuthenticatedRequest,
 } from '../middleware/auth.middleware.js';
+import { getErrorMessage } from '../types/index.js';
 
 const router = Router();
 
@@ -25,10 +26,15 @@ router.get(
     try {
       const { namespace, author, search, limit, offset } = req.query;
 
-      const packages = await packageService.listPackages({
+      const filters = {
         namespace: namespace as string | undefined,
         author_persona_id: author as string | undefined,
         search: search as string | undefined,
+      };
+
+      // Get paginated packages
+      const packages = await packageService.listPackagesEnriched({
+        ...filters,
         limit: limit ? parseInt(limit as string, 10) : 50,
         offset: offset ? parseInt(offset as string, 10) : 0,
       });
@@ -44,11 +50,20 @@ router.get(
 
       const visiblePackages = filtered.filter((pkg) => pkg !== null);
 
+      // Get total count of packages matching filters
+      // Note: This includes all packages matching filters, not filtered by namespace visibility
+      // For a more accurate count, we'd need to filter by namespaces the user can view
+      const totalCount = await packageService.countPackages(filters);
+
       res.json({
         packages: visiblePackages,
-        total: visiblePackages.length,
+        total: totalCount,
+        page: {
+          limit: limit ? parseInt(limit as string, 10) : 50,
+          offset: offset ? parseInt(offset as string, 10) : 0,
+        },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('List packages error:', error);
       res.status(500).json({ error: 'Failed to list packages' });
     }
@@ -85,7 +100,7 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response)
       packages: userPackages,
       total: userPackages.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get user packages error:', error);
     res.status(500).json({ error: 'Failed to get user packages' });
   }
@@ -181,7 +196,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
     // Extract dependencies
     const dependencies = packageValidator.extractDependencies(parsed);
 
-    // Resolve dependencies and generate locked manifest
+    // Resolve dependencies and generate locked manifest for dependency tracking
     const { manifest, errors: resolutionErrors } = await dependencyResolver.resolveDependencies(
       parsed.id,
       parsed.version,
@@ -198,6 +213,32 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
 
     const lockedManifest = manifest!;
 
+    // Compute local content counts (entities in this package only, not dependencies)
+    const contentCounts = {
+      rulebooks: 0,
+      rules: 0,
+      prompt_sections: 0,
+      datatypes: 0,
+    };
+
+    if (parsed.namespaces) {
+      for (const namespace of Object.values(parsed.namespaces)) {
+        const ns = namespace as any;
+        if (ns.rulebooks && typeof ns.rulebooks === 'object') {
+          contentCounts.rulebooks += Object.keys(ns.rulebooks).length;
+        }
+        if (ns.rules && typeof ns.rules === 'object') {
+          contentCounts.rules += Object.keys(ns.rules).length;
+        }
+        if (ns.prompt_sections && typeof ns.prompt_sections === 'object') {
+          contentCounts.prompt_sections += Object.keys(ns.prompt_sections).length;
+        }
+        if (ns.datatypes && typeof ns.datatypes === 'object') {
+          contentCounts.datatypes += Object.keys(ns.datatypes).length;
+        }
+      }
+    }
+
     // TODO: Sign package (would need user's secret key, which we don't have server-side)
     // For now, use a placeholder signature
     const signature = 'unsigned'; // In production, client signs before upload
@@ -212,6 +253,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       description: parsed.metadata?.description,
       yaml_content,
       locked_manifest: lockedManifest,
+      content_counts: contentCounts,
       signature,
       checksum_sha256: checksum,
       storage_path: storagePath,
@@ -228,9 +270,9 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
         yaml_content: undefined, // Don't return full content
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Publish package error:', error);
-    res.status(400).json({ error: error.message || 'Failed to publish package' });
+    res.status(400).json({ error: getErrorMessage(error) || 'Failed to publish package' });
   }
 });
 
@@ -290,7 +332,7 @@ router.get(
         },
         stats,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Get package error:', error);
       res.status(500).json({ error: 'Failed to get package' });
     }
@@ -332,7 +374,7 @@ router.get(
         },
         dependencies,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Get version error:', error);
       res.status(500).json({ error: 'Failed to get version' });
     }
@@ -391,7 +433,7 @@ router.get(
       res.setHeader('Content-Disposition', `attachment; filename="${name}-${version}.yaml"`);
       res.setHeader('X-Checksum-SHA256', packageVersion.checksum_sha256);
       res.send(content);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Download package error:', error);
       res.status(500).json({ error: 'Failed to download package' });
     }
@@ -434,9 +476,9 @@ router.post(
       await packageService.yankVersion(pkg.id, version, reason);
 
       res.json({ message: 'Version yanked successfully' });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Yank version error:', error);
-      res.status(400).json({ error: error.message || 'Failed to yank version' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to yank version' });
     }
   }
 );

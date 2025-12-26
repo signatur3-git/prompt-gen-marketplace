@@ -1,29 +1,10 @@
 import yaml from 'js-yaml';
 import { createHash } from 'crypto';
+import type { ParsedPackage as ParsedPackageType } from '../types/index.js';
+import * as crypto from '../crypto.js';
 
-export interface ParsedPackage {
-  id: string;
-  version: string;
-  metadata: {
-    name: string; // Required per schema
-    description?: string;
-    authors?: string[]; // Required per schema, but optional for backward compat
-    author?: string; // Legacy field, deprecated
-    license?: string;
-    tags?: string[];
-    bypass_filters?: boolean;
-  };
-  dependencies?: Array<{
-    package: string;
-    version: string;
-    path?: string;
-  }>;
-  namespaces?: Record<string, any>; // Required but optional here for validation
-  datatypes?: Record<string, any>;
-  prompt_sections?: Record<string, any>;
-  rulebooks?: Record<string, any>;
-  separator_sets?: Record<string, any>;
-}
+// Re-export the proper ParsedPackage type
+export type ParsedPackage = ParsedPackageType;
 
 export interface ValidationError {
   field: string;
@@ -254,9 +235,8 @@ export function extractDependencies(parsed: ParsedPackage): Array<{
  * Sign package content with user's keypair
  */
 export function signPackage(content: string, secretKey: string): string {
-  const { sign } = require('../crypto.js');
   const checksum = calculateChecksum(content);
-  return sign(checksum, secretKey);
+  return crypto.sign(checksum, secretKey);
 }
 
 /**
@@ -267,7 +247,6 @@ export function verifyPackageSignature(
   signature: string,
   publicKey: string
 ): boolean {
-  const { verify } = require('../crypto.js');
   const checksum = calculateChecksum(content);
-  return verify(checksum, signature, publicKey);
+  return crypto.verify(checksum, signature, publicKey);
 }

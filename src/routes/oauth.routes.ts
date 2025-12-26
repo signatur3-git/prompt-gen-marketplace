@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.middleware.js';
 import * as oauthService from '../services/oauth.service.js';
+import { getErrorMessage } from '../types/index.js';
 
 const router = Router();
 
@@ -72,7 +73,7 @@ router.get(
         code_challenge_method,
         state: state || null,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('OAuth authorize error:', error);
       res.status(500).json({ error: 'Failed to process authorization request' });
     }
@@ -156,7 +157,7 @@ router.post(
       if (state) successUrl.searchParams.set('state', state);
 
       res.json({ redirect_uri: successUrl.toString() });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('OAuth authorization grant error:', error);
       res.status(500).json({ error: 'Failed to grant authorization' });
     }
@@ -228,18 +229,19 @@ router.post('/token', async (req: AuthenticatedRequest, res: Response): Promise<
       token_type: 'Bearer',
       expires_in: Math.floor((tokenRecord.expires_at.getTime() - Date.now()) / 1000),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('OAuth token exchange error:', error);
 
-    if (error.message === 'Invalid authorization code') {
+    const errorMessage = getErrorMessage(error);
+    if (errorMessage === 'Invalid authorization code') {
       res
         .status(400)
         .json({ error: 'invalid_grant', error_description: 'Invalid authorization code' });
-    } else if (error.message === 'Authorization code expired') {
+    } else if (errorMessage === 'Authorization code expired') {
       res
         .status(400)
         .json({ error: 'invalid_grant', error_description: 'Authorization code expired' });
-    } else if (error.message === 'Invalid code verifier') {
+    } else if (errorMessage === 'Invalid code verifier') {
       res
         .status(400)
         .json({ error: 'invalid_grant', error_description: 'Invalid code verifier (PKCE failed)' });
@@ -270,7 +272,7 @@ router.post('/revoke', async (req: AuthenticatedRequest, res: Response): Promise
     await oauthService.revokeToken(token);
 
     res.json({ message: 'Token revoked successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('OAuth revoke error:', error);
     res.status(500).json({ error: 'Failed to revoke token' });
   }
@@ -294,7 +296,7 @@ router.get(
       const tokens = await oauthService.getUserTokens(userId);
 
       res.json({ tokens });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Get tokens error:', error);
       res.status(500).json({ error: 'Failed to get tokens' });
     }

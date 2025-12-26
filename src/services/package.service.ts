@@ -43,6 +43,26 @@ export interface PackageWithVersions extends Package {
   latest_version: string | null;
 }
 
+export interface PublicPersonaInfo {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  bio: string | null;
+  website: string | null;
+}
+
+export interface PackageListItem extends Package {
+  author_persona: PublicPersonaInfo;
+  version_count: number;
+  latest_version: string | null;
+  content_counts: {
+    rulebooks: number;
+    rules: number;
+    prompt_sections: number;
+    datatypes: number;
+  };
+}
+
 export interface CreatePackageInput {
   namespace: string;
   name: string;
@@ -56,6 +76,12 @@ export interface PublishVersionInput {
   description?: string;
   yaml_content: string;
   locked_manifest: any;
+  content_counts: {
+    rulebooks: number;
+    rules: number;
+    prompt_sections: number;
+    datatypes: number;
+  };
   signature: string;
   checksum_sha256: string;
   storage_path: string;
@@ -172,6 +198,104 @@ export async function listPackages(filters?: {
 }
 
 /**
+ * Count packages matching filters (for pagination)
+ */
+export async function countPackages(filters?: {
+  namespace?: string;
+  author_persona_id?: string;
+  search?: string;
+}): Promise<number> {
+  let sql = 'SELECT COUNT(*) as count FROM packages WHERE 1=1';
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (filters?.namespace) {
+    sql += ` AND namespace = $${paramIndex++}`;
+    params.push(filters.namespace);
+  }
+
+  if (filters?.author_persona_id) {
+    sql += ` AND author_persona_id = $${paramIndex++}`;
+    params.push(filters.author_persona_id);
+  }
+
+  if (filters?.search) {
+    sql += ` AND (name ILIKE $${paramIndex++} OR description ILIKE $${paramIndex++})`;
+    params.push(`%${filters.search}%`, `%${filters.search}%`);
+  }
+
+  const result = await query<{ count: string }>(sql, params);
+  return parseInt(result[0]?.count || '0', 10);
+}
+
+/**
+ * List packages with enriched data (author info, version count)
+ */
+export async function listPackagesEnriched(filters?: {
+  namespace?: string;
+  author_persona_id?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<PackageListItem[]> {
+  const packages = await listPackages(filters);
+
+  // Enrich each package with author info and version count
+  const enriched = await Promise.all(
+    packages.map(async (pkg) => {
+      // Get author persona (public info only)
+      const personas = await query<PublicPersonaInfo>(
+        `SELECT id, name, avatar_url, bio, website FROM personas WHERE id = $1`,
+        [pkg.author_persona_id]
+      );
+
+      // Get version count, latest version, and content counts
+      const versionData = await query<{
+        count: string;
+        latest_version: string | null;
+        content_counts: any;
+      }>(
+        `SELECT 
+          COUNT(*) as count,
+          (SELECT version FROM package_versions 
+           WHERE package_id = $1 AND yanked_at IS NULL 
+           ORDER BY published_at DESC LIMIT 1) as latest_version,
+          (SELECT content_counts FROM package_versions 
+           WHERE package_id = $1 AND yanked_at IS NULL 
+           ORDER BY published_at DESC LIMIT 1) as content_counts
+         FROM package_versions 
+         WHERE package_id = $1`,
+        [pkg.id]
+      );
+
+      // Extract content counts from database (precomputed at publish time)
+      const contentCounts = versionData[0]?.content_counts || {
+        rulebooks: 0,
+        rules: 0,
+        prompt_sections: 0,
+        datatypes: 0,
+      };
+
+      return {
+        ...pkg,
+        author_persona: personas[0] || {
+          id: pkg.author_persona_id,
+          name: 'Unknown',
+          avatar_url: null,
+          bio: null,
+          website: null,
+        },
+        version_count: parseInt(versionData[0]?.count || '0', 10),
+        latest_version: versionData[0]?.latest_version || null,
+        content_counts: contentCounts,
+      };
+    })
+  );
+
+  return enriched;
+}
+
+/**
  * Create a new package
  */
 export async function createPackage(input: CreatePackageInput): Promise<Package> {
@@ -216,10 +340,10 @@ export async function publishVersion(input: PublishVersionInput): Promise<Packag
     // Insert version
     const versionResult = await client.query<PackageVersion>(
       `INSERT INTO package_versions (
-        package_id, version, description, yaml_content, locked_manifest,
+        package_id, version, description, yaml_content, locked_manifest, content_counts,
         signature, file_size_bytes, checksum_sha256, storage_path
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *`,
       [
         input.package_id,
@@ -227,6 +351,7 @@ export async function publishVersion(input: PublishVersionInput): Promise<Packag
         input.description || null,
         input.yaml_content,
         JSON.stringify(input.locked_manifest),
+        JSON.stringify(input.content_counts),
         input.signature,
         fileSizeBytes,
         input.checksum_sha256,

@@ -151,229 +151,87 @@ npm run build
 npm start
 ```
 
-## 📚 API Documentation
+## 📚 API Overview
 
-### Authentication Endpoints
+The marketplace provides a comprehensive REST API for package management, authentication, and OAuth integration.
 
-#### `POST /api/v1/auth/register`
+**📖 [Complete API Reference](./docs/API_REFERENCE.md)** - Detailed documentation for all endpoints
 
-Register a new user with their public key.
+### Quick Reference
 
-**Request:**
+#### Authentication
+- `POST /api/v1/auth/register` - Register new user with Ed25519 keypair
+- `GET /api/v1/auth/challenge` - Get authentication challenge
+- `POST /api/v1/auth/login` - Login with signed challenge
+- `POST /api/v1/auth/logout` - Logout
+- `GET /api/v1/auth/keygen` - Generate test keypair (dev only)
 
-```jsonc
-{
-  "public_key": "hex-encoded-ed25519-public-key",
-  "email": "user@example.com", // optional
-}
+#### OAuth 2.0 (for external apps)
+- `GET /api/v1/oauth/authorize` - Authorization consent page
+- `POST /api/v1/oauth/authorize` - Approve/deny authorization
+- `POST /api/v1/oauth/token` - Exchange code for access token
+- `POST /api/v1/oauth/revoke` - Revoke access token
+- `GET /api/v1/oauth/tokens` - List active tokens
+
+**OAuth Clients:**
+- `prompt-gen-web` - Web app integration
+- `prompt-gen-desktop` - Desktop app integration
+
+See [OAuth Flow Documentation](./docs/oauth-flow.md) for detailed flow explanation.
+
+#### Personas
+- `GET /api/v1/personas` - List user's personas
+- `POST /api/v1/personas` - Create persona
+- `GET /api/v1/personas/public/:id` - Get public persona info (no auth)
+- `GET /api/v1/personas/:id` - Get owned persona
+- `PATCH /api/v1/personas/:id` - Update persona
+- `DELETE /api/v1/personas/:id` - Delete persona
+- `POST /api/v1/personas/:id/set-primary` - Set as primary
+
+#### Namespaces
+- `GET /api/v1/namespaces` - List namespaces
+- `POST /api/v1/namespaces` - Create/claim namespace
+- `GET /api/v1/namespaces/:name` - Get namespace details
+- `PATCH /api/v1/namespaces/:name` - Update namespace
+
+#### Packages
+- `GET /api/v1/packages` - List packages (with filters)
+- `GET /api/v1/packages/me` - List user's packages
+- `POST /api/v1/packages` - Publish package/version
+- `GET /api/v1/packages/:namespace/:name` - Get package details
+- `GET /api/v1/packages/:namespace/:name/:version` - Get version details
+- `GET /api/v1/packages/:namespace/:name/:version/download` - Download package
+- `POST /api/v1/packages/:namespace/:name/:version/yank` - Yank version
+
+**Enhanced Response:** Package lists now include:
+- Enriched author information (name, avatar, bio, website)
+- Version statistics (count, latest version)
+- Content statistics (rulebooks, rules, prompt sections, datatypes)
+- Total count and pagination info
+- No additional API calls needed!
+
+#### Admin (requires admin privileges)
+- `GET /api/v1/admin/users` - List all users
+- `GET /api/v1/admin/stats` - Platform statistics
+- `PATCH /api/v1/admin/users/:userId/admin` - Grant/revoke admin
+- `DELETE /api/v1/admin/users/:userId` - Delete user
+
+### Authentication
+
+Most endpoints require authentication via JWT token in the `Authorization` header:
+
+```bash
+Authorization: Bearer <token>
 ```
 
-**Response:**
+Get tokens via:
+1. **Direct auth:** Login with Ed25519 keypair (`POST /api/v1/auth/login`)
+2. **OAuth:** External app authorization flow (`POST /api/v1/oauth/token`)
 
-```jsonc
-{
-  "message": "User registered successfully",
-  "user": {
-    "id": "uuid",
-    "public_key": "...",
-    "email": "user@example.com",
-    "created_at": "2025-12-22T12:00:00Z",
-  },
-}
-```
+### Rate Limiting
 
-#### `GET /api/v1/auth/challenge?public_key=...`
-
-Get authentication challenge.
-
-**Response:**
-
-```jsonc
-{
-  "challenge": "random-hex-string",
-  "expires_at": "2025-12-22T12:05:00Z",
-}
-```
-
-#### `POST /api/v1/auth/login`
-
-Authenticate with signed challenge.
-
-**Request:**
-
-```jsonc
-{
-  "public_key": "hex-encoded-public-key",
-  "challenge": "challenge-from-previous-step",
-  "signature": "hex-encoded-signature",
-}
-```
-
-**Response:**
-
-```jsonc
-{
-  "token": "jwt-token",
-  "expires_in": 86400,
-  "user": { ... },
-  "primary_persona": { ... }
-}
-```
-
-#### `GET /api/v1/auth/keygen`
-
-Generate a new keypair (for testing/development).
-
-**Response:**
-
-```jsonc
-{
-  "public_key": "...",
-  "secret_key": "...",
-  "pem": "-----BEGIN PROMPT-GEN MARKETPLACE KEYPAIR-----\n...",
-  "warning": "⚠️ KEEP SECRET KEY PRIVATE! This is for testing only.",
-}
-```
-
-### OAuth 2.0 Endpoints
-
-The marketplace implements **OAuth 2.0 Authorization Code flow with PKCE** for secure third-party application integration.
-
-> **Note:** The marketplace has its own frontend that works perfectly. This OAuth integration is for **external applications** (web apps, desktop apps, etc.) that want to integrate with the marketplace.
-
-#### OAuth Client Configuration
-
-The marketplace is pre-seeded with OAuth clients for external applications:
-
-##### Web App Client
-
-- **Client ID:** `prompt-gen-web`
-- **Client Name:** `Prompt Gen Web`
-- **Redirect URIs:**
-  - Local dev: `http://localhost:5173/oauth/callback`
-  - Production: `https://signatur3-git.github.io/prompt-gen-web/oauth/callback`
-
-##### Desktop App Client
-
-- **Client ID:** `prompt-gen-desktop`
-- **Client Name:** `Prompt Gen Desktop`
-- **Redirect URIs:**
-  - Local HTTP server: `http://localhost:51234/oauth/callback`
-  - Deep link: `promptgen://oauth/callback`
-
-⚠️ **Important:** The `redirect_uri` points to the **external application's callback URL** (not the marketplace). External applications need to:
-1. Create a `/oauth/callback` route (or handler) to receive the authorization code
-2. Exchange the code for an access token
-3. Use the token to call marketplace APIs
-
-**CORS Note:** For local development, the marketplace needs to allow CORS requests from external applications. Set in `.env`:
-```
-CORS_ORIGIN=http://localhost:5174,http://localhost:5173,http://localhost:51234
-```
-
-For production, update Railway environment variable to include external application domains:
-```
-CORS_ORIGIN=https://prompt-gen-marketplace-production.up.railway.app,https://signatur3-git.github.io
-```
-
-**Note:** Deep link URIs (like `promptgen://oauth/callback`) don't require CORS configuration as they are handled by the operating system, not a web browser origin.
-
-**Authentication Note:** OAuth provides delegated access for external applications. Completing OAuth login in an external web app does **not** automatically log you into the marketplace's own frontend - they are separate authentication contexts. See [Authentication Contexts](./docs/AUTHENTICATION_CONTEXTS.md) for details.
-
-#### OAuth Flow Summary
-
-**See [OAuth Flow Documentation](./docs/oauth-flow.md) for a detailed explanation with diagrams.**
-
-**Quick overview:**
-
-1. Your web app generates PKCE `code_verifier` and `code_challenge`
-2. Your web app redirects user to marketplace's authorization page (`/oauth/authorize`)
-3. User sees marketplace's consent screen and approves/denies
-4. Marketplace redirects back to **your web app's callback** with authorization `code`
-5. Your web app exchanges code for access token at marketplace's `/api/v1/oauth/token` endpoint
-
-**Key endpoints:**
-
-- `GET /api/v1/oauth/authorize` - Authorization page
-- `POST /api/v1/oauth/authorize` - User approval
-- `POST /api/v1/oauth/token` - Exchange code for token
-- `GET /api/v1/oauth/tokens` - List user's active tokens
-- `DELETE /api/v1/oauth/tokens/:id` - Revoke a token
-
-**Security notes:**
-
-- ✅ Always use PKCE with `S256` (SHA-256)
-- ✅ Validate `state` parameter for CSRF protection
-- ✅ Authorization codes expire in 10 minutes
-- ✅ Access tokens expire in 1 hour
-- ✅ Codes are single-use only
-
-### Persona Endpoints
-
-All require `Authorization: Bearer <token>` header.
-
-#### `GET /api/v1/personas`
-
-List all personas for authenticated user.
-
-#### `POST /api/v1/personas`
-
-Create a new persona.
-
-**Request:**
-
-```jsonc
-{
-  "name": "Jane Doe",
-  "avatar_url": "https://...", // optional
-  "bio": "...", // optional
-  "website": "https://...", // optional
-}
-```
-
-#### `GET /api/v1/personas/:id`
-
-Get persona details.
-
-#### `PATCH /api/v1/personas/:id`
-
-Update a persona.
-
-#### `DELETE /api/v1/personas/:id`
-
-Delete a persona (cannot delete primary if it's the only one).
-
-#### `POST /api/v1/personas/:id/set-primary`
-
-Set a persona as primary.
-
-### Namespace Endpoints
-
-#### `GET /api/v1/namespaces`
-
-List namespaces (optional filters: `owner_id`, `protection_level`, `search`).
-
-#### `POST /api/v1/namespaces` (authenticated)
-
-Create/claim a namespace.
-
-**Request:**
-
-```jsonc
-{
-  "name": "my-namespace",
-  "protection_level": "protected", // optional: public/protected/private
-  "description": "...", // optional
-}
-```
-
-#### `GET /api/v1/namespaces/:name`
-
-Get namespace details.
-
-#### `PATCH /api/v1/namespaces/:name` (authenticated, owner only)
-
-Update namespace.
+- **Limit:** 100 requests per 15 minutes per IP
+- Returns `429 Too Many Requests` when exceeded
 
 ## 🔑 Keypair Authentication Flow
 

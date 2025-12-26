@@ -1,6 +1,7 @@
 import pkg from 'pg';
 const { Pool } = pkg;
 import { config } from './config.js';
+import type { QueryParams } from './types/index.js';
 
 export const pool = new Pool({
   connectionString: config.database.url,
@@ -17,7 +18,7 @@ pool.on('error', (err) => {
   console.error('❌ Database error:', err);
 });
 
-export async function query<T = any>(text: string, params?: any[]): Promise<T[]> {
+export async function query<T = any>(text: string, params?: QueryParams): Promise<T[]> {
   const start = Date.now();
   try {
     const result = await pool.query(text, params);
