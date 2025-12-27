@@ -2,7 +2,7 @@
   <div class="container">
     <!-- Breadcrumb -->
     <div style="margin-bottom: 20px">
-      <router-link to="/packages" style="color: #007bff; text-decoration: none">
+      <router-link to="/packages" style="color: var(--accent-color); text-decoration: none">
         ← Back to Packages
       </router-link>
     </div>
@@ -22,10 +22,18 @@
         <div style="display: flex; justify-content: space-between; align-items: start">
           <div style="flex: 1">
             <h1 style="margin-bottom: 8px">{{ packageData.namespace }}.{{ packageData.name }}</h1>
-            <p style="color: #666; font-size: 18px; margin-bottom: 16px">
+            <p style="color: var(--text-secondary); font-size: 18px; margin-bottom: 16px">
               {{ packageData.description || 'No description available' }}
             </p>
-            <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; color: #666">
+            <div
+              style="
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+                font-size: 14px;
+                color: var(--text-secondary);
+              "
+            >
               <span>📌 Latest: v{{ packageData.latest_version }}</span>
               <span>📅 Updated: {{ formatDate(packageData.updated_at) }}</span>
               <span v-if="packageData.author_name">✍️ {{ packageData.author_name }}</span>
@@ -37,8 +45,8 @@
           <div>
             <span
               style="
-                background: #e7f3ff;
-                color: #007bff;
+                background: var(--bg-tertiary);
+                color: var(--accent-color);
                 padding: 6px 12px;
                 border-radius: 4px;
                 font-size: 14px;
@@ -55,14 +63,19 @@
         <h2 style="margin-bottom: 16px">Versions</h2>
 
         <div v-if="!versions || versions.length === 0">
-          <p style="color: #666">No versions available.</p>
+          <p style="color: var(--text-secondary)">No versions available.</p>
         </div>
 
         <div v-else>
           <div
             v-for="version in versions"
             :key="version.id"
-            style="border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 12px"
+            style="
+              border: 1px solid var(--border-color);
+              border-radius: 4px;
+              padding: 16px;
+              margin-bottom: 12px;
+            "
           >
             <div style="display: flex; justify-content: space-between; align-items: start">
               <div style="flex: 1">
@@ -71,12 +84,13 @@
                   <span
                     v-if="version.version === packageData.latest_version"
                     style="
-                      background: #28a745;
-                      color: white;
+                      background: var(--success-bg);
+                      color: var(--success-text);
                       padding: 2px 8px;
                       border-radius: 4px;
                       font-size: 12px;
                       margin-left: 8px;
+                      border: 1px solid var(--success-border);
                     "
                   >
                     Latest
@@ -89,7 +103,7 @@
                     gap: 16px;
                     margin-bottom: 12px;
                     font-size: 14px;
-                    color: #666;
+                    color: var(--text-secondary);
                   "
                 >
                   <span>📅 {{ formatDate(version.published_at) }}</span>
@@ -108,12 +122,12 @@
                   <ul style="margin-left: 20px; margin-top: 4px; font-size: 14px">
                     <li v-for="(dep, idx) in version.dependencies" :key="idx">
                       <code>{{ dep.package }}</code>
-                      <span style="color: #666">{{ dep.version }}</span>
+                      <span style="color: var(--text-secondary)">{{ dep.version }}</span>
                     </li>
                   </ul>
                 </div>
 
-                <div v-else style="margin-top: 12px; font-size: 14px; color: #666">
+                <div v-else style="margin-top: 12px; font-size: 14px; color: var(--text-secondary)">
                   No dependencies
                 </div>
               </div>
@@ -131,9 +145,11 @@
               style="
                 margin-top: 12px;
                 padding: 12px;
-                background: #e7f3ff;
+                background: var(--info-bg);
                 border-radius: 4px;
                 font-size: 14px;
+                color: var(--info-text);
+                border: 1px solid var(--info-border);
               "
             >
               ⏳ Downloading...
@@ -147,43 +163,43 @@
         <h2 style="margin-bottom: 16px">Package Information</h2>
 
         <table style="width: 100%; border-collapse: collapse">
-          <tr style="border-bottom: 1px solid #ddd">
+          <tr style="border-bottom: 1px solid var(--border-color)">
             <td style="padding: 12px 0; font-weight: bold; width: 200px">Namespace</td>
             <td style="padding: 12px 0">
               {{ packageData.namespace }}
             </td>
           </tr>
-          <tr style="border-bottom: 1px solid #ddd">
+          <tr style="border-bottom: 1px solid var(--border-color)">
             <td style="padding: 12px 0; font-weight: bold">Name</td>
             <td style="padding: 12px 0">
               {{ packageData.name }}
             </td>
           </tr>
-          <tr style="border-bottom: 1px solid #ddd">
+          <tr style="border-bottom: 1px solid var(--border-color)">
             <td style="padding: 12px 0; font-weight: bold">Full ID</td>
             <td style="padding: 12px 0">
               <code>{{ packageData.namespace }}.{{ packageData.name }}</code>
             </td>
           </tr>
-          <tr v-if="packageData.author_name" style="border-bottom: 1px solid #ddd">
+          <tr v-if="packageData.author_name" style="border-bottom: 1px solid var(--border-color)">
             <td style="padding: 12px 0; font-weight: bold">Author</td>
             <td style="padding: 12px 0">
               {{ packageData.author_name }}
             </td>
           </tr>
-          <tr style="border-bottom: 1px solid #ddd">
+          <tr style="border-bottom: 1px solid var(--border-color)">
             <td style="padding: 12px 0; font-weight: bold">Latest Version</td>
             <td style="padding: 12px 0">
               {{ packageData.latest_version }}
             </td>
           </tr>
-          <tr style="border-bottom: 1px solid #ddd">
+          <tr style="border-bottom: 1px solid var(--border-color)">
             <td style="padding: 12px 0; font-weight: bold">Total Versions</td>
             <td style="padding: 12px 0">
               {{ versions?.length || 0 }}
             </td>
           </tr>
-          <tr style="border-bottom: 1px solid #ddd">
+          <tr style="border-bottom: 1px solid var(--border-color)">
             <td style="padding: 12px 0; font-weight: bold">Protection Level</td>
             <td style="padding: 12px 0">
               {{ packageData.protection_level || 'public' }}
@@ -208,23 +224,47 @@
             gap: 20px;
           "
         >
-          <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 4px">
-            <div style="font-size: 32px; font-weight: bold; color: #007bff">
+          <div
+            style="
+              text-align: center;
+              padding: 20px;
+              background: var(--bg-code);
+              border-radius: 4px;
+              border: 1px solid var(--border-color);
+            "
+          >
+            <div style="font-size: 32px; font-weight: bold; color: var(--accent-color)">
               {{ versions.length }}
             </div>
-            <div style="color: #666; margin-top: 4px">Versions</div>
+            <div style="color: var(--text-secondary); margin-top: 4px">Versions</div>
           </div>
-          <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 4px">
-            <div style="font-size: 32px; font-weight: bold; color: #28a745">
+          <div
+            style="
+              text-align: center;
+              padding: 20px;
+              background: var(--bg-code);
+              border-radius: 4px;
+              border: 1px solid var(--border-color);
+            "
+          >
+            <div style="font-size: 32px; font-weight: bold; color: var(--success-text)">
               {{ packageData.download_count || 0 }}
             </div>
-            <div style="color: #666; margin-top: 4px">Total Downloads</div>
+            <div style="color: var(--text-secondary); margin-top: 4px">Total Downloads</div>
           </div>
-          <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 4px">
-            <div style="font-size: 32px; font-weight: bold; color: #6c757d">
+          <div
+            style="
+              text-align: center;
+              padding: 20px;
+              background: var(--bg-code);
+              border-radius: 4px;
+              border: 1px solid var(--border-color);
+            "
+          >
+            <div style="font-size: 32px; font-weight: bold; color: var(--text-secondary)">
               {{ totalDependencies }}
             </div>
-            <div style="color: #666; margin-top: 4px">Dependencies</div>
+            <div style="color: var(--text-secondary); margin-top: 4px">Dependencies</div>
           </div>
         </div>
       </div>
@@ -235,7 +275,15 @@
         class="card"
       >
         <h2 style="margin-bottom: 16px">🌳 Dependency Tree</h2>
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 4px; font-family: monospace">
+        <div
+          style="
+            background: var(--bg-code);
+            padding: 20px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid var(--border-color);
+          "
+        >
           <div style="margin-bottom: 8px; font-weight: bold">
             📦 {{ packageData.namespace }}.{{ packageData.name }}@{{ latestVersion.version }}
           </div>
@@ -244,9 +292,9 @@
             :key="idx"
             style="margin-left: 20px; padding: 4px 0"
           >
-            <span style="color: #666">├── </span>
-            <span style="color: #007bff">{{ dep.package }}</span>
-            <span style="color: #666"> {{ dep.version }}</span>
+            <span style="color: var(--text-secondary)">├── </span>
+            <span style="color: var(--accent-color)">{{ dep.package }}</span>
+            <span style="color: var(--text-secondary)"> {{ dep.version }}</span>
           </div>
         </div>
       </div>
@@ -270,10 +318,35 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+interface PackageData {
+  namespace: string;
+  name: string;
+  description?: string;
+  latest_version: string;
+  protection_level?: string;
+  download_count?: number;
+  author_name?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface PackageVersion {
+  id: string;
+  version: string;
+  description?: string;
+  published_at: string;
+  file_size_bytes?: number;
+  checksum_sha256?: string;
+  dependencies?: Array<{
+    package: string;
+    version: string;
+  }>;
+}
+
 const route = useRoute();
 
-const packageData = ref<any>(null);
-const versions = ref<any[]>([]);
+const packageData = ref<PackageData | null>(null);
+const versions = ref<PackageVersion[]>([]);
 const loading = ref(true);
 const error = ref('');
 const downloadingVersion = ref<string | null>(null);
@@ -326,14 +399,14 @@ async function loadPackage() {
 
     // Versions are already included in the package object
     versions.value = data.package.versions || [];
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to load package';
   } finally {
     loading.value = false;
   }
 }
 
-async function downloadVersion(version: any) {
+async function downloadVersion(version: PackageVersion) {
   downloadingVersion.value = version.id;
 
   try {
@@ -352,8 +425,8 @@ async function downloadVersion(version: any) {
     a.download = `${namespace}.${name}-${version.version}.yaml`;
     a.click();
     URL.revokeObjectURL(url);
-  } catch (err: any) {
-    error.value = `Download failed: ${err.message}`;
+  } catch (err) {
+    error.value = `Download failed: ${err instanceof Error ? err.message : 'Unknown error'}`;
   } finally {
     downloadingVersion.value = null;
   }

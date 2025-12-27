@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OAuth 2.0 Flow - Prompt Gen Marketplace</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Light mode colors */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-code: #f8f9fa;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border-color: #e0e0e0;
+      --accent-color: #007bff;
+      --accent-hover: #0056b3;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --code-border: #d0d7de;
+    }
+
+    /* Dark mode colors */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-code: #0d1117;
+        --text-primary: #e6e6e6;
+        --text-secondary: #b3b3b3;
+        --text-muted: #808080;
+        --border-color: #404040;
+        --accent-color: #4493f8;
+        --accent-hover: #6cb6ff;
+        --shadow: rgba(0, 0, 0, 0.3);
+        --code-border: #30363d;
+      }
+    }
+
+    /* Manual theme override classes */
+    [data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-code: #f8f9fa;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border-color: #e0e0e0;
+      --accent-color: #007bff;
+      --accent-hover: #0056b3;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --code-border: #d0d7de;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --bg-code: #0d1117;
+      --text-primary: #e6e6e6;
+      --text-secondary: #b3b3b3;
+      --text-muted: #808080;
+      --border-color: #404040;
+      --accent-color: #4493f8;
+      --accent-hover: #6cb6ff;
+      --shadow: rgba(0, 0, 0, 0.3);
+      --code-border: #30363d;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .theme-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+      background: var(--bg-primary);
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    .theme-btn {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .theme-btn:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .theme-btn.active {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .content {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 2px 8px var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      color: var(--text-primary);
+      margin-bottom: 32px;
+      font-size: 32px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+
+    h2 {
+      color: var(--text-primary);
+      margin-top: 40px;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    h3 {
+      color: var(--text-primary);
+      margin-top: 32px;
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+
+    p {
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 16px;
+    }
+
+    li {
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    code {
+      background: var(--bg-code);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.9em;
+      color: var(--text-primary);
+      border: 1px solid var(--code-border);
+    }
+
+    pre {
+      background: var(--bg-code);
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid var(--code-border);
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      border: none;
+      color: var(--text-primary);
+    }
+
+    .diagram {
+      background: var(--bg-code);
+      padding: 24px;
+      border-radius: 8px;
+      margin: 24px 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      overflow-x: auto;
+      border: 1px solid var(--code-border);
+      white-space: pre;
+    }
+
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    .note {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent-color);
+      padding: 16px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .example {
+      background: var(--bg-code);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid var(--accent-color);
+    }
+
+    .checklist {
+      list-style-type: none;
+      margin-left: 0;
+    }
+
+    .checklist li {
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .checklist li::before {
+      content: "☐";
+      position: absolute;
+      left: 0;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 10px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .theme-switcher {
+        top: 10px;
+        right: 10px;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-switcher">
+    <button class="theme-btn" id="autoTheme" title="Auto (OS settings)">🔄 Auto</button>
+    <button class="theme-btn" id="lightTheme" title="Light mode">☀️ Light</button>
+    <button class="theme-btn" id="darkTheme" title="Dark mode">🌙 Dark</button>
+  </div>
+
+  <div class="container">
+    <div class="content">
+      <h1>OAuth 2.0 Flow - Prompt Gen Marketplace</h1>
+
+      <h2>The Confusion: What is <code>redirect_uri</code>?</h2>
+      <p>The <code>redirect_uri</code> is <strong>NOT an endpoint on the marketplace backend</strong>. It's an endpoint <strong>on the web app (frontend)</strong> where the authorization code gets sent back to.</p>
+
+      <h2>The Actual Flow</h2>
+
+      <h3>Scenario: User wants to authorize an external web app to access their marketplace account</h3>
+
+      <p><strong>Important:</strong> This is for <strong>external apps</strong> integrating with the marketplace, not the marketplace's own frontend.</p>
+
+      <ul>
+        <li><strong>External Web App:</strong> https://signatur3-git.github.io/prompt-gen-web (production) or http://localhost:5173 (local dev)</li>
+        <li><strong>Marketplace:</strong> https://prompt-gen-marketplace-production.up.railway.app (production) or http://localhost:3000 (local dev)</li>
+      </ul>
+
+      <div class="diagram">
+┌─────────────────────────────────────────────────┐
+│   External Web App                              │
+│   (https://signatur3-git.github.io/prompt-gen-web) │
+│   or http://localhost:5173 (local dev)         │
+└─────────────────────────────────────────────────┘
+         │
+         │ 1. User clicks "Connect to Marketplace"
+         │    Web app redirects to marketplace authorization page
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Marketplace Backend + Frontend                             │
+│  (e.g., http://localhost:3000)                             │
+│                                                              │
+│  GET /oauth/authorize?                                      │
+│    client_id=prompt-gen-web&                               │
+│    redirect_uri=http://localhost:5173/oauth/callback&     │  ← This is the WEB APP's callback!
+│    code_challenge=...&                                      │
+│    code_challenge_method=S256&                             │
+│    state=...                                                │
+│                                                              │
+│  ┌──────────────────────────────────────┐                  │
+│  │ 2. Shows authorization page          │                  │
+│  │    "Allow 'Prompt Gen Web' to        │                  │
+│  │     access your account?"            │                  │
+│  │                                       │                  │
+│  │    [Approve]  [Deny]                │                  │
+│  └──────────────────────────────────────┘                  │
+│         │                                                    │
+│         │ 3. User clicks Approve                           │
+│         │                                                    │
+│         ▼                                                    │
+│  POST /api/v1/oauth/authorize                              │
+│    { approved: true, ... }                                 │
+│         │                                                    │
+│         │ 4. Backend generates authorization code          │
+│         │                                                    │
+│         ▼                                                    │
+│  Response: {                                                │
+│    "redirect_uri": "http://localhost:5173/oauth/callback?code=XYZ&state=..."  │
+│  }                                                           │
+└─────────────────────────────────────────────────────────────┘
+         │
+         │ 5. Frontend redirects user back to web app
+         │    window.location.href = "http://localhost:5173/oauth/callback?code=XYZ"
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Web App Callback Handler                                   │
+│  (http://localhost:5173/oauth/callback)                    │
+│                                                              │
+│  6. Extracts code from URL query params                    │
+│     const code = new URLSearchParams(location.search).get('code')  │
+│                                                              │
+│  7. Exchanges code for access token                        │
+│     POST http://localhost:3000/api/v1/oauth/token          │
+│     {                                                        │
+│       grant_type: "authorization_code",                    │
+│       code: "XYZ",                                          │
+│       client_id: "prompt-gen-web",                         │
+│       redirect_uri: "http://localhost:5173/oauth/callback", │
+│       code_verifier: "..." (saved earlier)                 │
+│     }                                                        │
+│                                                              │
+│  8. Receives access token                                  │
+│     { "access_token": "...", "expires_in": 3600 }         │
+│                                                              │
+│  9. Stores token and makes API calls                       │
+│     sessionStorage.setItem('token', access_token)          │
+│                                                              │
+│     fetch('http://localhost:3000/api/v1/packages', {      │
+│       headers: {                                            │
+│         Authorization: `Bearer ${access_token}`            │
+│       }                                                      │
+│     })                                                       │
+└─────────────────────────────────────────────────────────────┘
+      </div>
+
+      <h2>Key Points</h2>
+
+      <h3>1. Two Separate Applications</h3>
+      <ul>
+        <li><strong>Marketplace</strong> (http://localhost:3000)
+          <ul>
+            <li>Backend API + Authorization Server</li>
+            <li>Has a built-in frontend for showing the authorization page</li>
+          </ul>
+        </li>
+        <li><strong>Web App</strong> (http://localhost:5173)
+          <ul>
+            <li>Your separate frontend application</li>
+            <li>Wants to access the marketplace API on behalf of the user</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>2. The <code>redirect_uri</code> Parameter</h3>
+      <p><strong>What it is:</strong> The URL on the <strong>WEB APP</strong> where the authorization code gets sent</p>
+      <p><strong>What it's NOT:</strong> An endpoint on the marketplace backend</p>
+
+      <div class="example">
+        <strong>Examples:</strong>
+        <ul>
+          <li>Local dev: <code>http://localhost:5173/oauth/callback</code></li>
+          <li>Production: <code>https://your-web-app.com/oauth/callback</code></li>
+        </ul>
+      </div>
+
+      <h3>3. The <code>OAUTH_REDIRECT_URI</code> Config Variable</h3>
+      <p>This is <strong>only used for the marketplace's own built-in web client</strong> if you were testing OAuth from within the marketplace's own frontend. It's a default/example value.</p>
+      <p><strong>For your external web app, you specify the redirect_uri when initiating the flow.</strong></p>
+
+      <h2>Production Configuration</h2>
+
+      <h3>Web App Seed (Current)</h3>
+      <pre><code>{
+  client_id: 'prompt-gen-web',
+  redirect_uris: [
+    'http://localhost:5173/oauth/callback',  // Local dev
+    'https://prompt-gen-marketplace-production.up.railway.app/oauth/callback'  // Production
+  ]
+}</code></pre>
+
+      <h3>What This Means</h3>
+      <p><strong>WRONG:</strong> The production redirect URI is the marketplace's own domain ❌</p>
+      <p><strong>RIGHT:</strong> The production redirect URI should be YOUR WEB APP's domain ✅</p>
+
+      <div class="example">
+        <p>For example:</p>
+        <pre><code>{
+  client_id: 'prompt-gen-web',
+  redirect_uris: [
+    'http://localhost:5173/oauth/callback',           // Local dev
+    'https://my-actual-web-app.example.com/oauth/callback'  // Production
+  ]
+}</code></pre>
+      </div>
+
+      <h2>Common Confusion</h2>
+
+      <h3>"Why does the marketplace redirect back to itself?"</h3>
+      <p>It doesn't! The current seed configuration has a <strong>placeholder</strong> production URL that happens to be the marketplace's domain. This needs to be updated to your actual web app's production domain once deployed.</p>
+
+      <h3>"What is the marketplace's authorization page?"</h3>
+      <p>The marketplace has its own frontend (at <code>/oauth/authorize</code>) that shows a consent screen. This is part of the marketplace, not your web app. After the user approves, the marketplace redirects to <strong>your web app's callback</strong>.</p>
+
+      <h2>Implementation Checklist</h2>
+      <p>For your web app to implement OAuth:</p>
+      <ul class="checklist">
+        <li>Create a <code>/oauth/callback</code> route in your web app</li>
+        <li>Generate PKCE verifier and challenge</li>
+        <li>Redirect user to marketplace authorization page with challenge</li>
+        <li>Handle callback with authorization code</li>
+        <li>Exchange code for access token using verifier</li>
+        <li>Store token and use for API requests</li>
+        <li>Update production redirect_uri in seed file to your web app's domain</li>
+      </ul>
+
+      <h2>Security Notes</h2>
+      <ul>
+        <li>The <code>redirect_uri</code> must be pre-registered (in the seed file)</li>
+        <li>The backend validates that the <code>redirect_uri</code> in the request matches a registered URI</li>
+        <li>This prevents attackers from redirecting the authorization code to their own sites</li>
+        <li>PKCE prevents code interception attacks (even if the code is stolen, the attacker doesn't have the verifier)</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Theme management
+    const themes = {
+      AUTO: 'auto',
+      LIGHT: 'light',
+      DARK: 'dark'
+    };
+
+    const autoBtn = document.getElementById('autoTheme');
+    const lightBtn = document.getElementById('lightTheme');
+    const darkBtn = document.getElementById('darkTheme');
+
+    // Load saved preference or default to auto
+    let currentTheme = localStorage.getItem('theme-preference') || themes.AUTO;
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('theme-preference', theme);
+
+      // Remove all theme attributes
+      document.documentElement.removeAttribute('data-theme');
+
+      // Update button states
+      autoBtn.classList.remove('active');
+      lightBtn.classList.remove('active');
+      darkBtn.classList.remove('active');
+
+      if (theme === themes.LIGHT) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        lightBtn.classList.add('active');
+      } else if (theme === themes.DARK) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        darkBtn.classList.add('active');
+      } else {
+        // Auto mode - use OS preference
+        autoBtn.classList.add('active');
+        // The CSS @media (prefers-color-scheme) will handle this automatically
+      }
+    }
+
+    // Event listeners
+    autoBtn.addEventListener('click', () => applyTheme(themes.AUTO));
+    lightBtn.addEventListener('click', () => applyTheme(themes.LIGHT));
+    darkBtn.addEventListener('click', () => applyTheme(themes.DARK));
+
+    // Listen for OS theme changes when in auto mode
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', (e) => {
+        if (currentTheme === themes.AUTO) {
+          // Force a repaint to apply the new theme
+          applyTheme(themes.AUTO);
+        }
+      });
+    }
+
+    // Apply initial theme
+    applyTheme(currentTheme);
+  </script>
+</body>
+</html>
+

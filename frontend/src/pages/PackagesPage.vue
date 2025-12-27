@@ -148,8 +148,8 @@
             <div>
               <span
                 style="
-                  background: #e7f3ff;
-                  color: #007bff;
+                  background: var(--bg-tertiary);
+                  color: var(--accent-color);
                   padding: 4px 12px;
                   border-radius: 4px;
                   font-size: 14px;

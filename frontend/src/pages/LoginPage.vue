@@ -12,7 +12,11 @@
       <div
         v-if="success"
         class="warning"
-        style="background: #d4edda; border-color: #c3e6cb; color: #155724"
+        style="
+          background: var(--success-bg);
+          border-color: var(--success-border);
+          color: var(--success-text);
+        "
       >
         {{ success }}
       </div>
@@ -27,7 +31,15 @@
           Upload the .pem file you downloaded during registration.
         </p>
 
-        <div style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 4px">
+        <div
+          style="
+            margin-top: 24px;
+            padding: 16px;
+            background: var(--bg-code);
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+          "
+        >
           <p><strong>Or paste your keys manually:</strong></p>
           <textarea
             v-model="manualKey"
@@ -57,11 +69,7 @@
           Login with This Key
         </button>
 
-        <button
-          class="btn"
-          style="width: 100%; margin-top: 8px; background: #6c757d; color: white"
-          @click="reset"
-        >
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 8px" @click="reset">
           Use Different Key
         </button>
       </div>
@@ -76,9 +84,19 @@
       </div>
     </div>
 
-    <div class="card" style="max-width: 600px; margin: 0 auto; background: #e7f3ff">
+    <div
+      class="card"
+      style="
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--info-bg);
+        border-color: var(--info-border);
+      "
+    >
       <h3>Don't have a key file?</h3>
-      <p>If you haven't registered yet, you'll need to create an account first.</p>
+      <p style="color: var(--info-text)">
+        If you haven't registered yet, you'll need to create an account first.
+      </p>
       <router-link
         to="/register"
         class="btn btn-primary"
@@ -129,8 +147,8 @@ async function handleFileUpload(event: Event) {
   try {
     const text = await file.text();
     parseKeyFile(text);
-  } catch (err: any) {
-    error.value = `Failed to read file: ${err.message}`;
+  } catch (err) {
+    error.value = `Failed to read file: ${err instanceof Error ? err.message : 'Unknown error'}`;
   }
 }
 
@@ -159,8 +177,8 @@ function parseKeyFile(content: string) {
     };
 
     success.value = 'Key file loaded successfully!';
-  } catch (err: any) {
-    error.value = `Failed to parse key file: ${err.message}`;
+  } catch (err) {
+    error.value = `Failed to parse key file: ${err instanceof Error ? err.message : 'Unknown error'}`;
   }
 }
 
@@ -228,8 +246,8 @@ async function login() {
     setTimeout(() => {
       router.push(redirectTo);
     }, 1500);
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Login failed';
     isLoggingIn.value = false;
   }
 }

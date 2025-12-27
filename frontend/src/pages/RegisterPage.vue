@@ -64,13 +64,14 @@
 
         <div
           style="
-            background: #f8f9fa;
+            background: var(--bg-code);
             padding: 12px;
             border-radius: 4px;
             margin: 16px 0;
             font-family: monospace;
             font-size: 12px;
             word-break: break-all;
+            border: 1px solid var(--border-color);
           "
         >
           {{ keyfile.content.substring(0, 100) }}...
@@ -126,8 +127,8 @@ async function register() {
 
     const data = await res.json();
     keyfile.value = data.keyfile;
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Registration failed';
   } finally {
     loading.value = false;
   }

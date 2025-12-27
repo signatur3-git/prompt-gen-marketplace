@@ -20,9 +20,13 @@
       </div>
 
       <!-- Admin Section (only visible to admins) -->
-      <div v-if="isAdmin" class="card" style="background: #fff3cd; border-color: #ffc107">
+      <div
+        v-if="isAdmin"
+        class="card"
+        style="background: var(--warning-bg); border-color: var(--warning-border)"
+      >
         <h2>🛡️ Admin Tools</h2>
-        <p style="color: #856404">You have administrator privileges.</p>
+        <p style="color: var(--warning-text)">You have administrator privileges.</p>
         <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap">
           <button
             :class="['btn', activeTab === 'users' ? 'btn-primary' : '']"
@@ -68,7 +72,7 @@
                         <span
                           v-if="p.is_primary"
                           style="
-                            background: #007bff;
+                            background: var(--accent-color);
                             color: white;
                             padding: 2px 8px;
                             border-radius: 4px;
@@ -190,15 +194,18 @@
                     <span
                       v-if="persona.is_primary"
                       style="
-                        background: #28a745;
-                        color: white;
+                        background: var(--success-bg);
+                        color: var(--success-text);
                         padding: 2px 8px;
                         border-radius: 4px;
+                        border: 1px solid var(--success-border);
                       "
                     >
                       Primary
                     </span>
-                    <span style="color: #666">Created: {{ formatDate(persona.created_at) }}</span>
+                    <span style="color: var(--text-secondary)"
+                      >Created: {{ formatDate(persona.created_at) }}</span
+                    >
                   </div>
                 </div>
                 <div style="display: flex; gap: 8px">
@@ -254,9 +261,7 @@
                 >
                   Create Persona
                 </button>
-                <button class="btn" style="background: #6c757d; color: white" @click="cancelCreate">
-                  Cancel
-                </button>
+                <button class="btn btn-secondary" @click="cancelCreate">Cancel</button>
               </div>
             </div>
           </div>
@@ -385,11 +390,54 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
-const user = ref<any>(null);
-const personas = ref<any[]>([]);
-const allUsers = ref<any[]>([]);
-const tokens = ref<any[]>([]);
-const myPackages = ref<any[]>([]);
+interface User {
+  id: string;
+  public_key: string;
+  created_at: string;
+  is_admin?: boolean;
+}
+
+interface Persona {
+  id: string;
+  name: string;
+  bio?: string;
+  is_primary: boolean;
+  created_at: string;
+}
+
+interface AdminUser {
+  id: string;
+  public_key: string;
+  created_at: string;
+  is_admin: boolean;
+  personas: Persona[];
+}
+
+interface OAuthToken {
+  id: string;
+  token: string;
+  client_id: string;
+  client_name: string;
+  scopes: string[];
+  created_at: string;
+  expires_at: string;
+}
+
+interface Package {
+  id: string;
+  namespace: string;
+  name: string;
+  description?: string;
+  latest_version: string;
+  created_at: string;
+  updated_at: string;
+}
+
+const user = ref<User | null>(null);
+const personas = ref<Persona[]>([]);
+const allUsers = ref<AdminUser[]>([]);
+const tokens = ref<OAuthToken[]>([]);
+const myPackages = ref<Package[]>([]);
 const isLoggedIn = ref(false);
 const isAdmin = ref(false);
 const error = ref('');
@@ -448,8 +496,8 @@ async function loadPersonas() {
 
     const data = await res.json();
     personas.value = data.personas || [];
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to load personas';
   } finally {
     loadingPersonas.value = false;
   }
@@ -473,8 +521,8 @@ async function loadTokens() {
 
     const data = await res.json();
     tokens.value = data.tokens || [];
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to load tokens';
   } finally {
     loadingTokens.value = false;
   }
@@ -504,8 +552,8 @@ async function revokeToken(tokenValue: string) {
     }
 
     await loadTokens();
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to revoke token';
   }
 }
 
@@ -527,8 +575,8 @@ async function loadMyPackages() {
 
     const data = await res.json();
     myPackages.value = data.packages || [];
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to load packages';
   } finally {
     loadingMyPackages.value = false;
   }
@@ -553,7 +601,7 @@ async function loadAllUsers() {
 
     const data = await res.json();
     allUsers.value = data.users || [];
-  } catch (err: any) {
+  } catch (err) {
     error.value = 'Admin endpoints not yet implemented';
     console.error(err);
   } finally {
@@ -587,8 +635,8 @@ async function createPersona() {
 
     await loadPersonas();
     cancelCreate();
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to create persona';
   }
 }
 
@@ -610,8 +658,8 @@ async function setPrimary(personaId: string) {
     }
 
     await loadPersonas();
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to set primary persona';
   }
 }
 
@@ -637,8 +685,8 @@ async function deletePersona(personaId: string) {
     }
 
     await loadPersonas();
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to delete persona';
   }
 }
 
@@ -648,7 +696,7 @@ function cancelCreate() {
   newPersonaBio.value = '';
 }
 
-function formatDate(dateString: string): string {
+function formatDate(dateString?: string): string {
   if (!dateString) return 'Unknown';
   const date = new Date(dateString);
   return date.toLocaleDateString();

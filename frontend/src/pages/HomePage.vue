@@ -1,9 +1,13 @@
 <template>
   <div class="container">
     <!-- Logged in status -->
-    <div v-if="isLoggedIn" class="card" style="background: #d4edda; border-color: #c3e6cb">
-      <h3 style="color: #155724; margin-bottom: 8px">✅ Logged In</h3>
-      <p style="color: #155724">
+    <div
+      v-if="isLoggedIn"
+      class="card"
+      style="background: var(--success-bg, #d4edda); border-color: var(--success-border, #c3e6cb)"
+    >
+      <h3 style="color: var(--success-text, #155724); margin-bottom: 8px">✅ Logged In</h3>
+      <p style="color: var(--success-text, #155724)">
         Welcome back! You're authenticated with public key:
         {{ user?.public_key?.substring(0, 16) }}...
       </p>
@@ -24,11 +28,7 @@
         <router-link to="/register" class="btn btn-primary" style="text-decoration: none">
           Get Started
         </router-link>
-        <router-link
-          to="/login"
-          class="btn"
-          style="text-decoration: none; background: #6c757d; color: white"
-        >
+        <router-link to="/login" class="btn btn-secondary" style="text-decoration: none">
           Login
         </router-link>
       </div>
@@ -37,11 +37,7 @@
         <router-link to="/packages" class="btn btn-primary" style="text-decoration: none">
           📦 Browse Packages
         </router-link>
-        <router-link
-          to="/dashboard"
-          class="btn"
-          style="text-decoration: none; background: #6c757d; color: white"
-        >
+        <router-link to="/dashboard" class="btn btn-secondary" style="text-decoration: none">
           ⚙️ My Dashboard
         </router-link>
       </div>
@@ -67,8 +63,8 @@
       <div class="card">
         <h2>🔍 Discover</h2>
         <p>
-          Browse thousands of packages created by the community. Find the perfect package for your
-          needs.
+          Browse thousands (&#128517; soon &#8482;) of packages created by the community. Find the
+          perfect package for your needs.
         </p>
       </div>
 
@@ -91,7 +87,7 @@
       </ol>
     </div>
 
-    <div class="card" style="margin-top: 20px; background: #e7f3ff">
+    <div class="card" style="margin-top: 20px; background: var(--bg-tertiary)">
       <h3>✨ Features</h3>
       <ul style="margin-left: 20px; line-height: 1.8">
         <li>Semantic versioning with dependency resolution</li>
@@ -109,9 +105,16 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
+interface User {
+  id: string;
+  public_key: string;
+  created_at: string;
+  is_admin?: boolean;
+}
+
 const router = useRouter();
 const isLoggedIn = ref(false);
-const user = ref<any>(null);
+const user = ref<User | null>(null);
 
 onMounted(() => {
   checkLoginStatus();
@@ -123,7 +126,7 @@ function checkLoginStatus() {
 
   if (token && userData) {
     isLoggedIn.value = true;
-    user.value = JSON.parse(userData);
+    user.value = JSON.parse(userData) as User;
   }
 }
 

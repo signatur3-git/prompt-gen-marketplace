@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1>📤 Publish Package</h1>
-    <p style="color: #666; margin-bottom: 32px">
+    <p style="color: var(--text-secondary); margin-bottom: 32px">
       Upload a package to the marketplace. Your package will be validated before publishing.
     </p>
 
@@ -24,11 +24,11 @@
 
         <div
           :style="{
-            border: dragOver ? '2px dashed #007bff' : '2px dashed #ddd',
+            border: dragOver ? '2px dashed var(--accent-color)' : '2px dashed var(--border-color)',
             borderRadius: '8px',
             padding: '40px',
             textAlign: 'center',
-            background: dragOver ? '#f0f8ff' : '#f8f9fa',
+            background: dragOver ? 'var(--bg-tertiary)' : 'var(--bg-code)',
             cursor: 'pointer',
             marginBottom: '16px',
           }"
@@ -41,7 +41,7 @@
           <p style="font-size: 18px; margin-bottom: 8px">
             <strong>Drag and drop your YAML file here</strong>
           </p>
-          <p style="color: #666">or click to browse</p>
+          <p style="color: var(--text-secondary)">or click to browse</p>
           <input
             ref="fileInput"
             type="file"
@@ -53,7 +53,12 @@
 
         <div
           v-if="fileName"
-          style="background: #e7f3ff; padding: 12px; border-radius: 4px; margin-bottom: 16px"
+          style="
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+          "
         >
           <strong>Selected file:</strong> {{ fileName }}
           <button
@@ -149,19 +154,19 @@
 
         <div style="margin-bottom: 20px">
           <label style="display: block; font-weight: bold; margin-bottom: 8px">
-            Namespace <span style="color: #dc3545">*</span>
+            Namespace <span style="color: var(--danger-color)">*</span>
           </label>
-          <p style="color: #666; font-size: 14px; margin-bottom: 8px">
+          <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px">
             From package: <code>{{ parsedNamespace }}</code>
           </p>
-          <p v-if="namespaceInfo" style="color: #666; font-size: 14px">
+          <p v-if="namespaceInfo" style="color: var(--text-secondary); font-size: 14px">
             {{ namespaceInfo }}
           </p>
         </div>
 
         <div style="margin-bottom: 20px">
           <label style="display: block; font-weight: bold; margin-bottom: 8px">
-            Publish as <span style="color: #dc3545">*</span>
+            Publish as <span style="color: var(--danger-color)">*</span>
           </label>
           <select
             v-model="selectedPersonaId"
@@ -186,16 +191,18 @@
           <button class="btn btn-primary" :disabled="!selectedPersonaId" @click="publishPackage">
             📤 Publish Package
           </button>
-          <button class="btn" style="background: #6c757d; color: white" @click="clearFile">
-            Cancel
-          </button>
+          <button class="btn btn-secondary" @click="clearFile">Cancel</button>
         </div>
       </div>
 
       <!-- Success Message -->
-      <div v-if="publishSuccess" class="card" style="background: #d4edda; border-color: #c3e6cb">
-        <h2 style="color: #155724">✅ Package Published Successfully!</h2>
-        <p style="color: #155724">
+      <div
+        v-if="publishSuccess"
+        class="card"
+        style="background: var(--success-bg, #d4edda); border-color: var(--success-border, #c3e6cb)"
+      >
+        <h2 style="color: var(--success-text, #155724)">✅ Package Published Successfully!</h2>
+        <p style="color: var(--success-text, #155724)">
           Your package <strong>{{ publishedPackage }}</strong> has been published to the
           marketplace.
         </p>
@@ -207,9 +214,7 @@
           >
             View Package
           </router-link>
-          <button class="btn" style="background: #6c757d; color: white" @click="resetForm">
-            Publish Another
-          </button>
+          <button class="btn btn-secondary" @click="resetForm">Publish Another</button>
         </div>
       </div>
     </div>
@@ -220,15 +225,38 @@
 import { ref, onMounted, computed } from 'vue';
 import * as yaml from 'js-yaml';
 
+interface PackageData {
+  id: string;
+  version: string;
+  metadata?: {
+    name?: string;
+    description?: string;
+  };
+  dependencies?: Array<{
+    package: string;
+    version: string;
+  }>;
+  datatypes?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface Persona {
+  id: string;
+  name: string;
+  is_primary: boolean;
+  bio?: string;
+  created_at: string;
+}
+
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const isLoggedIn = ref(false);
 const dragOver = ref(false);
 const fileName = ref('');
 const fileContent = ref('');
-const packageData = ref<any>(null);
+const packageData = ref<PackageData | null>(null);
 const validationErrors = ref<string[]>([]);
-const personas = ref<any[]>([]);
+const personas = ref<Persona[]>([]);
 const selectedPersonaId = ref('');
 const publishing = ref(false);
 const publishError = ref('');
@@ -316,7 +344,7 @@ function validateAndParsePackage() {
 
   try {
     // Parse YAML
-    const parsed = yaml.load(fileContent.value) as any;
+    const parsed = yaml.load(fileContent.value) as PackageData;
 
     // Basic validation
     if (!parsed.id) {
@@ -333,8 +361,10 @@ function validateAndParsePackage() {
       packageData.value = parsed;
       checkNamespace();
     }
-  } catch (err: any) {
-    validationErrors.value.push(`YAML parsing error: ${err.message}`);
+  } catch (err) {
+    validationErrors.value.push(
+      `YAML parsing error: ${err instanceof Error ? err.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -386,8 +416,8 @@ async function publishPackage() {
     const data = await res.json();
     publishSuccess.value = true;
     publishedPackage.value = data.package.id;
-  } catch (err: any) {
-    publishError.value = err.message;
+  } catch (err) {
+    publishError.value = err instanceof Error ? err.message : 'Failed to publish package';
   } finally {
     publishing.value = false;
   }

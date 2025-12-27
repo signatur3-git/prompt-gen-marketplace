@@ -11,6 +11,15 @@ import AuthorizePage from './pages/AuthorizePage.vue';
 import PublishPage from './pages/PublishPage.vue';
 import './style.css';
 
+// Initialize theme before app mounts
+const STORAGE_KEY = 'prompt-gen-theme';
+const savedTheme = localStorage.getItem(STORAGE_KEY) || 'auto';
+if (savedTheme === 'light') {
+  document.documentElement.setAttribute('data-theme', 'light');
+} else if (savedTheme === 'dark') {
+  document.documentElement.setAttribute('data-theme', 'dark');
+}
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [

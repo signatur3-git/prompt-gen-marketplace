@@ -52,13 +52,7 @@
         <button class="btn btn-primary" style="min-width: 120px" @click="approve">
           ✅ Authorize
         </button>
-        <button
-          class="btn"
-          style="min-width: 120px; background: #6c757d; color: white"
-          @click="deny"
-        >
-          ❌ Deny
-        </button>
+        <button class="btn btn-secondary" style="min-width: 120px" @click="deny">❌ Deny</button>
       </div>
 
       <p style="color: #666; font-size: 14px; margin-top: 24px; text-align: center">
@@ -74,6 +68,17 @@ import { ref, onMounted, defineEmits } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { handleTokenExpiration } from '../utils/auth';
 
+interface OAuthClient {
+  client_id: string;
+  client_name: string;
+  redirect_uris: string[];
+}
+
+interface User {
+  id: string;
+  public_key: string;
+}
+
 const emit = defineEmits(['login']);
 
 const route = useRoute();
@@ -83,8 +88,8 @@ const loading = ref(true);
 const error = ref('');
 const processing = ref(false);
 
-const client = ref<any>(null);
-const user = ref<any>(null);
+const client = ref<OAuthClient | null>(null);
+const user = ref<User | null>(null);
 
 const clientId = ref('');
 const redirectUri = ref('');
@@ -167,8 +172,8 @@ async function loadAuthorizationRequest() {
 
     const data = await res.json();
     client.value = data.client;
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to load authorization request';
   } finally {
     loading.value = false;
   }
@@ -211,8 +216,8 @@ async function approve() {
 
     // Redirect back to client with authorization code
     window.location.href = data.redirect_uri;
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Authorization failed';
     processing.value = false;
   }
 }
@@ -252,8 +257,8 @@ async function deny() {
 
     // Redirect back to client with error
     window.location.href = data.redirect_uri;
-  } catch (err: any) {
-    error.value = err.message;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Denial failed';
     processing.value = false;
   }
 }

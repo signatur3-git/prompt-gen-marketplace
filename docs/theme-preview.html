@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Preview - Prompt Gen Marketplace</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-tertiary: #e9ecef;
+      --bg-hover: #e9ecef;
+      --bg-code: #f8f9fa;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border-color: #dddddd;
+      --accent-color: #007bff;
+      --accent-hover: #0056b3;
+      --danger-color: #dc3545;
+      --shadow-sm: rgba(0, 0, 0, 0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-tertiary: #3a3a3a;
+        --bg-hover: #404040;
+        --bg-code: #0d1117;
+        --text-primary: #e6e6e6;
+        --text-secondary: #b3b3b3;
+        --text-muted: #808080;
+        --border-color: #404040;
+        --accent-color: #4493f8;
+        --accent-hover: #6cb6ff;
+        --danger-color: #f85149;
+        --shadow-sm: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    [data-theme='light'] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-tertiary: #e9ecef;
+      --bg-hover: #e9ecef;
+      --bg-code: #f8f9fa;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border-color: #dddddd;
+      --accent-color: #007bff;
+      --accent-hover: #0056b3;
+      --danger-color: #dc3545;
+      --shadow-sm: rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme='dark'] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #3a3a3a;
+      --bg-hover: #404040;
+      --bg-code: #0d1117;
+      --text-primary: #e6e6e6;
+      --text-secondary: #b3b3b3;
+      --text-muted: #808080;
+      --border-color: #404040;
+      --accent-color: #4493f8;
+      --accent-hover: #6cb6ff;
+      --danger-color: #f85149;
+      --shadow-sm: rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+
+    .theme-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 4px;
+      background: var(--bg-primary);
+      padding: 4px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      z-index: 1000;
+    }
+
+    .theme-btn {
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+
+    .theme-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    .theme-btn.active {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    nav {
+      background: var(--bg-primary);
+      box-shadow: 0 2px 4px var(--shadow-sm);
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 32px;
+    }
+
+    nav .nav-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+
+    nav a {
+      color: var(--accent-color);
+      text-decoration: none;
+      margin: 0 12px;
+    }
+
+    nav a:hover {
+      color: var(--accent-hover);
+    }
+
+    .card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px var(--shadow-sm);
+    }
+
+    h1 {
+      color: var(--text-primary);
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    code {
+      background: var(--bg-code);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Consolas', monospace;
+      color: var(--text-primary);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-switcher">
+    <button class="theme-btn" id="autoBtn" title="Auto">🔄</button>
+    <button class="theme-btn" id="lightBtn" title="Light">☀️</button>
+    <button class="theme-btn" id="darkBtn" title="Dark">🌙</button>
+  </div>
+
+  <nav>
+    <div class="nav-content">
+      <div class="logo">🎨 Prompt Gen Marketplace</div>
+      <div>
+        <a href="#">Home</a>
+        <a href="#">Packages</a>
+        <a href="#">Login</a>
+        <a href="#">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Theme System Preview</h1>
+
+    <div class="card">
+      <h2>Welcome to Prompt Gen Marketplace</h2>
+      <p>This preview shows how the theme system works across different UI elements. Try switching between light, dark, and auto modes using the buttons in the top-right corner.</p>
+      <p>The <code>auto</code> mode will follow your operating system's theme preference.</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Primary Actions</h2>
+        <button class="btn btn-primary">Primary Button</button>
+        <button class="btn btn-danger" style="margin-left: 10px">Delete</button>
+      </div>
+
+      <div class="card">
+        <h2>Form Example</h2>
+        <input type="text" placeholder="Enter your email...">
+        <input type="text" placeholder="Enter package name...">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Features</h2>
+      <ul>
+        <li>✅ Automatic OS theme detection</li>
+        <li>✅ Manual theme override</li>
+        <li>✅ Persistent preferences (localStorage)</li>
+        <li>✅ Smooth transitions</li>
+        <li>✅ All components themed consistently</li>
+      </ul>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Code Example</h2>
+        <p>Using CSS custom properties:</p>
+        <code>background: var(--bg-primary);</code>
+      </div>
+
+      <div class="card">
+        <h2>Color Palette</h2>
+        <p style="color: var(--text-primary)">Primary Text</p>
+        <p style="color: var(--text-secondary)">Secondary Text</p>
+        <p style="color: var(--text-muted)">Muted Text</p>
+        <p style="color: var(--accent-color)">Accent Color</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const autoBtn = document.getElementById('autoBtn');
+    const lightBtn = document.getElementById('lightBtn');
+    const darkBtn = document.getElementById('darkBtn');
+
+    function applyTheme(theme) {
+      localStorage.setItem('theme-preview', theme);
+      document.documentElement.removeAttribute('data-theme');
+
+      autoBtn.classList.remove('active');
+      lightBtn.classList.remove('active');
+      darkBtn.classList.remove('active');
+
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        lightBtn.classList.add('active');
+      } else if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        darkBtn.classList.add('active');
+      } else {
+        autoBtn.classList.add('active');
+      }
+    }
+
+    autoBtn.addEventListener('click', () => applyTheme('auto'));
+    lightBtn.addEventListener('click', () => applyTheme('light'));
+    darkBtn.addEventListener('click', () => applyTheme('dark'));
+
+    // Initialize
+    const saved = localStorage.getItem('theme-preview') || 'auto';
+    applyTheme(saved);
+  </script>
+</body>
+</html>
+

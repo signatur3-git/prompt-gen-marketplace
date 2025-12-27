@@ -3,13 +3,16 @@
     <nav>
       <div class="container">
         <router-link to="/" class="logo"> 🎨 Prompt Gen Marketplace </router-link>
-        <div>
-          <router-link to="/"> Home </router-link>
-          <router-link to="/packages"> Packages </router-link>
-          <router-link v-if="!isLoggedIn" to="/register"> Register </router-link>
-          <router-link v-if="!isLoggedIn" to="/login"> Login </router-link>
-          <router-link v-if="isLoggedIn" to="/publish"> Publish </router-link>
-          <router-link v-if="isLoggedIn" to="/dashboard"> Dashboard </router-link>
+        <div style="display: flex; align-items: center; gap: 16px">
+          <div>
+            <router-link to="/"> Home </router-link>
+            <router-link to="/packages"> Packages </router-link>
+            <router-link v-if="!isLoggedIn" to="/register"> Register </router-link>
+            <router-link v-if="!isLoggedIn" to="/login"> Login </router-link>
+            <router-link v-if="isLoggedIn" to="/publish"> Publish </router-link>
+            <router-link v-if="isLoggedIn" to="/dashboard"> Dashboard </router-link>
+          </div>
+          <ThemeSwitcher />
         </div>
       </div>
     </nav>
@@ -20,6 +23,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import ThemeSwitcher from './components/ThemeSwitcher.vue';
 
 const router = useRouter();
 const isLoggedIn = ref(false);

@@ -24,7 +24,7 @@
     "db:seed": "tsx database/seed-oauth-clients.ts",
     "lint": "eslint src --ext .ts --max-warnings 200",
     "lint:fix": "eslint src --ext .ts --fix",
-    "lint:frontend": "eslint frontend/src --ext .ts,.vue --max-warnings 33",
+    "lint:frontend": "eslint frontend/src --ext .ts,.vue --max-warnings 0",
     "lint:frontend:fix": "eslint frontend/src --ext .ts,.vue --fix",
     "format": "prettier --write \"src/**/*.ts\" \"frontend/src/**/*.{ts,vue}\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"frontend/src/**/*.{ts,vue}\"",
