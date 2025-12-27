@@ -7,7 +7,7 @@ export interface AuthenticatedRequest extends Request {
     id?: string; // Alias for convenience
     public_key: string;
     persona_id: string;
-    is_admin?: boolean;
+    is_admin: boolean; // Always present in JWT payload
   };
 }
 

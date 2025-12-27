@@ -230,12 +230,14 @@ export function verifyToken(token: string): {
   user_id: string;
   public_key: string;
   persona_id: string;
+  is_admin: boolean;
 } {
   try {
     const decoded = jwt.verify(token, config.jwt.secret) as {
       user_id: string;
       public_key: string;
       persona_id: string;
+      is_admin: boolean;
     };
     return decoded;
   } catch (error) {
