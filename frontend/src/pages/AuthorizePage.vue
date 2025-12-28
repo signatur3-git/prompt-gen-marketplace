@@ -6,7 +6,7 @@
     </div>
 
     <div v-else-if="error" class="card">
-      <h2 style="color: #dc3545">Authorization Error</h2>
+      <h2 style="color: var(--danger-color)">Authorization Error</h2>
       <p>{{ error }}</p>
       <button class="btn btn-primary" style="margin-top: 16px" @click="$router.push('/')">
         Go Home
@@ -17,10 +17,20 @@
       <div style="text-align: center; margin-bottom: 24px">
         <div style="font-size: 64px; margin-bottom: 16px">🔐</div>
         <h1 style="margin-bottom: 8px">Authorize Application</h1>
-        <p style="color: #666">{{ client.client_name }} is requesting access to your account</p>
+        <p style="color: var(--text-muted)">
+          {{ client.client_name }} is requesting access to your account
+        </p>
       </div>
 
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 4px; margin-bottom: 24px">
+      <div
+        style="
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          padding: 20px;
+          border-radius: 4px;
+          margin-bottom: 24px;
+        "
+      >
         <h3 style="margin-bottom: 12px">Application Details</h3>
         <p><strong>App Name:</strong> {{ client.client_name }}</p>
         <p><strong>Client ID:</strong> {{ clientId }}</p>
@@ -36,7 +46,14 @@
 
       <div
         v-if="user"
-        style="background: #e7f3ff; padding: 16px; border-radius: 4px; margin-bottom: 24px"
+        style="
+          background: var(--info-bg);
+          border: 1px solid var(--info-border);
+          color: var(--info-text);
+          padding: 16px;
+          border-radius: 4px;
+          margin-bottom: 24px;
+        "
       >
         <p style="margin-bottom: 4px">
           <strong>Authorizing as:</strong>
@@ -55,7 +72,7 @@
         <button class="btn btn-secondary" style="min-width: 120px" @click="deny">❌ Deny</button>
       </div>
 
-      <p style="color: #666; font-size: 14px; margin-top: 24px; text-align: center">
+      <p style="color: var(--text-muted); font-size: 14px; margin-top: 24px; text-align: center">
         By authorizing, you allow this application to access your marketplace account. You can
         revoke access at any time from your dashboard.
       </p>
