@@ -112,8 +112,11 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response)
       total: userPackages.length,
     });
   } catch (error: unknown) {
-    console.error('Get user packages error:', error);
-    res.status(500).json({ error: 'Failed to get user packages' });
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Get user packages error:', error);
+    }
+    res.status(500).json({ error: 'Failed to get user packages', details: getErrorMessage(error) });
   }
 });
 
@@ -176,6 +179,8 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
     let ns = await namespaceService.getNamespaceByName(namespace);
     if (!ns) {
       ns = await namespaceService.autoClaimNamespace(namespace, userId);
+      // Log namespace creation (legitimate server operation)
+      // eslint-disable-next-line no-console
       console.info(`✅ Auto-claimed namespace: ${namespace}`);
     }
 
@@ -189,6 +194,8 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
         description: parsed.metadata?.description,
         author_persona_id: usePersonaId,
       });
+      // Log package creation (legitimate server operation)
+      // eslint-disable-next-line no-console
       console.info(`✅ Created package: ${namespace}.${name}`);
     } else {
       // Verify ownership for existing package
@@ -222,6 +229,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       }
 
       // Delete existing version (will cascade delete dependencies)
+      // eslint-disable-next-line no-console
       console.info(`⚠️  Force replacing existing version: ${namespace}.${name}@${parsed.version}`);
       const { deletePackageVersion } = await import('../services/package.service.js');
       await deletePackageVersion(existingVersion.id);
@@ -230,6 +238,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       try {
         await storageService.deletePackage(existingVersion.storage_path);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.warn(`Could not delete old package file: ${existingVersion.storage_path}`, err);
       }
     }
@@ -301,6 +310,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       dependencies,
     });
 
+    // eslint-disable-next-line no-console
     console.info(`✅ Published version: ${namespace}.${name}@${parsed.version}`);
 
     res.status(201).json({
@@ -312,6 +322,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       },
     });
   } catch (error: unknown) {
+    // eslint-disable-next-line no-console
     console.error('Publish package error:', error);
     res.status(400).json({ error: getErrorMessage(error) || 'Failed to publish package' });
   }
@@ -374,8 +385,11 @@ router.get(
         stats,
       });
     } catch (error: unknown) {
-      console.error('Get package error:', error);
-      res.status(500).json({ error: 'Failed to get package' });
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Get package error:', error);
+      }
+      res.status(500).json({ error: 'Failed to get package', details: getErrorMessage(error) });
     }
   }
 );
@@ -416,8 +430,11 @@ router.get(
         dependencies,
       });
     } catch (error: unknown) {
-      console.error('Get version error:', error);
-      res.status(500).json({ error: 'Failed to get version' });
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Get version error:', error);
+      }
+      res.status(500).json({ error: 'Failed to get version', details: getErrorMessage(error) });
     }
   }
 );
@@ -475,8 +492,13 @@ router.get(
       res.setHeader('X-Checksum-SHA256', packageVersion.checksum_sha256);
       res.send(content);
     } catch (error: unknown) {
-      console.error('Download package error:', error);
-      res.status(500).json({ error: 'Failed to download package' });
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Download package error:', error);
+      }
+      res
+        .status(500)
+        .json({ error: 'Failed to download package', details: getErrorMessage(error) });
     }
   }
 );
@@ -518,7 +540,10 @@ router.post(
 
       res.json({ message: 'Version yanked successfully' });
     } catch (error: unknown) {
-      console.error('Yank version error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Yank version error:', error);
+      }
       res.status(400).json({ error: getErrorMessage(error) || 'Failed to yank version' });
     }
   }

@@ -1,9 +1,12 @@
 /**
  * Add display_name column to packages table
  * This stores the metadata.name field from the YAML (the human-readable display name)
+ *
+ * Note: The actual backfill is done in a separate migration (20251228172257152)
+ * to avoid issues with column not existing yet in the same transaction.
  */
 exports.up = (pgm) => {
-  // Add display_name column (nullable for existing packages)
+  // Add display_name column
   pgm.addColumn('packages', {
     display_name: {
       type: 'text',
@@ -11,16 +14,15 @@ exports.up = (pgm) => {
     },
   });
 
-  // Backfill display_name from latest version's YAML metadata
-  // This migration will set display_name = namespace.name for existing packages
-  // Real display names can be updated when packages are re-published
+  // Set temporary fallback (namespace.name) for existing packages
+  // The next migration will extract real values from YAML
   pgm.sql(`
     UPDATE packages p
     SET display_name = p.namespace || '.' || p.name
     WHERE display_name IS NULL;
   `);
 
-  // Create index for searching by display name
+  // Create index
   pgm.createIndex('packages', 'display_name', {
     name: 'idx_packages_display_name',
   });
