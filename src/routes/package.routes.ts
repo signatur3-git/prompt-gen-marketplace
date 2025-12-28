@@ -55,17 +55,28 @@ router.get(
       // For a more accurate count, we'd need to filter by namespaces the user can view
       const totalCount = await packageService.countPackages(filters);
 
-      res.json({
+      const response = {
         packages: visiblePackages,
         total: totalCount,
         page: {
           limit: limit ? parseInt(limit as string, 10) : 50,
           offset: offset ? parseInt(offset as string, 10) : 0,
         },
-      });
+      };
+
+      // Ensure Content-Type is set explicitly
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).json(response);
     } catch (error: unknown) {
-      console.error('List packages error:', error);
-      res.status(500).json({ error: 'Failed to list packages' });
+      // Log error for debugging (in production, use proper logger)
+      const errorMessage = getErrorMessage(error);
+      const errorStack = error instanceof Error ? error.stack : 'N/A';
+      // TODO: Replace with proper logging service (e.g., Winston, Pino)
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('[GET /api/v1/packages] Error:', errorMessage, errorStack);
+      }
+      res.status(500).json({ error: 'Failed to list packages', details: errorMessage });
     }
   }
 );

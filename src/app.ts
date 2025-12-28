@@ -9,6 +9,7 @@ import namespaceRoutes from './routes/namespace.routes.js';
 import packageRoutes from './routes/package.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import oauthRoutes from './routes/oauth.routes.js';
+import debugRoutes from './routes/debug.routes.js';
 import path from 'path';
 
 const app = express();
@@ -58,6 +59,7 @@ app.use('/api/v1/namespaces', namespaceRoutes);
 app.use('/api/v1/packages', packageRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/oauth', oauthRoutes);
+app.use('/api/v1/debug', debugRoutes); // Debug endpoints for troubleshooting
 
 // API root endpoint (kept for debugging / discovery)
 app.get('/api', (_req, res) => {
