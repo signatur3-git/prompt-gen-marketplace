@@ -2,6 +2,11 @@ import pkg from 'pg';
 
 const { Client } = pkg;
 
+// Disable JetBrains SQL inspections for embedded SQL strings.
+// The project doesn't ship an IDE data source configuration, so these inspections
+// can show up as errors/warnings even though runtime SQL is valid.
+// noinspection SqlNoDataSourceInspection,SqlResolve
+
 function defaultDatabaseUrl() {
   // Prefer env var; fall back to standard local Postgres for manual installs.
   // Docker Compose users should set DATABASE_URL in .env.
@@ -40,6 +45,7 @@ async function main() {
       redirect_uris: [
         'http://localhost:5173/oauth/callback', // Local dev - external web app
         'https://signatur3-git.github.io/prompt-gen-web/oauth/callback', // Production - external web app
+        'https://prompt-gen-web-production.up.railway.app/oauth/callback', // Production - Railway
       ],
     },
     {
@@ -55,6 +61,7 @@ async function main() {
 
   for (const seed of seeds) {
     await client.query(
+      // noinspection SqlNoDataSourceInspection,SqlResolve
       `INSERT INTO oauth_clients (id, client_id, client_name, redirect_uris)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (client_id) DO UPDATE SET

@@ -8,7 +8,8 @@ VALUES (
   'Prompt Gen Web App',
   ARRAY[
     'http://localhost:5173/oauth/callback',
-    'https://signatur3-git.github.io/prompt-gen-web/oauth/callback'
+    'https://signatur3-git.github.io/prompt-gen-web/oauth/callback',
+    'https://prompt-gen-web-production.up.railway.app/oauth/callback'
   ],
   NOW()
 )

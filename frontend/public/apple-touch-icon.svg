@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <!-- iOS icon - needs to be square with rounded corners handled by iOS -->
+  <rect width="180" height="180" fill="#007bff"/>
+
+  <!-- Paint palette -->
+  <ellipse cx="90" cy="95" rx="60" ry="52" fill="#ffffff"/>
+
+  <!-- Thumb hole -->
+  <ellipse cx="65" cy="125" rx="14" ry="11" fill="#007bff"/>
+
+  <!-- Paint colors on palette -->
+  <circle cx="80" cy="75" r="9" fill="#ff6b6b"/>
+  <circle cx="108" cy="72" r="9" fill="#ffd93d"/>
+  <circle cx="94" cy="93" r="9" fill="#6bcf7f"/>
+  <circle cx="75" cy="103" r="9" fill="#a78bfa"/>
+  <circle cx="104" cy="100" r="9" fill="#fb923c"/>
+
+  <!-- Paintbrush -->
+  <g transform="translate(115, 45) rotate(45)">
+    <rect x="0" y="0" width="6" height="36" fill="#8b5a3c" rx="2"/>
+    <rect x="-2" y="36" width="10" height="7" fill="#c0c0c0"/>
+    <path d="M 3 43 L 0 54 L 6 54 Z" fill="#4a4a4a"/>
+  </g>
+</svg>
+
