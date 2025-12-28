@@ -50,38 +50,49 @@ exports.up = async (pgm) => {
   // Users table
   pgm.createTable('users', {
     id: { type: 'uuid', primaryKey: true, default: pgm.func('gen_random_uuid()') },
-    email: { type: 'text', notNull: true, unique: true },
-    username: { type: 'text', notNull: true, unique: true },
+    public_key: { type: 'text', notNull: true, unique: true },
+    email: { type: 'text', unique: true },
     is_admin: { type: 'boolean', notNull: true, default: false },
     created_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
     updated_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
+    last_key_rotation_at: { type: 'timestamptz' },
   });
+  pgm.createIndex('users', 'public_key', { name: 'idx_users_public_key' });
   pgm.createIndex('users', 'email', { name: 'idx_users_email' });
-  pgm.createIndex('users', 'username', { name: 'idx_users_username' });
 
   // User keypairs table
   pgm.createTable('user_keypairs', {
     id: { type: 'uuid', primaryKey: true, default: pgm.func('gen_random_uuid()') },
     user_id: { type: 'uuid', notNull: true, references: 'users(id)', onDelete: 'CASCADE' },
     public_key: { type: 'text', notNull: true, unique: true },
+    status: { type: 'text', notNull: true },
     created_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
+    revoked_at: { type: 'timestamptz' },
+  });
+  pgm.addConstraint('user_keypairs', 'user_keypairs_status_check', {
+    check: "status IN ('active', 'revoked')",
   });
   pgm.createIndex('user_keypairs', 'user_id', { name: 'idx_user_keypairs_user_id' });
   pgm.createIndex('user_keypairs', 'public_key', { name: 'idx_user_keypairs_public_key' });
+  pgm.createIndex('user_keypairs', 'status', { name: 'idx_user_keypairs_status' });
 
   // Personas table
   pgm.createTable('personas', {
     id: { type: 'uuid', primaryKey: true, default: pgm.func('gen_random_uuid()') },
     user_id: { type: 'uuid', notNull: true, references: 'users(id)', onDelete: 'CASCADE' },
     name: { type: 'text', notNull: true },
-    public_key: { type: 'text', notNull: true, unique: true },
-    bio: { type: 'text' },
+    is_primary: { type: 'boolean', notNull: true, default: false },
     avatar_url: { type: 'text' },
+    bio: { type: 'text' },
     website: { type: 'text' },
     created_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
   });
+  pgm.addConstraint('personas', 'personas_user_id_name_unique', { unique: ['user_id', 'name'] });
   pgm.createIndex('personas', 'user_id', { name: 'idx_personas_user_id' });
-  pgm.createIndex('personas', 'public_key', { name: 'idx_personas_public_key' });
+  pgm.createIndex('personas', 'is_primary', {
+    name: 'idx_personas_is_primary',
+    where: 'is_primary = true',
+  });
 
   // Namespaces table
   pgm.createTable('namespaces', {
