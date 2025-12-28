@@ -51,6 +51,7 @@ export const config = {
       'http://localhost:5173', // External OAuth web app
       'http://localhost:51234', // Desktop app OAuth callback server
       'https://prompt-gen-web-production.up.railway.app', // Railway web deployment
+      'https://prompt-gen-marketplace-production.up.railway.app', // Railway marketplace deployment (SPA origin)
       'https://signatur3-git.github.io', // GitHub Pages (origin)
     ],
   },

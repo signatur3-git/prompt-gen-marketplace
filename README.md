@@ -49,25 +49,49 @@ The JWT token includes an expiration time (`exp` claim). The backend validates t
    npm install
    ```
 
-2. **Start PostgreSQL + Redis with Docker Compose:**
+2. **Start PostgreSQL + Redis + MinIO with Docker Compose:**
 
    ```bash
    docker-compose up -d
    ```
 
-3. **Create .env file (required):**
+   This starts:
+   - PostgreSQL on port **5433**
+   - Redis on port **6380**
+   - MinIO (S3-compatible storage) on ports **9000** (API) and **9001** (web console)
+
+3. **Setup MinIO bucket (first time only):**
+
+   **Windows (PowerShell):**
+   ```powershell
+   .\scripts\setup-minio.ps1
+   ```
+
+   **Linux/Mac:**
+   ```bash
+   chmod +x ./scripts/setup-minio.sh
+   ./scripts/setup-minio.sh
+   ```
+
+   This creates the `prompt-gen-packages` bucket needed for file storage.
+   
+   > **Note:** Without MinIO/S3, uploaded packages will be stored in the local `./storage` directory, which is ephemeral in production environments like Railway.
+
+4. **Create .env file (required):**
 
    ```bash
    cp .env.example .env
    ```
 
-4. **Initialize / migrate the database schema:**
+   The `.env.example` is pre-configured for Docker Compose (including MinIO). If you're using the default setup, no changes needed!
+
+5. **Initialize / migrate the database schema:**
 
    ```bash
    npm run migrate:up
    ```
 
-5. **Start development server:**
+6. **Start development server:**
 
    ```bash
    npm run dev
@@ -86,12 +110,23 @@ The JWT token includes an expiration time (`exp` claim). The backend validates t
 
    > **Note:** Frontend uses port 5174 (not 5173) to avoid conflicting with external OAuth web apps that need port 5173 for callbacks.
 
-6. **Stop services when done:**
+7. **Stop services when done:**
    ```bash
    docker-compose down
    ```
 
-### Alternative: Manual PostgreSQL/Redis Setup
+### File Storage
+
+The app stores uploaded package files using one of two methods:
+
+- **S3-compatible storage (recommended):** MinIO, AWS S3, Cloudflare R2, etc.
+- **Local filesystem fallback:** `./storage` directory (ephemeral in production)
+
+See [docs/MINIO_SETUP.md](docs/MINIO_SETUP.md) for detailed MinIO configuration and production deployment options.
+
+**MinIO Web Console:** Access at http://localhost:9001 (username: `minioadmin`, password: `minioadmin123`)
+
+---
 
 If you prefer to install PostgreSQL and Redis directly:
 

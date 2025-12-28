@@ -430,6 +430,20 @@ export async function unyankVersion(packageId: string, version: string): Promise
 }
 
 /**
+ * Delete a package version (DANGEROUS - for admin/force-replace only)
+ * This will cascade delete dependencies and download stats
+ */
+export async function deletePackageVersion(packageVersionId: string): Promise<void> {
+  const result = await query(`DELETE FROM package_versions WHERE id = $1 RETURNING *`, [
+    packageVersionId,
+  ]);
+
+  if (result.length === 0) {
+    throw new Error('Version not found');
+  }
+}
+
+/**
  * Get package statistics
  */
 export async function getPackageStats(packageId: string): Promise<{

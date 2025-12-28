@@ -190,4 +190,58 @@ router.delete(
   }
 );
 
+/**
+ * DELETE /api/v1/admin/packages/:namespace/:name/:version
+ * Delete a specific package version (admin only, DANGEROUS)
+ */
+router.delete(
+  '/packages/:namespace/:name/:version',
+  requireAuth,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const { namespace, name, version } = req.params;
+
+      // Import package service
+      const packageService = await import('../services/package.service.js');
+      const storageService = await import('../services/storage.service.js');
+
+      // Get package and version
+      const pkg = await packageService.getPackage(namespace, name);
+      if (!pkg) {
+        res.status(404).json({ error: 'Package not found' });
+        return;
+      }
+
+      const pkgVersion = await packageService.getPackageVersion(namespace, name, version);
+      if (!pkgVersion) {
+        res.status(404).json({ error: 'Version not found' });
+        return;
+      }
+
+      // Delete from storage
+      try {
+        await storageService.deletePackage(pkgVersion.storage_path);
+      } catch (err) {
+        console.warn(`Could not delete package file: ${pkgVersion.storage_path}`, err);
+      }
+
+      // Delete from database
+      await packageService.deletePackageVersion(pkgVersion.id);
+
+      res.json({
+        message: 'Package version deleted successfully',
+        deleted: {
+          namespace,
+          name,
+          version,
+        },
+      });
+    } catch (error: unknown) {
+      console.error('Error deleting package version:', error);
+      res.status(500).json({ error: 'Failed to delete package version' });
+    }
+  }
+);
+
 export default router;

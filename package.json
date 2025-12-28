@@ -22,6 +22,7 @@
     "migrate:latest": "npm run migrate:up",
     "migrate:reset": "node scripts/run-migrations.cjs reset",
     "db:seed": "tsx database/seed-oauth-clients.ts",
+    "storage:setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-minio.ps1",
     "lint": "eslint src --ext .ts --max-warnings 200",
     "lint:fix": "eslint src --ext .ts --fix",
     "lint:frontend": "eslint frontend/src --ext .ts,.vue --max-warnings 0",

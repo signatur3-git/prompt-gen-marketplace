@@ -109,10 +109,15 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response)
 /**
  * POST /api/v1/packages
  * Publish a package (create package + version)
+ *
+ * Body:
+ * - yaml_content: Package YAML content
+ * - persona_id: (optional) Persona to publish as
+ * - force: (optional) If true, replace existing version (default: false)
  */
 router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { yaml_content, persona_id } = req.body;
+    const { yaml_content, persona_id, force } = req.body;
     const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
@@ -123,6 +128,8 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       res.status(400).json({ error: 'yaml_content is required' });
       return;
     }
+
+    const forceReplace = force === true || force === 'true';
 
     // Validate YAML
     const validation = packageValidator.validatePackage(yaml_content);
@@ -189,8 +196,25 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
     // Check if version already exists
     const existingVersion = await packageService.getPackageVersion(namespace, name, parsed.version);
     if (existingVersion) {
-      res.status(409).json({ error: `Version ${parsed.version} already exists` });
-      return;
+      if (!forceReplace) {
+        res.status(409).json({
+          error: `Version ${parsed.version} already exists`,
+          hint: 'Use force=true to replace the existing version',
+        });
+        return;
+      }
+
+      // Delete existing version (will cascade delete dependencies)
+      console.info(`⚠️  Force replacing existing version: ${namespace}.${name}@${parsed.version}`);
+      const { deletePackageVersion } = await import('../services/package.service.js');
+      await deletePackageVersion(existingVersion.id);
+
+      // Delete old file from storage if it exists
+      try {
+        await storageService.deletePackage(existingVersion.storage_path);
+      } catch (err) {
+        console.warn(`Could not delete old package file: ${existingVersion.storage_path}`, err);
+      }
     }
 
     // Extract dependencies

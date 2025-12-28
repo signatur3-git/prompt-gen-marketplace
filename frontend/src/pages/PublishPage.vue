@@ -188,7 +188,11 @@
         </div>
 
         <div v-else style="display: flex; gap: 12px">
-          <button class="btn btn-primary" :disabled="!selectedPersonaId" @click="publishPackage">
+          <button
+            class="btn btn-primary"
+            :disabled="!selectedPersonaId"
+            @click="() => publishPackage()"
+          >
             📤 Publish Package
           </button>
           <button class="btn btn-secondary" @click="clearFile">Cancel</button>
@@ -385,7 +389,7 @@ async function checkNamespace() {
   }
 }
 
-async function publishPackage() {
+async function publishPackage(forceReplace = false) {
   if (!selectedPersonaId.value) {
     publishError.value = 'Please select a persona';
     return;
@@ -405,11 +409,29 @@ async function publishPackage() {
       body: JSON.stringify({
         yaml_content: fileContent.value,
         persona_id: selectedPersonaId.value,
+        force: forceReplace,
       }),
     });
 
     if (!res.ok) {
       const data = await res.json();
+
+      // If version already exists and user hasn't forced, ask for confirmation
+      if (res.status === 409 && !forceReplace) {
+        const confirmReplace = confirm(
+          `${data.error}\n\nDo you want to replace the existing version? This will delete the old version and upload the new one.`
+        );
+
+        if (confirmReplace) {
+          // Retry with force=true
+          return await publishPackage(true);
+        } else {
+          publishError.value = data.error;
+          publishing.value = false;
+          return;
+        }
+      }
+
       throw new Error(data.error || 'Failed to publish package');
     }
 
