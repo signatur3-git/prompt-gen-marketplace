@@ -1,6 +1,15 @@
 const path = require('path');
 const fs = require('fs');
 
+// Load .env file if it exists (for local development)
+// This allows npm run migrate:up to work without manually setting DATABASE_URL
+try {
+  require('dotenv').config();
+} catch (err) {
+  // dotenv not installed or .env doesn't exist - that's okay
+  // DATABASE_URL might be set via environment variables
+}
+
 function resolveLocalBin(binName) {
   // On CI (Linux/macOS), use the bare shell script; on Windows, use .cmd
   const bare = path.join(process.cwd(), 'node_modules', '.bin', binName);

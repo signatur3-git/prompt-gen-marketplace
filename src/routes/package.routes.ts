@@ -174,6 +174,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       pkg = await packageService.createPackage({
         namespace,
         name,
+        display_name: parsed.metadata?.name,
         description: parsed.metadata?.description,
         author_persona_id: usePersonaId,
       });
@@ -186,6 +187,11 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
           res.status(403).json({ error: 'You do not own this package' });
           return;
         }
+      }
+
+      // Update display_name if it changed
+      if (parsed.metadata?.name && parsed.metadata.name !== pkg.display_name) {
+        await packageService.updatePackageDisplayName(pkg.id, parsed.metadata.name);
       }
     }
 

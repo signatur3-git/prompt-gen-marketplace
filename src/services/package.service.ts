@@ -5,6 +5,7 @@ export interface Package {
   id: string;
   namespace: string;
   name: string;
+  display_name: string | null;
   description: string | null;
   author_persona_id: string;
   created_at: Date;
@@ -66,6 +67,7 @@ export interface PackageListItem extends Package {
 export interface CreatePackageInput {
   namespace: string;
   name: string;
+  display_name?: string;
   description?: string;
   author_persona_id: string;
 }
@@ -306,13 +308,32 @@ export async function createPackage(input: CreatePackageInput): Promise<Package>
   }
 
   const packages = await query<Package>(
-    `INSERT INTO packages (namespace, name, description, author_persona_id)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO packages (namespace, name, display_name, description, author_persona_id)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [input.namespace, input.name, input.description || null, input.author_persona_id]
+    [
+      input.namespace,
+      input.name,
+      input.display_name || null,
+      input.description || null,
+      input.author_persona_id,
+    ]
   );
 
   return packages[0];
+}
+
+/**
+ * Update package display name
+ */
+export async function updatePackageDisplayName(
+  packageId: string,
+  displayName: string
+): Promise<void> {
+  await query('UPDATE packages SET display_name = $1, updated_at = NOW() WHERE id = $2', [
+    displayName,
+    packageId,
+  ]);
 }
 
 /**
